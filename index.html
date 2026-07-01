@@ -210,7 +210,7 @@ header{position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--b
 "use strict";
 
 /* ---------- storage ---------- */
-const K_CARDS='minsu_srs_cards', K_SET='minsu_srs_settings', K_DECK='minsu_srs_deckver';
+const K_CARDS='minsu_srs_cards', K_SET='minsu_srs_settings', K_DECK='minsu_srs_deckver', K_SESSION='minsu_srs_session';
 const DECK_VERSION='minsu80-v2';   // 内置题库版本；与本地不一致时，首次打开会载入内置题库
 function uid(){ try{ if(crypto&&crypto.randomUUID) return crypto.randomUUID(); }catch(e){} return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 function load(key,fallback){ try{ const v=localStorage.getItem(key); return v==null?fallback:JSON.parse(v);}catch(e){return fallback;} }
@@ -229,7 +229,9 @@ const SAMPLES=[{"chapter":"单选","question":"下列关于民事诉讼基本原
 /* ---------- state ---------- */
 let state;
 {
-  const storedVer=load(K_DECK,null), stored=load(K_CARDS,null);
+  // 版本号按纯字符串存取（不能走 load/JSON.parse，否则裸字符串会解析失败→每次都当成"没存过"而重载内置题库、清空进度）
+  let storedVer=null; try{ storedVer=localStorage.getItem(K_DECK); }catch(e){}
+  const stored=load(K_CARDS,null);
   if(storedVer===DECK_VERSION && Array.isArray(stored)){
     state={cards: stored.map(o=>(o&&o.id)?o:makeCard(o||{}))};        // 用本地（保留进度），并确保每张卡都有 id
   } else {
@@ -326,7 +328,68 @@ function render(){
   else if(view==='skim') renderSkim();
   else if(view==='summary') renderSummary();
   else if(view==='manage') renderManage();
+  saveSession();
+  syncBackGuard();
 }
+
+/* ---------- session persistence: 中断后可从原处继续 ---------- */
+// 每次 render 都把"正在进行的一轮"写入本地；回到首页/做完则清除。
+// 这样刷新、切走被回收、或误触返回后再进来，都能接着刷，而不是从头再来。
+function saveSession(){
+  try{
+    if(view==='review' && currentPass && currentPass.pool && currentPass.pool.length){
+      localStorage.setItem(K_SESSION, JSON.stringify({view:'review', pass:currentPass}));
+    } else if(view==='skim' && skim && skim.list && skim.list.length){
+      localStorage.setItem(K_SESSION, JSON.stringify({view:'skim', skim, pass:currentPass||null}));
+    } else {
+      localStorage.removeItem(K_SESSION);
+    }
+  }catch(e){}
+}
+// 反序列化后把 type/prof 重新指回内置对象，并剔除已被删除的题
+function relinkPass(p){
+  if(!p) return null;
+  p.prof = PROFILES[p.prof && p.prof.key] || p.prof || PROFILES.fast;
+  p.type = (p.type && SESS[p.type.key]) || p.type || SESS.REVIEW;
+  if(Array.isArray(p.pool)) p.pool = p.pool.filter(a=> a && cardById(a.id));
+  return p;
+}
+function restoreSession(){
+  let s=null; try{ s=load(K_SESSION,null); }catch(e){}
+  if(!s){ return; }
+  if(s.view==='review' && s.pass){
+    const p=relinkPass(s.pass);
+    if(p && p.pool && p.pool.length){ currentPass=p; view='review'; return; }
+  } else if(s.view==='skim' && s.skim && Array.isArray(s.skim.list)){
+    const list=s.skim.list.filter(id=> cardById(id));
+    if(list.length){
+      skim={ list, idx: Math.min(Math.max(0, s.skim.idx|0), list.length-1) };
+      currentPass=relinkPass(s.pass);
+      view='skim'; return;
+    }
+  }
+  try{ localStorage.removeItem(K_SESSION); }catch(e){}
+}
+
+/* ---------- 返回键：留在应用内，退回首页而不是直接退出页面 ---------- */
+// 进入任一非首页视图时压入一条历史记录作"挡板"；按返回时拦下来退回首页。
+let _guard=false, _selfPop=false;
+function ensureGuard(){ if(!_guard){ try{ history.pushState({app:1}, ''); _guard=true; }catch(e){} } }
+function dropGuard(){ if(_guard && !_selfPop){ _selfPop=true; try{ history.back(); }catch(e){ _selfPop=false; _guard=false; } } }
+function syncBackGuard(){ if(view==='home') dropGuard(); else ensureGuard(); }
+function goHome(){ currentPass=null; skim=null; view='home'; render(); }
+window.addEventListener('popstate', function(){
+  if(_selfPop){ _selfPop=false; _guard=false; return; }              // 是我们自己 history.back() 触发的
+  const ms=document.querySelectorAll('.modal');
+  if(ms.length && _guard){ ms[ms.length-1].remove(); _guard=false; ensureGuard(); return; }  // 有弹窗时，返回先关弹窗
+  if(view!=='home'){ _guard=false; goHome(); return; }              // 非首页 → 退回首页，而不是离开页面
+  // 已在首页 → 交给浏览器正常后退（离开本页）
+});
+
+/* ---------- 切到后台/关闭时落盘（手机浏览器会冻结/回收页面） ---------- */
+function flushAll(){ try{ save(); saveSettings(); saveSession(); }catch(e){} }
+window.addEventListener('pagehide', flushAll);
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') flushAll(); });
 
 /* ---------- HOME ---------- */
 function renderHome(){
@@ -771,6 +834,7 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ---------- go ---------- */
+restoreSession();
 render();
 </script>
 </body>
