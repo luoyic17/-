@@ -128,9 +128,43 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 .card.revealed .inline-answer { display: block; animation: fadeIn 0.3s ease; }
 .stem { font-size: 17px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; user-select: text; flex-shrink: 0;}
 .stem-tag { color: var(--primary); font-weight: 700; margin-right: 4px; } 
+
+/* 选项统一区块样式 & 手机端内联分析展开逻辑 */
 .opts { margin-top: 14px; font-size: 15px; line-height: 1.9; color: var(--ink); flex-shrink: 0;}
-.opt-line { padding: 6px 12px; margin: 4px -12px; border-radius: 8px; transition: 0.3s; border: 1px solid transparent; user-select: text; }
-.card.revealed .correct-opt { background-color: var(--success-soft); border-color: color-mix(in srgb, var(--success) 20%, transparent); color: var(--success); font-weight: 650; }
+.opt-block {
+    background: var(--surface); border: 1px solid var(--surface-2);
+    margin-bottom: 10px; display: flex; flex-direction: column; position: relative;
+    border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: 0.3s; user-select: text; line-height: normal;
+}
+.opt-block::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; transition: 0.3s; }
+.opt-main { padding: 14px 16px; display: flex; gap: 12px; transition: 0.3s; align-items: flex-start; }
+.opt-main .zx-letter { font-size: 17px; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; margin-top: -2px; transition: 0.3s;}
+.opt-main .zx-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; transition: 0.3s;}
+.card.revealed .opt-block.correct-opt { background-color: var(--success-soft); border-color: color-mix(in srgb, var(--success) 20%, transparent); }
+.card.revealed .opt-block.correct-opt::before { background: #66BB6A; }
+.card.revealed .opt-block.correct-opt .zx-letter { color: #2E7D32; }
+.card.revealed .opt-block.correct-opt .zx-text { color: #2E7D32; font-weight: 650; }
+[data-theme="dark"] .card.revealed .opt-block.correct-opt::before { background: #2E7D32; }
+[data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-letter { color: #81C784; }
+[data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-text { color: #81C784; }
+.opt-mobile-analysis { display: none; padding: 0 16px 14px 16px; font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; }
+
+@media (max-width: 767px) {
+    .pc-zhuxiang-container { display: none !important; }
+    .card.revealed .opt-block { cursor: pointer; }
+    .card.revealed .opt-block.active .opt-mobile-analysis { display: block; animation: fadeIn 0.3s ease; }
+    .card.revealed .opt-block.active .opt-main { padding: 10px 16px 4px 16px; gap: 8px; }
+    .card.revealed .opt-block.active .opt-main .zx-letter { font-size: 13px; color: var(--ink-faint); margin-top: 0;}
+    .card.revealed .opt-block.active .opt-main .zx-text { font-size: 13px; color: var(--ink-faint); line-height: 1.5; font-weight: normal; }
+    .card.revealed .opt-block.active.correct-opt .opt-main .zx-letter,
+    .card.revealed .opt-block.active.correct-opt .opt-main .zx-text { color: var(--success); opacity: 0.8; }
+}
+@media (min-width: 768px) {
+    .opt-mobile-analysis { display: none !important; }
+    .pc-zhuxiang-container { display: block; }
+}
+
 .divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 12px; color: var(--ink-faint); flex-shrink: 0;}
 .divider::before, .divider::after { content: ""; height: 1px; background: var(--border); flex: 1; }
 .divider span { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
@@ -160,21 +194,17 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 .revealed-only { display: none; }
 .card.revealed .revealed-only { display: block; animation: fadeIn 0.3s ease; }
 
-/* ========================================================== */
-/* 新增：解析界面专用样式 (考点、通俗讲解、逐项分析、关联知识)   */
-/* ========================================================== */
+/* 解析界面专用样式 */
 .analysis-section { margin-bottom: 24px; }
 .analysis-section:last-child { margin-bottom: 0; }
 .sec-title { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; margin-bottom: 12px; }
 .sec-title svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-/* 考点 (Tags) */
 .kd-main-title { font-size: 15px; font-weight: 650; color: var(--ink); margin-bottom: 10px; line-height: 1.5; }
 .kd-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
 .kd-tag { background: #E8F0FE; color: #1A73E8; padding: 4px 12px; border-radius: 12px; font-size: 12.5px; font-weight: 500; }
 [data-theme="dark"] .kd-tag { background: rgba(26,115,232,0.2); color: #8AB4F8; }
 
-/* 通俗讲解 (Yellow Cards) */
 .jj-desc { font-size: 14.5px; color: var(--ink-soft); margin-bottom: 12px; line-height: 1.6; }
 .jj-card { background: #FFF9EB; border: 1px solid #FDE4A9; border-radius: 8px; padding: 14px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
 .jj-num { background: #F6AD3C; color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; margin-top: 1px;}
@@ -183,7 +213,6 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 [data-theme="dark"] .jj-card { background: #2A2518; border-color: #4A3C1F; }
 [data-theme="dark"] .jj-num { background: #C58A2E; color: #111; }
 
-/* 逐项分析 (A/B/C/D Blocks) */
 .zx-block { background: var(--surface); border: 1px solid var(--surface-2); padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 12px; position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
 .zx-block::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
 .zx-block.wrong::before { background: #E57373; }
@@ -198,7 +227,6 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 [data-theme="dark"] .zx-block.wrong .zx-letter { color: #EF5350; }
 [data-theme="dark"] .zx-block.correct .zx-letter { color: #81C784; }
 
-/* 关联知识 (Blue bar list) */
 .gl-header { display: flex; gap: 10px; align-items: flex-start; margin: 18px 0 10px 0; }
 .gl-header:first-child { margin-top: 0; }
 .gl-bar { width: 4px; height: 18px; background: #1A73E8; border-radius: 2px; flex-shrink: 0; margin-top: 2px;}
@@ -209,42 +237,23 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 .gl-text strong { color: var(--ink); font-weight: 650; }
 .gl-text-norm { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 8px; word-break: break-word; }
 [data-theme="dark"] .gl-bar { background: #8AB4F8; }
-/* ========================================================== */
 
 .card.revealed .mobile-back { display: block; animation: drawFromDeckMobile 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-
-@keyframes drawFromDeckMobile {
-    from { opacity: 0; transform: translateY(40px) scale(0.95); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
+@keyframes drawFromDeckMobile { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @media (min-width: 768px) {
     .pc-hint { display: inline; }
     .mobile-back { display: none !important; }
     .pc-back { 
-        display: flex !important; flex-direction: column;
-        position: absolute; top: 0; width: 100%; height: 100%; 
-        margin-left: 20px; 
-        background: var(--surface); border-radius: var(--radius); 
-        box-shadow: var(--shadow); overflow: hidden;
-        left: 0; z-index: -1; 
-        opacity: 0; 
-        transform: scale(0.95) translateY(10px); 
-        pointer-events: none;
-        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        display: flex !important; flex-direction: column; position: absolute; top: 0; width: 100%; height: 100%; 
+        margin-left: 20px; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+        left: 0; z-index: -1; opacity: 0; transform: scale(0.95) translateY(10px); pointer-events: none; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
-    .card.revealed .pc-back {
-        left: 100%;
-        opacity: 1; 
-        transform: scale(1) translateY(0); 
-        pointer-events: auto;
-    }
+    .card.revealed .pc-back { left: 100%; opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
     body.is-revealed #card-container { transform: translateX(-250px); }
 }
-
 @keyframes fadeIn { from{ opacity:0; transform:translateY(5px) } to{ opacity:1; transform:translateY(0) } }
 
-/* summary */
+/* summary & manage */
 .summary{text-align:center; padding:50px 0}
 .summary .big{font-size:46px; margin:0 0 6px; color:var(--success)}
 .summary h2{font-size:22px; margin:0 0 6px}
@@ -253,8 +262,6 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 .stat{text-align:center}
 .stat .n{font-family:var(--font-mono); font-size:30px; font-weight:600}
 .stat .l{font-size:12px; color:var(--ink-faint)}
-
-/* manage */
 .mg-head{display:flex; align-items:center; gap:10px; margin:26px 0 18px; flex-wrap:wrap}
 .mg-head h2{font-size:20px; margin:0; flex:1}
 .add{background:var(--primary); color:#fff; border:none; border-radius:9px; padding:8px 16px; font-weight:600; font-size:13.5px; cursor:pointer;}
@@ -269,8 +276,6 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 .tiny{background:none; border:1px solid var(--border); border-radius:7px; padding:4px 9px; font-size:12px; color:var(--ink-soft); cursor:pointer}
 .tiny:hover{border-color:var(--ink-faint); color:var(--ink)}
 .tiny.del:hover{color:var(--again); border-color:var(--again)}
-
-/* modal system */
 .modal{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-start; justify-content:center; padding:30px 16px; z-index:100; overflow-y:auto}
 .sheet{background:var(--surface); border-radius:16px; width:100%; max-width:620px; padding:22px; box-shadow:var(--shadow); margin:auto 0}
 .sheet h3{margin:0 0 16px; font-size:17px}
@@ -296,93 +301,109 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
     <button class="ico" id="navManage">题库</button>
   </div>
 </header>
-
 <main id="app"></main>
 
 <script>
 "use strict";
 
-/* ---------- storage ---------- */
-const K_CARDS='minsu_srs_cards', K_SET='minsu_srs_settings', K_DECK='minsu_srs_deckver';
-const DECK_VERSION='minsu80-v2';
+/* ---------- STATIC QUESTION BANK ---------- */
+/* 
+ * 题库已与本地进度完全剥离。
+ * 导出 HTML 时，代码会自动将新的题库替换至下方 /*BANK_START*/ /*BANK_END*/ /* 之间。
+ */
+const QUESTION_BANK = /*BANK_START*/[
+  {
+    "id": "q_sample_1",
+    "chapter": "单选",
+    "question": "下列关于民事诉讼基本原则的表述，哪一项是正确的？",
+    "options": "A. 当事人诉讼权利平等原则意味着当事人拥有相同的诉讼权利\nB. 辩论原则仅适用于法庭辩论阶段\nC. 处分原则是指当事人可以自由处分自己的实体权利和诉讼权利\nD. 诚实信用原则仅适用于当事人，不适用于法院和其他诉讼参与人",
+    "answer": "答案：C",
+    "kaodian": "民事诉讼法的四大基本原则（关联：平等原则、辩论原则、处分原则、诚信原则的内涵与边界）",
+    "jiangjie": "1\\. **平等原则**：打官司时双方地位平等，但权利并非长得“一模一样”。有的是完全一样（比如都有权请律师），有的是“相对应”的（比如原告有权起诉，被告就有权答辩）。\n\n2\\. **辩论原则**：只要是在**诉讼程序**（一审、二审、再审）里，随时随地都能辩论，**不限于**庭审时的“法庭辩论阶段”。但是，像执行程序，或者不需要解决纠纷的非讼程序（特别程序、督促程序等），大家没啥可争的，就不能辩论。\n\n3\\. **处分原则**：当事人自己的权利（包括实体权利和诉讼权利）自己做主。**但是，必须在“法律允许的范围内”**，绝不是想怎么自由瞎处分都可以。\n\n4\\. **诚信原则**：所有参与诉讼的人（包括法官、当事人、证人、代理人等）都要讲诚信，不能瞎搞。",
+    "zhuxiang": "\\- **A ✗**错误。平等原则不仅包括诉讼权利相同，还包括诉讼权利的“相对应”。把平等狭隘地理解为拥有“相同”的权利是片面的。\n\n\\- **B ✗**错误。辩论原则贯穿于整个诉讼过程（包括一审、二审、再审），而不仅仅局限于开庭时的法庭辩论阶段。\n\n\\- **C ✗**（本题给定答案，但表述存在瑕疵）。处分原则是指当事人有权处分自己的实体权利和诉讼权利，但**前提是必须在“法律规定的范围内”**。选项中表述为可以“自由处分”，忽略了法律的限制条件，法院是有权依据法律进行干涉的。\n\n\\- **D ✗**错误。诚实信用原则不仅约束当事人，也同样约束法院以及其他所有的诉讼参与人（如证人、代理人、鉴定人等）。",
+    "guanlian": "一、辩论原则与诉讼程序的关联\n有纠纷才有辩论，所以只有用来“解决纠纷”的诉讼程序（一审、二审、再审），才适用辩论原则。执行程序以及特别程序、督促程序、公示催告程序等非讼程序不解决纠纷，因此不适用辩论原则。\n\n**二、处分原则与约束性辩论原则的判断技巧**\n在判断法院的裁判是否违反基本原则时，主要看法院“超”出了什么：\n\n1\\. **裁判超“请求”，违反处分原则**：处分原则针对的是诉讼请求层面，强调法院判决不能超出当事人的诉讼请求（比如原告只要5万，法院硬判给8万），否则侵犯了当事人的处分权。\n\n2\\. **裁判超“事实”，违反辩论原则**：辩论原则针对的是事实、证据层面，强调法院的判决不能超出当事人在事实、证据层面的主张，法官不能擅自将当事人没有主张的事实作为裁判依据。\n\n---"
+  },
+  {
+    "id": "q_sample_2",
+    "chapter": "单选",
+    "question": "甲与乙因合同纠纷诉至法院，法院受理后，丙认为该合同标的物是自己的，要求参加诉讼。丙在诉讼中的地位是",
+    "options": "A. 共同原告\nB. 共同被告\nC. 有独立请求权第三人\nD. 无独立请求权第三人",
+    "answer": "答案：C",
+    "kaodian": "第三人的种类与识别（关联：有独立请求权第三人、无独立请求权第三人、共同诉讼人）",
+    "jiangjie": "在民事诉讼中，区分第三人和共同诉讼人，教你一个“两步走”的绝招：\n\n1\\. 找本案的“主角”和“剧本”（即找出本案的原告、被告以及他们之间的法律关系）。\n\n2\\. 看“插班生”（想要加入诉讼的人）在不在这个“剧本”里。\n\n如果他在这个“剧本”里（即该主体是本案原、被告之间法律关系的一方当事人），那就是“共同原告”或“共同被告”。如果他不在这个“剧本”里，那就是“第三人”。\n\n第三人又分两种：\n\n\\- **有独立请求权第三人（有独三）**：相当于半路杀出的程咬金，大喊“你们争的东西是我的，你们俩别抢了！”（即基于一个独立的法律关系主张自己独立的权利）。\n\n\\- **无独立请求权第三人（无独三）**：相当于在旁边看戏但可能要受牵连的人，他不说东西是自己的，但案件判决结果可能会让他掏钱或受影响（即对诉讼标的没有独立请求权，只是与案件的处理结果存在法律上的利害关系而参加诉讼）。",
+    "zhuxiang": "A ✗ 丙不是甲、乙之间合同关系的一方当事人，因此不可能是共同原告。\n\nB ✗ 同理，丙不是甲、乙合同关系的一方当事人，因此不可能是共同被告。\n\nC ✓ 本案的原、被告是甲和乙，争议的法律关系是合同纠纷。丙不是合同当事人，但丙认为“合同标的物是自己的”，也就是对甲乙争议的诉讼标的提出了独立的请求权，为了维护自己权利而参加诉讼。这完全符合“有独立请求权第三人”的定义。\n\nD ✗ 丙明确主张标的物是自己的（有独立的请求权），而不是仅仅与案件处理结果有利害关系，因此不是无独立请求权第三人。",
+    "guanlian": "一、有独立请求权第三人\n对本诉当事人争议的诉讼标的有独立的请求权，为了维护自己权利而参加诉讼的人。其参诉理由是认为原、被告的权利主张侵犯了自己的权利，因此将其一并作为被告，提起独立的诉讼请求。其诉讼地位相当于原告。\n\n二、无独立请求权第三人\n对原、被告争议的诉讼标的没有独立请求权，但与案件处理结果有法律上的利害关系而参加诉讼的人。\n\n三、共同诉讼与第三人的本质区别\n共同原告、被告一定是本案争议的实体法律关系（诉讼标的）的一方当事人；而有独三、无独三一定不是本案争议的实体法律关系（诉讼标的）的一方当事人。\n\n---"
+  }
+]/*BANK_END*/;
+
+/* ---------- STORAGE & STATE ---------- */
+const K_PROG = 'minsu_srs_progress', K_SET = 'minsu_srs_settings';
 function uid(){ try{ if(crypto&&crypto.randomUUID) return crypto.randomUUID(); }catch(e){} return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 function load(key,fallback){ try{ const v=localStorage.getItem(key); return v==null?fallback:JSON.parse(v);}catch(e){return fallback;} }
-function save(){ try{ localStorage.setItem(K_CARDS,JSON.stringify(state.cards)); }catch(e){} }
+
+// 初始化核心逻辑：读取分离的进度，合并入静态题库
+let state;
+{
+  let progress = load(K_PROG, null);
+  // 向下兼容：如果还没有分离的进度数据，尝试从旧版 minsu_srs_cards 中提取记忆进度
+  if (!progress) {
+      progress = {};
+      let oldCards = load('minsu_srs_cards', null) || load('minsu_srs_cards_v3', null);
+      if (Array.isArray(oldCards)) {
+          oldCards.forEach(c => {
+              if (c.question) progress[(c.question||'').trim()] = { level: c.level||0, seen: c.seen||0, flagMemory: !!c.flagMemory };
+          });
+      }
+      try { localStorage.setItem(K_PROG, JSON.stringify(progress)); } catch(e) {}
+  }
+
+  // 组装最终在内存中运行的 state.cards
+  state = {
+      cards: QUESTION_BANK.map(q => {
+          // 匹配进度：优先用 ID 匹配，旧版本过渡期用题干文本兜底匹配
+          let p = progress[q.id] || progress[(q.question||'').trim()] || {level:0, seen:0, flagMemory:false};
+          return makeCard({ ...q, level: p.level, seen: p.seen, flagMemory: p.flagMemory });
+      })
+  };
+}
+
+let settings=load(K_SET,{theme:'light', examTime:null, lastFullReview:0});
+if(settings.examTime===undefined) settings.examTime=null;
+if(settings.lastFullReview===undefined) settings.lastFullReview=0;
+
 function saveSettings(){ try{ localStorage.setItem(K_SET,JSON.stringify(settings)); }catch(e){} }
+// 现在的 save 只存用户的进度，题库内容绝不污染 localStorage
+function save(){ 
+    let progress = {};
+    state.cards.forEach(c => {
+        // 只存发生过互动的题，节省本地存储空间
+        if (c.seen > 0 || c.level > 0 || c.flagMemory) {
+            progress[c.id] = { level: c.level, seen: c.seen, flagMemory: c.flagMemory };
+        }
+    });
+    try { localStorage.setItem(K_PROG, JSON.stringify(progress)); } catch(e) {}
+}
 
 function makeCard(o){ o=o||{}; return {
-  id:uid(), chapter:o.chapter||'', question:o.question||'', options:o.options||'',
+  id: o.id || uid(), chapter:o.chapter||'', question:o.question||'', options:o.options||'',
   answer:o.answer||'', analysis:o.analysis||'', flagMemory:!!o.flagMemory,
   kaodian:o.kaodian||'', jiangjie:o.jiangjie||'', zhuxiang:o.zhuxiang||'', guanlian:o.guanlian||'',
   level:o.level||0, seen:o.seen||0
 }; }
 
-/* ---------- pre-loaded questions ---------- */
-const SAMPLES=[{"chapter":"单选","question":"下列关于民事诉讼基本原则的表述，哪一项是正确的？","options":"A. 当事人诉讼权利平等原则意味着当事人拥有相同的诉讼权利\nB. 辩论原则仅适用于法庭辩论阶段\nC. 处分原则是指当事人可以自由处分自己的实体权利和诉讼权利\nD. 诚实信用原则仅适用于当事人，不适用于法院和其他诉讼参与人","answer":"答案：C","analysis":"1\\. **平等原则**：打官司时双方地位平等，但权利并非长得“一模一样”。有的是完全一样（比如都有权请律师），有的是“相对应”的（比如原告有权起诉，被告就有权答辩）。\n\n2\\. **辩论原则**：只要是在**诉讼程序**（一审、二审、再审）里，随时随地都能辩论，**不限于**庭审时的“法庭辩论阶段”。但是，像执行程序，或者不需要解决纠纷的非讼程序（特别程序、督促程序等），大家没啥可争的，就不能辩论。\n\n3\\. **处分原则**：当事人自己的权利（包括实体权利和诉讼权利）自己做主。**但是，必须在“法律允许的范围内”**，绝不是想怎么自由瞎处分都可以。\n\n4\\. **诚信原则**：所有参与诉讼的人（包括法官、当事人、证人、代理人等）都要讲诚信，不能瞎搞。\n\n\\- **A ✗**错误。平等原则不仅包括诉讼权利相同，还包括诉讼权利的“相对应”。把平等狭隘地理解为拥有“相同”的权利是片面的。\n\n\\- **B ✗**错误。辩论原则贯穿于整个诉讼过程（包括一审、二审、再审），而不仅仅局限于开庭时的法庭辩论阶段。\n\n\\- **C ✗**（本题给定答案，但表述存在瑕疵）。处分原则是指当事人有权处分自己的实体权利和诉讼权利，但**前提是必须在“法律规定的范围内”**。选项中表述为可以“自由处分”，忽略了法律的限制条件，法院是有权依据法律进行干涉的。\n\n\\- **D ✗**错误。诚实信用原则不仅约束当事人，也同样约束法院以及其他所有的诉讼参与人（如证人、代理人、鉴定人等）。\n\n关联知识：\n一、辩论原则与诉讼程序的关联\n有纠纷才有辩论，所以只有用来“解决纠纷”的诉讼程序（一审、二审、再审），才适用辩论原则。执行程序以及特别程序、督促程序、公示催告程序等非讼程序不解决纠纷，因此不适用辩论原则。\n\n**二、处分原则与约束性辩论原则的判断技巧\n在判断法院的裁判是否违反基本原则时，主要看法院“超”出了什么：\n\n1\\. **裁判超“请求”，违反处分原则**：处分原则针对的是诉讼请求层面，强调法院判决不能超出当事人的诉讼请求（比如原告只要5万，法院硬判给8万），否则侵犯了当事人的处分权。\n\n2\\. **裁判超“事实”，违反辩论原则**：辩论原则针对的是事实、证据层面，强调法院的判决不能超出当事人在事实、证据层面的主张，法官不能擅自将当事人没有主张的事实作为裁判依据。\n\n---","flagMemory":false,"level":0,"seen":0,"kaodian":"民事诉讼法的四大基本原则（关联：平等原则、辩论原则、处分原则、诚信原则的内涵与边界）","jiangjie":"1\\. **平等原则**：打官司时双方地位平等，但权利并非长得“一模一样”。有的是完全一样（比如都有权请律师），有的是“相对应”的（比如原告有权起诉，被告就有权答辩）。\n\n2\\. **辩论原则**：只要是在**诉讼程序**（一审、二审、再审）里，随时随地都能辩论，**不限于**庭审时的“法庭辩论阶段”。但是，像执行程序，或者不需要解决纠纷的非讼程序（特别程序、督促程序等），大家没啥可争的，就不能辩论。\n\n3\\. **处分原则**：当事人自己的权利（包括实体权利和诉讼权利）自己做主。**但是，必须在“法律允许的范围内”**，绝不是想怎么自由瞎处分都可以。\n\n4\\. **诚信原则**：所有参与诉讼的人（包括法官、当事人、证人、代理人等）都要讲诚信，不能瞎搞。","zhuxiang":"\\- **A ✗**错误。平等原则不仅包括诉讼权利相同，还包括诉讼权利的“相对应”。把平等狭隘地理解为拥有“相同”的权利是片面的。\n\n\\- **B ✗**错误。辩论原则贯穿于整个诉讼过程（包括一审、二审、再审），而不仅仅局限于开庭时的法庭辩论阶段。\n\n\\- **C ✗**（本题给定答案，但表述存在瑕疵）。处分原则是指当事人有权处分自己的实体权利和诉讼权利，但**前提是必须在“法律规定的范围内”**。选项中表述为可以“自由处分”，忽略了法律的限制条件，法院是有权依据法律进行干涉的。\n\n\\- **D ✗**错误。诚实信用原则不仅约束当事人，也同样约束法院以及其他所有的诉讼参与人（如证人、代理人、鉴定人等）。","guanlian":"一、辩论原则与诉讼程序的关联\n有纠纷才有辩论，所以只有用来“解决纠纷”的诉讼程序（一审、二审、再审），才适用辩论原则。执行程序以及特别程序、督促程序、公示催告程序等非讼程序不解决纠纷，因此不适用辩论原则。\n\n**二、处分原则与约束性辩论原则的判断技巧**\n在判断法院的裁判是否违反基本原则时，主要看法院“超”出了什么：\n\n1\\. **裁判超“请求”，违反处分原则**：处分原则针对的是诉讼请求层面，强调法院判决不能超出当事人的诉讼请求（比如原告只要5万，法院硬判给8万），否则侵犯了当事人的处分权。\n\n2\\. **裁判超“事实”，违反辩论原则**：辩论原则针对的是事实、证据层面，强调法院的判决不能超出当事人在事实、证据层面的主张，法官不能擅自将当事人没有主张的事实作为裁判依据。\n\n---"},{"chapter":"单选","question":"甲与乙因合同纠纷诉至法院，法院受理后，丙认为该合同标的物是自己的，要求参加诉讼。丙在诉讼中的地位是","options":"A. 共同原告\nB. 共同被告\nC. 有独立请求权第三人\nD. 无独立请求权第三人","answer":"答案：C","analysis":"在民事诉讼中，区分第三人和共同诉讼人，教你一个“两步走”的绝招：\n\n第一步：找本案的“主角”和“剧本”（即找出本案的原告、被告以及他们之间的法律关系）。\n\n第二步：看“插班生”（想要加入诉讼的人）在不在这个“剧本”里。\n\n1\\. 如果他在这个“剧本”里（即该主体是本案原、被告之间法律关系的一方当事人），那就是“共同原告”或“共同被告”。\n\n2\\. 如果他不在这个“剧本”里（即该主体不是本案原、被告之间法律关系的一方当事人），那就是“第三人”。\n\n第三人又分两种：\n\n\\- **有独立请求权第三人（有独三）**：相当于半路杀出的程咬金，大喊“你们争的东西是我的，你们俩别抢了！”（即基于一个独立的法律关系主张自己独立的权利）。\n\n\\- **无独立请求权第三人（无独三）**：相当于在旁边看戏但可能要受牵连的人，他不说东西是自己的，但案件判决结果可能会让他掏钱或受影响（即对诉讼标的没有独立请求权，只是与案件的处理结果存在法律上的利害关系而参加诉讼）。\n\nA ✗ 丙不是甲、乙之间合同关系的一方当事人，因此不可能是共同原告。\n\nB ✗ 同理，丙不是甲、乙合同关系的一方当事人，因此不可能是共同被告。\n\nC ✓ 本案的原、被告是甲和乙，争议的法律关系是合同纠纷。丙不是合同当事人，但丙认为“合同标的物是自己的”，也就是对甲乙争议的诉讼标的提出了独立的请求权，为了维护自己权利而参加诉讼。这完全符合“有独立请求权第三人”的定义。\n\nD ✗ 丙明确主张标的物是自己的（有独立的请求权），而不是仅仅与案件处理结果有利害关系，因此不是无独立请求权第三人。\n\n关联知识：\n一、有独立请求权第三人：对本诉当事人争议的诉讼标的有独立的请求权，为了维护自己权利而参加诉讼的人。其参诉理由是认为原、被告的权利主张侵犯了自己的权利，因此将其一并作为被告，提起独立的诉讼请求。其诉讼地位相当于原告。\n\n二、无独立请求权第三人：对原、被告争议的诉讼标的没有独立请求权，但与案件处理结果有法律上的利害关系而参加诉讼的人。\n\n三、共同诉讼与第三人的本质区别：共同原告、被告一定是本案争议的实体法律关系（诉讼标的）的一方当事人；而有独三、无独三一定不是本案争议的实体法律关系（诉讼标的）的一方当事人。\n\n---","flagMemory":false,"level":0,"seen":0,"kaodian":"第三人的种类与识别（关联：有独立请求权第三人、无独立请求权第三人、共同诉讼人）","jiangjie":"在民事诉讼中，区分第三人和共同诉讼人，教你一个“两步走”的绝招：\n\n1\\. 找本案的“主角”和“剧本”（即找出本案的原告、被告以及他们之间的法律关系）。\n\n2\\. 看“插班生”（想要加入诉讼的人）在不在这个“剧本”里。\n\n如果他在这个“剧本”里（即该主体是本案原、被告之间法律关系的一方当事人），那就是“共同原告”或“共同被告”。如果他不在这个“剧本”里，那就是“第三人”。\n\n第三人又分两种：\n\n\\- **有独立请求权第三人（有独三）**：相当于半路杀出的程咬金，大喊“你们争的东西是我的，你们俩别抢了！”（即基于一个独立的法律关系主张自己独立的权利）。\n\n\\- **无独立请求权第三人（无独三）**：相当于在旁边看戏但可能要受牵连的人，他不说东西是自己的，但案件判决结果可能会让他掏钱或受影响（即对诉讼标的没有独立请求权，只是与案件的处理结果存在法律上的利害关系而参加诉讼）。","zhuxiang":"A ✗ 丙不是甲、乙之间合同关系的一方当事人，因此不可能是共同原告。\n\nB ✗ 同理，丙不是甲、乙合同关系的一方当事人，因此不可能是共同被告。\n\nC ✓ 本案的原、被告是甲和乙，争议的法律关系是合同纠纷。丙不是合同当事人，但丙认为“合同标的物是自己的”，也就是对甲乙争议的诉讼标的提出了独立的请求权，为了维护自己权利而参加诉讼。这完全符合“有独立请求权第三人”的定义。\n\nD ✗ 丙明确主张标的物是自己的（有独立的请求权），而不是仅仅与案件处理结果有利害关系，因此不是无独立请求权第三人。","guanlian":"一、有独立请求权第三人\n对本诉当事人争议的诉讼标的有独立的请求权，为了维护自己权利而参加诉讼的人。其参诉理由是认为原、被告的权利主张侵犯了自己的权利，因此将其一并作为被告，提起独立的诉讼请求。其诉讼地位相当于原告。\n\n二、无独立请求权第三人\n对原、被告争议的诉讼标的没有独立请求权，但与案件处理结果有法律上的利害关系而参加诉讼的人。\n\n三、共同诉讼与第三人的本质区别\n共同原告、被告一定是本案争议的实体法律关系（诉讼标的）的一方当事人；而有独三、无独三一定不是本案争议的实体法律关系（诉讼标的）的一方当事人。\n\n---"}];
-
-/* ---------- state ---------- */
-let state;
-{
-  let cards = load(K_CARDS, null);
-  let deckVer = load(K_DECK, null);
-
-  if (!Array.isArray(cards)) {
-    cards = load('minsu_srs_cards_v3', null);
-    deckVer = load('minsu_srs_deckver_v3', null);
-  }
-
-  const knownVersions = [DECK_VERSION, 'minsu80-v4'];
-  if (knownVersions.includes(deckVer) && Array.isArray(cards)) {
-    state = {cards: cards.map(o => (o && o.id) ? o : makeCard(o || {}))};
-  } else if (Array.isArray(cards) && cards.length > 0) {
-    state = {cards: cards.map(o => (o && o.id) ? o : makeCard(o || {}))};
-  } else {
-    state = {cards: SAMPLES.map(o => makeCard(o))};
-  }
-  try { localStorage.setItem(K_DECK, DECK_VERSION); } catch(e) {}
-}
-let settings=load(K_SET,{theme:'light', examTime:null, lastFullReview:0});
-if(settings.examTime===undefined) settings.examTime=null;
-if(settings.lastFullReview===undefined) settings.lastFullReview=0;
-
-/* ---------- theme ---------- */
-function applyTheme(){ 
-    document.documentElement.setAttribute('data-theme', settings.theme); 
-    const tBtn = document.getElementById('themeBtn'); if(tBtn) tBtn.textContent = settings.theme==='dark'?'\u2600':'\u263e';
-}
-function toggleTheme() {
-    settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
-    saveSettings(); applyTheme();
-    if (view !== 'review' && view !== 'skim') render();
-}
+/* ---------- THEME & SESSION SETUP ---------- */
+function applyTheme(){ document.documentElement.setAttribute('data-theme', settings.theme); const tBtn = document.getElementById('themeBtn'); if(tBtn) tBtn.textContent = settings.theme==='dark'?'\u2600':'\u263e'; }
+function toggleTheme() { settings.theme = settings.theme === 'dark' ? 'light' : 'dark'; saveSettings(); applyTheme(); if (view !== 'review' && view !== 'skim') render(); }
 document.getElementById('themeBtn').addEventListener('click', toggleTheme);
 document.getElementById('navManage').addEventListener('click', ()=>{ currentPass=null; view='manage'; render(); });
 applyTheme();
 
-/* ---------- session config ---------- */
-const SESS={
-  SEED:  {key:'SEED',   name:'熟悉',      chapterOrder:true},
-  REVIEW:{key:'REVIEW', name:'整体过一遍'},
-  DRILL: {key:'DRILL',  name:'巩固弱项'},
-  EXAM:  {key:'EXAM',   name:'考前过一遍', skimAfter:true},
-};
-const FULL_GAP_MS = 6*3600*1000;
-const EXAM_WINDOW_MS = 12*3600*1000;
-
-const PROFILES={
-  fast:{ key:'fast', name:'快速刷题', grad:3, base:3, growth:2, drop:1, missGap:2, cleanToStable:false },
-  slow:{ key:'slow', name:'慢速刷题', grad:4, base:5, growth:2, drop:2, missGap:3, cleanToStable:true  },
-};
+const SESS={ SEED:{key:'SEED',name:'熟悉',chapterOrder:true}, REVIEW:{key:'REVIEW',name:'整体过一遍'}, DRILL:{key:'DRILL',name:'巩固弱项'}, EXAM:{key:'EXAM',name:'考前过一遍',skimAfter:true} };
+const FULL_GAP_MS = 6*3600*1000; const EXAM_WINDOW_MS = 12*3600*1000;
+const PROFILES={ fast:{key:'fast',name:'快速刷题',grad:3,base:3,growth:2,drop:1,missGap:2,cleanToStable:false}, slow:{key:'slow',name:'慢速刷题',grad:4,base:5,growth:2,drop:2,missGap:3,cleanToStable:true} };
 function gapFor(prof, s){ return Math.max(1, Math.round(prof.base * Math.pow(prof.growth, s-1))); }
-
 function byChapter(a,b){ const ca=a.chapter||'', cb=b.chapter||''; if(ca<cb) return -1; if(ca>cb) return 1; return state.cards.indexOf(a)-state.cards.indexOf(b); }
-
-function examInfo(){
-  const t=settings.examTime;
-  if(!t) return {set:false};
-  const ms=t-Date.now();
-  return {set:true, t, ms, passed:ms<=0, window: ms>0 && ms<=EXAM_WINDOW_MS};
-}
+function examInfo(){ const t=settings.examTime; if(!t) return {set:false}; const ms=t-Date.now(); return {set:true, t, ms, passed:ms<=0, window: ms>0 && ms<=EXAM_WINDOW_MS}; }
 
 function chooseSession(){
   if(state.cards.length===0) return null;
@@ -392,10 +413,7 @@ function chooseSession(){
   const total=state.cards.length;
   if(ex.set && ex.window) return {type:SESS.EXAM};
   if(unseen>0) return {type:SESS.SEED, n:unseen};
-  if(weak>0){
-    if(Date.now()-(settings.lastFullReview||0) > FULL_GAP_MS) return {type:SESS.REVIEW, n:total};
-    return {type:SESS.DRILL, n:weak};
-  }
+  if(weak>0){ if(Date.now()-(settings.lastFullReview||0) > FULL_GAP_MS) return {type:SESS.REVIEW, n:total}; return {type:SESS.DRILL, n:weak}; }
   return {type:SESS.REVIEW, n:total, allStable:true};
 }
 
@@ -406,11 +424,10 @@ function sessionHint(s){
     case 'REVIEW': return s.allStable ? ('都挺稳了 \u00b7 整体检验一遍全部 '+s.n+' 题') : ('整体过一遍全部 '+s.n+' 题');
     case 'DRILL':  return '巩固还没记牢的 '+s.n+' 题';
     case 'EXAM':   return '考前过一遍：先攻重点题，再扫一遍全部题干';
-  }
-  return '';
+  } return '';
 }
 
-/* ---------- helpers ---------- */
+/* ---------- FORMATTING HELPERS ---------- */
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function cardById(id){ return state.cards.find(c=>c.id===id); }
@@ -422,156 +439,94 @@ function extractAnswer(ansStr) {
     return match ? match.join('').toUpperCase() : ansStr.replace('答案：', '').trim();
 }
 
-/* ========================================================== */
-/* 新增：解析块专用的 Markdown 与格式化处理器                      */
-/* ========================================================== */
 const ICON_KAODIAN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>';
 const ICON_JIANGJIE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2 1 4 2.5 5.5A2.5 2.5 0 0 1 9 16.5v.5h6v-.5c0-1 .5-2 1.5-3.5A7 7 0 0 0 12 2Z"/></svg>';
 const ICON_ZHUXIANG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
 const ICON_GUANLIAN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
 
-function parseMD(str) {
-    if(!str) return '';
-    let s = esc(str);
-    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); 
-    s = s.replace(/\n/g, '<br>');
-    return s;
-}
+function parseMD(str) { if(!str) return ''; let s = esc(str); s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); s = s.replace(/\n/g, '<br>'); return s; }
 
 function formatKaodian(text) {
-    if(!text) return '';
-    let html = '<div class="analysis-section"><div class="sec-title" style="color:var(--primary);">'+ICON_KAODIAN+' 考点</div>';
-    let mainTitle = text; let tagsStr = '';
-    let m = text.match(/^(.*?)[\(（](?:关联：)?(.*?)[)）]$/);
-    if (m) { mainTitle = m[1].trim(); tagsStr = m[2].trim(); } 
-    else {
-        let parts = text.split(/[\s、，,]+/);
-        if(parts.length > 1) { mainTitle = parts[0]; tagsStr = parts.slice(1).join('、'); }
-    }
+    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title" style="color:var(--primary);">'+ICON_KAODIAN+' 考点</div>';
+    let mainTitle = text; let tagsStr = ''; let m = text.match(/^(.*?)[\(（](?:关联：)?(.*?)[)）]$/);
+    if (m) { mainTitle = m[1].trim(); tagsStr = m[2].trim(); } else { let parts = text.split(/[\s、，,]+/); if(parts.length > 1) { mainTitle = parts[0]; tagsStr = parts.slice(1).join('、'); } }
     html += `<div class="kd-main-title">${esc(mainTitle)}</div>`;
-    if (tagsStr) {
-        html += `<div class="kd-tags">`;
-        tagsStr.split(/[,，、\s]+/).filter(t=>t.trim()).forEach(t => { html += `<span class="kd-tag">${esc(t)}</span>`; });
-        html += `</div>`;
-    }
-    return html + '</div>';
+    if (tagsStr) { html += `<div class="kd-tags">`; tagsStr.split(/[,，、\s]+/).filter(t=>t.trim()).forEach(t => { html += `<span class="kd-tag">${esc(t)}</span>`; }); html += `</div>`; } return html + '</div>';
 }
 
 function formatJiangjie(text) {
-    if(!text) return '';
-    let html = '<div class="analysis-section"><div class="sec-title" style="color:#B7791F;">'+ICON_JIANGJIE+' 通俗讲解</div>';
-    const lines = text.split('\n');
-    let leadText = ''; let cardsHtml = ''; let currentCard = null;
-    
+    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title" style="color:#B7791F;">'+ICON_JIANGJIE+' 通俗讲解</div>';
+    const lines = text.split('\n'); let leadText = ''; let cardsHtml = ''; let currentCard = null;
     lines.forEach(l => {
         let m = l.match(/^(\d+)(?:\\[\.\uff0e]|[\.\uff0e、]|\s)\s*(.*)/);
-        if (m) {
-            if (currentCard) cardsHtml += `<div class="jj-card"><div class="jj-num">${currentCard.num}</div><div class="jj-text">${parseMD(currentCard.text)}</div></div>`;
-            currentCard = { num: m[1], text: m[2] };
-        } else if (currentCard) {
-            currentCard.text += '\n' + l;
-        } else {
-            if (l.trim()) leadText += parseMD(l) + '<br>';
-        }
+        if (m) { if (currentCard) cardsHtml += `<div class="jj-card"><div class="jj-num">${currentCard.num}</div><div class="jj-text">${parseMD(currentCard.text)}</div></div>`; currentCard = { num: m[1], text: m[2] }; } 
+        else if (currentCard) { currentCard.text += '\n' + l; } else { if (l.trim()) leadText += parseMD(l) + '<br>'; }
     });
     if (currentCard) cardsHtml += `<div class="jj-card"><div class="jj-num">${currentCard.num}</div><div class="jj-text">${parseMD(currentCard.text)}</div></div>`;
-    if (leadText) html += `<div class="jj-desc">${leadText}</div>`;
-    return html + cardsHtml + '</div>';
+    if (leadText) html += `<div class="jj-desc">${leadText}</div>`; return html + cardsHtml + '</div>';
 }
 
 function formatZhuxiang(text) {
-    if(!text) return '';
-    let html = '<div class="analysis-section"><div class="sec-title">'+ICON_ZHUXIANG+' 逐项分析</div>';
-    const lines = text.split('\n');
-    let currentOpt = null; let out = '';
-    
+    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title">'+ICON_ZHUXIANG+' 逐项分析</div>';
+    const lines = text.split('\n'); let currentOpt = null; let out = '';
     lines.forEach(l => {
-        let m = l.match(/^\\?-\s*\*\*([A-E])\s*([✗✓xX\u2713\u2717])\*\*[\s。，]?(.*)/i) || 
-                l.match(/^([A-E])\s*([✗✓xX\u2713\u2717])[\s。，]?(.*)/i) ||
-                l.match(/^\\?-\s*\*\*([A-E])\s*(.*)/i);
+        let m = l.match(/^\\?-\s*\*\*([A-E])\s*([✗✓xX\u2713\u2717])\*\*[\s。，]?(.*)/i) || l.match(/^([A-E])\s*([✗✓xX\u2713\u2717])[\s。，]?(.*)/i) || l.match(/^\\?-\s*\*\*([A-E])\s*(.*)/i);
         if (m) {
-            if(currentOpt) {
-                out += `<div class="zx-block ${currentOpt.isCorrect?'correct':'wrong'}"><div class="zx-letter">${currentOpt.letter}</div><div class="zx-text">${parseMD(currentOpt.text)}</div></div>`;
-            }
-            let isCorr = m[2] ? (m[2]==='✓'||m[2]==='\u2713') : false; 
-            if(!m[2]) { isCorr = l.includes('正确') || l.includes('✓') || l.includes('\u2713'); m[3] = m[2]; }
+            if(currentOpt) out += `<div class="zx-block ${currentOpt.isCorrect?'correct':'wrong'}"><div class="zx-letter">${currentOpt.letter}</div><div class="zx-text">${parseMD(currentOpt.text)}</div></div>`;
+            let isCorr = m[2] ? (m[2]==='✓'||m[2]==='\u2713') : false; if(!m[2]) { isCorr = l.includes('正确') || l.includes('✓') || l.includes('\u2713'); m[3] = m[2]; }
             currentOpt = { letter: m[1].toUpperCase(), isCorrect: isCorr, text: (m[3]||'').trim() };
-        } else if (currentOpt) {
-            currentOpt.text += '\n' + l;
-        } else {
-             if(l.trim()) out += `<div class="zx-text" style="margin-bottom:8px;">${parseMD(l)}</div>`;
-        }
+        } else if (currentOpt) { currentOpt.text += '\n' + l; } else { if(l.trim()) out += `<div class="zx-text" style="margin-bottom:8px;">${parseMD(l)}</div>`; }
     });
     if(currentOpt) out += `<div class="zx-block ${currentOpt.isCorrect?'correct':'wrong'}"><div class="zx-letter">${currentOpt.letter}</div><div class="zx-text">${parseMD(currentOpt.text)}</div></div>`;
     return html + out + '</div>';
 }
 
-function formatGuanlian(text) {
-    if(!text) return '';
-    let html = '<div class="analysis-section"><div class="sec-title" style="color:#2E7D32;">'+ICON_GUANLIAN+' 关联知识</div>';
-    const lines = text.split('\n'); let out = '';
-    
+function extractZhuxiangMap(text) {
+    const map = {}; if(!text) return map; const lines = text.split('\n'); let currentOpt = null;
     lines.forEach(l => {
-        let t = l.trim();
-        if(!t || t === '---') return;
-        let isHeader = /^(\*\*|)[一二三四五六七八九十]+[、\.\uff0e]/.test(t);
-        let isItem = /^(\d+)(?:\\[\.\uff0e]|[\.\uff0e、]|\s)\s*/.test(t);
-        
-        if (isHeader) {
-            let cleanT = t.replace(/\*\*/g, '');
-            out += `<div class="gl-header"><div class="gl-bar"></div><div class="gl-title">${parseMD(cleanT)}</div></div>`;
-        } else if (isItem) {
-            let cleanT = t.replace(/^(\d+)(?:\\[\.\uff0e]|[\.\uff0e、]|\s)\s*/, '');
-            out += `<div class="gl-bullet"><span class="gl-circle"></span><div class="gl-text">${parseMD(cleanT)}</div></div>`;
-        } else {
-            out += `<div class="gl-text-norm">${parseMD(t)}</div>`;
-        }
+        let m = l.match(/^\\?-\s*\*\*([A-E])\s*([✗✓xX\u2713\u2717])\*\*[\s。，]?(.*)/i) || l.match(/^([A-E])\s*([✗✓xX\u2713\u2717])[\s。，]?(.*)/i) || l.match(/^\\?-\s*\*\*([A-E])\s*(.*)/i);
+        if (m) { currentOpt = m[1].toUpperCase(); let rest = m[3] !== undefined ? m[3] : m[2]; map[currentOpt] = rest ? rest.trim() : ''; } 
+        else if (currentOpt) { map[currentOpt] += '\n' + l; }
     });
-    return html + out + '</div>';
+    for (let k in map) { map[k] = parseMD(map[k]); } return map;
 }
-/* ========================================================== */
 
-/* ---------- view router ---------- */
-let view='home';
-let currentPass=null;
-let skim=null;
-let editingId=null;
-let isAnimatingOut = false;
+function formatGuanlian(text) {
+    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title" style="color:#2E7D32;">'+ICON_GUANLIAN+' 关联知识</div>';
+    const lines = text.split('\n'); let out = '';
+    lines.forEach(l => {
+        let t = l.trim(); if(!t || t === '---') return;
+        let isHeader = /^(\*\*|)[一二三四五六七八九十]+[、\.\uff0e]/.test(t); let isItem = /^(\d+)(?:\\[\.\uff0e]|[\.\uff0e、]|\s)\s*/.test(t);
+        if (isHeader) { let cleanT = t.replace(/\*\*/g, ''); out += `<div class="gl-header"><div class="gl-bar"></div><div class="gl-title">${parseMD(cleanT)}</div></div>`; } 
+        else if (isItem) { let cleanT = t.replace(/^(\d+)(?:\\[\.\uff0e]|[\.\uff0e、]|\s)\s*/, ''); out += `<div class="gl-bullet"><span class="gl-circle"></span><div class="gl-text">${parseMD(cleanT)}</div></div>`; } 
+        else { out += `<div class="gl-text-norm">${parseMD(t)}</div>`; }
+    }); return html + out + '</div>';
+}
 
+/* ---------- VIEW ROUTER ---------- */
+let view='home'; let currentPass=null; let skim=null; let isAnimatingOut = false;
 const app=document.getElementById('app');
 function activeIdx(p){ let mi=0; for(let i=1;i<p.pool.length;i++){ if(p.pool[i].due < p.pool[mi].due) mi=i; } return mi; }
 function render(){
-  isAnimatingOut = false;
-  document.body.classList.remove('is-revealed');
-  
-  if(view === 'review' || view === 'skim') { document.body.classList.add('in-review'); } 
-  else { document.body.classList.remove('in-review'); }
-
-  if(view==='home') renderHome();
-  else if(view==='review') renderReview();
-  else if(view==='skim') renderSkim();
-  else if(view==='summary') renderSummary();
-  else if(view==='manage') renderManage();
+  isAnimatingOut = false; document.body.classList.remove('is-revealed');
+  if(view === 'review' || view === 'skim') { document.body.classList.add('in-review'); } else { document.body.classList.remove('in-review'); }
+  if(view==='home') renderHome(); else if(view==='review') renderReview(); else if(view==='skim') renderSkim(); else if(view==='summary') renderSummary(); else if(view==='manage') renderManage();
 }
 
 /* ---------- HOME ---------- */
 function renderHome(){
   const total=state.cards.length;
   if(total===0){
-    app.innerHTML='<div class="wrap"><div class="empty"><h2>还没有题目</h2><p>先到题库录入你的题，回来就能开始刷了。</p><button class="add" id="emptyAdd">去录入题目</button></div></div>';
+    app.innerHTML='<div class="wrap"><div class="empty"><h2>题库当前为空</h2><p>点击下方进入管理页，手动添加或导入题目。</p><button class="add" id="emptyAdd">进入题库管理</button></div></div>';
     document.getElementById('emptyAdd').onclick=()=>{ view='manage'; render(); }; return;
   }
   const c0=state.cards.filter(c=>c.level===0).length, c1=state.cards.filter(c=>c.level===1).length, c2=state.cards.filter(c=>c.level===2).length;
   const seenTotal=state.cards.reduce((s,c)=>s+c.seen,0);
-  const s=chooseSession();
-  const ex=examInfo();
-
+  const s=chooseSession(); const ex=examInfo();
   let examHTML;
-  if(!ex.set){
-    examHTML='<button class="ex-set" id="examSet">\uff0b 设置考试时间（临近自动切到考前模式 \u00b7 可选）</button>';
-  } else if(ex.passed){
-    examHTML='<span class="ex-count">考试时间已过</span><button class="ex-edit" id="examSet">改</button>';
-  } else {
+  if(!ex.set){ examHTML='<button class="ex-set" id="examSet">\uff0b 设置考试时间（临近自动切到考前模式）</button>'; } 
+  else if(ex.passed){ examHTML='<span class="ex-count">考试时间已过</span><button class="ex-edit" id="examSet">改</button>'; } 
+  else {
     const d=Math.floor(ex.ms/86400000), h=Math.floor((ex.ms%86400000)/3600000), mn=Math.floor((ex.ms%3600000)/60000);
     let txt = d>0 ? ('距考试还有 '+d+' 天 '+h+' 小时') : (h>0 ? ('考试就在今天 \u00b7 还有 '+h+' 小时') : ('考试将近 \u00b7 还有 '+mn+' 分钟'));
     examHTML='<span class="ex-count">'+esc(txt)+'</span><button class="ex-edit" id="examSet">改</button>';
@@ -599,72 +554,37 @@ function renderHome(){
     +'</div>'
     +'<div class="exam-row">'+examHTML+'</div>'
     +'<div class="home-foot" style="margin-top:28px">'
-      +'<button class="ghost" id="resetProg">重置学习进度</button>'
-      +'<button class="ghost" id="toManage">管理题库</button>'
+      +'<button class="ghost" id="toManage">管理题库 (包含导出功能)</button>'
     +'</div>'
-    +'<p class="foot-note">数据保存在此浏览器本地，刷新不会丢失。建议在题库页"导出备份"存一份 —— 换浏览器、清缓存或换设备时，本地数据不会自动跟随。</p>'
+    +'<p class="foot-note">学习进度安全保存在当前浏览器。更新题库请进入管理页面使用「导出最新 HTML」功能。</p>'
     +'</div>';
 
   app.querySelectorAll('[data-prof]').forEach(b=> b.onclick=()=> startSession(b.dataset.prof) );
   document.getElementById('examSet').onclick=openExamTime;
-  document.getElementById('resetProg').onclick=resetProgress;
   document.getElementById('toManage').onclick=()=>{ view='manage'; render(); };
 }
 
-function resetProgress(){
-  confirmModal('把所有题目的进度（生/虚/稳、回忆次数）清零？题目本身不会删除。', ()=>{
-    state.cards.forEach(c=>{ c.level=0; c.seen=0; });
-    settings.lastFullReview=0; saveSettings(); save(); render();
-  }, {confirmText:'清零进度', danger:true});
-}
-
 function openExamTime(){
-  let cur='';
-  if(settings.examTime){ const d=new Date(settings.examTime), p=n=>String(n).padStart(2,'0');
-    cur=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes()); }
-  const m=modalShell(
-    '<h3>考试时间</h3>'
-    +'<div class="help">'+esc('设好后，临近考试时入口会自动切换到"考前过一遍"。留空或清除即只按学习状态安排，互不影响。')+'</div>'
-    +'<div class="field"><label>日期与时间</label><input type="datetime-local" id="ex_in" value="'+cur+'"></div>'
-    +'<div class="sheet-foot"><button class="ghost" id="ex_clear">清除</button><button class="ghost" id="ex_cancel">取消</button><button class="add" id="ex_save">保存</button></div>'
-  );
+  let cur=''; if(settings.examTime){ const d=new Date(settings.examTime), p=n=>String(n).padStart(2,'0'); cur=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes()); }
+  const m=modalShell('<h3>考试时间</h3><div class="help">临近考试时入口会自动切换到"考前过一遍"模式。</div><div class="field"><label>日期与时间</label><input type="datetime-local" id="ex_in" value="'+cur+'"></div><div class="sheet-foot"><button class="ghost" id="ex_clear">清除</button><button class="ghost" id="ex_cancel">取消</button><button class="add" id="ex_save">保存</button></div>');
   m.querySelector('#ex_cancel').onclick=()=>m.remove();
   m.querySelector('#ex_clear').onclick=()=>{ settings.examTime=null; saveSettings(); m.remove(); render(); };
-  m.querySelector('#ex_save').onclick=()=>{
-    const v=m.querySelector('#ex_in').value;
-    if(!v){ notify('请选择时间，或点"清除"。'); return; }
-    const t=new Date(v).getTime();
-    if(isNaN(t)){ notify('时间无效。'); return; }
-    settings.examTime=t; saveSettings(); m.remove(); render();
-  };
+  m.querySelector('#ex_save').onclick=()=>{ const v=m.querySelector('#ex_in').value; if(!v){ notify('请选择时间'); return; } const t=new Date(v).getTime(); if(isNaN(t)){ notify('时间无效'); return; } settings.examTime=t; saveSettings(); m.remove(); render(); };
 }
 
 /* ---------- SESSION ENGINE ---------- */
 function startSession(profKey){
-  const s=chooseSession();
-  if(!s){ notify('请先到题库录入题目。'); return; }
-  const prof=PROFILES[profKey]||PROFILES.fast;
-  const type=s.type, skimAfter=!!type.skimAfter;
-  let scope;
-  if(type.key==='SEED'){
-    scope=state.cards.filter(c=>c.seen===0).slice().sort(byChapter);
-  } else if(type.key==='DRILL'){
-    scope=shuffle(state.cards.filter(c=>c.level<2));
-  } else if(type.key==='REVIEW'){
-    scope=shuffle(state.cards.slice());
-    settings.lastFullReview=Date.now(); saveSettings();
-  } else { // EXAM
-    scope=shuffle(state.cards.filter(c=>c.flagMemory||c.level<2));
-  }
+  const s=chooseSession(); if(!s){ notify('当前没有需要复习的题目。'); return; }
+  const prof=PROFILES[profKey]||PROFILES.fast; const type=s.type, skimAfter=!!type.skimAfter; let scope;
+  if(type.key==='SEED'){ scope=state.cards.filter(c=>c.seen===0).slice().sort(byChapter); } 
+  else if(type.key==='DRILL'){ scope=shuffle(state.cards.filter(c=>c.level<2)); } 
+  else if(type.key==='REVIEW'){ scope=shuffle(state.cards.slice()); settings.lastFullReview=Date.now(); saveSettings(); } 
+  else { scope=shuffle(state.cards.filter(c=>c.flagMemory||c.level<2)); }
 
   if(scope.length===0){
-    if(skimAfter){
-      currentPass={type, prof, pool:[], clock:0, total:0, skimAfter:true, skimDone:true, history:[]};
-      startSkim(); return;
-    }
-    notify('没有需要复习的卡片 \ud83c\udf89 它们都已经记牢了。'); return;
+    if(skimAfter){ currentPass={type, prof, pool:[], clock:0, total:0, skimAfter:true, skimDone:true, history:[]}; startSkim(); return; }
+    notify('太棒了！所有题目都已记牢。'); return;
   }
-
   const pool=scope.map((c,idx)=>({ id:c.id, s:0, due:idx, mark:false }));
   currentPass={ type, prof, pool, clock:0, total:scope.length, skimAfter, skimDone:false, history:[] };
   view='review'; render();
@@ -672,71 +592,34 @@ function startSession(profKey){
 
 function grade(g){
   const p=currentPass, prof=p.prof, i=activeIdx(p), a=p.pool[i], card=cardById(a.id);
-  
-  p.history = p.history || [];
-  p.history.push({
-      pool: JSON.parse(JSON.stringify(p.pool)), clock: p.clock,
-      cardId: a.id, level: card.level, seen: card.seen
-  });
-
+  p.history = p.history || []; p.history.push({ pool: JSON.parse(JSON.stringify(p.pool)), clock: p.clock, cardId: a.id, level: card.level, seen: card.seen });
   card.seen++;
-  if(g==='again'){
-    a.mark=true; a.s=Math.max(0, a.s-prof.drop);
-    if(card.level>1) card.level=1;
-    a.due=p.clock+prof.missGap;
-  } else {
-    a.s+=1;
-    if(a.s>=prof.grad){
-      if(!a.mark) card.level = prof.cleanToStable ? 2 : Math.min(2, card.level+1);
-      p.pool.splice(i,1);
-    } else {
-      a.due=p.clock + gapFor(prof, a.s);
-    }
-  }
+  if(g==='again'){ a.mark=true; a.s=Math.max(0, a.s-prof.drop); if(card.level>1) card.level=1; a.due=p.clock+prof.missGap; } 
+  else { a.s+=1; if(a.s>=prof.grad){ if(!a.mark) card.level = prof.cleanToStable ? 2 : Math.min(2, card.level+1); p.pool.splice(i,1); } else { a.due=p.clock + gapFor(prof, a.s); } }
   p.clock++; save();
   if(p.pool.length===0) finishPass(); else render();
 }
+function finishPass(){ const p=currentPass; if(p.skimAfter && !p.skimDone){ p.skimDone=true; startSkim(); return; } view='summary'; render(); }
 
-function finishPass(){
-  const p=currentPass;
-  if(p.skimAfter && !p.skimDone){ p.skimDone=true; startSkim(); return; }
-  view='summary'; render();
-}
-
-/* ========== click handler for review/skim cards ========== */
+/* ========== CARD EVENTS ========== */
 document.addEventListener('click', (e) => {
   if(view !== 'review' && view !== 'skim') return;
+  const optBlock = e.target.closest('.opt-block');
+  if (optBlock) { const card = optBlock.closest('.card'); if (card && card.classList.contains('revealed')) { optBlock.classList.toggle('active'); } return; }
   const btn = e.target.closest('button'); if(!btn) return;
-
-  if (btn.classList.contains('memtog')) {
-      const cid = btn.dataset.id; const c = cardById(cid);
-      if (c) { c.flagMemory = !c.flagMemory; save(); render(); }
-  } else if (btn.classList.contains('reveal-btn')) {
-      const card = btn.closest('.card'); 
-      if (card) {
-          card.classList.add('revealed');
-          document.body.classList.add('is-revealed'); 
+  if (btn.classList.contains('memtog')) { const c = cardById(btn.dataset.id); if (c) { c.flagMemory = !c.flagMemory; save(); render(); } } 
+  else if (btn.classList.contains('reveal-btn')) { const card = btn.closest('.card'); if (card) { card.classList.add('revealed'); document.body.classList.add('is-revealed'); } } 
+  else if (btn.classList.contains('undo-btn')) {
+      const p = currentPass; if (p && p.history && p.history.length > 0) {
+          const last = p.history.pop(); p.pool = last.pool; p.clock = last.clock; const card = cardById(last.cardId);
+          if (card) { card.level = last.level; card.seen = last.seen; } save(); render();
       }
-  } else if (btn.classList.contains('undo-btn')) {
-      const p = currentPass;
-      if (p && p.history && p.history.length > 0) {
-          const last = p.history.pop();
-          p.pool = last.pool; p.clock = last.clock;
-          const card = cardById(last.cardId);
-          if (card) { card.level = last.level; card.seen = last.seen; }
-          save(); render();
-      }
-  } else if (btn.classList.contains('action-btn')) {
-      const card = btn.closest('.card');
-      if (card) triggerSwipe(card, btn.dataset.act, view === 'skim');
-  }
+  } else if (btn.classList.contains('action-btn')) { const card = btn.closest('.card'); if (card) triggerSwipe(card, btn.dataset.act, view === 'skim'); }
 });
 
-/* ========== sliding review card area ========== */
+/* ========== HTML BUILDING ========== */
 function buildCardHtml(cardObj, index, stateData) {
-  const scale = 1 - index * 0.04;
-  const translateY = index * 12;
-  const zIndex = 10 - index;
+  const scale = 1 - index * 0.04; const translateY = index * 12; const zIndex = 10 - index;
   const style = 'transform: scale('+scale+') translateY('+translateY+'px); z-index: '+zIndex+'; pointer-events: '+(index===0?'auto':'none')+';';
   const shortAns = extractAnswer(cardObj.answer);
   const chapterHtml = cardObj.chapter ? '<span class="chapchip">'+esc(cardObj.chapter)+'</span>' : '';
@@ -744,425 +627,201 @@ function buildCardHtml(cardObj, index, stateData) {
   
   let optsHtml = '';
   if (cardObj.options) {
+      const zxMap = extractZhuxiangMap(cardObj.zhuxiang);
       const lines = cardObj.options.split('\n');
       const processedLines = lines.map(line => {
-          const match = line.trim().match(/^([A-E])[\.\u3001\uff0e\s]/i);
-          if (match && shortAns.includes(match[1].toUpperCase())) {
-              return '<div class="opt-line correct-opt">'+esc(line)+'</div>';
-          }
-          return '<div class="opt-line">'+esc(line)+'</div>';
+          const match = line.trim().match(/^([A-E])[\.\u3001\uff0e\s]\s*(.*)/i);
+          if (match) {
+              const letter = match[1].toUpperCase(); const isCorrect = shortAns.includes(letter);
+              const optClass = isCorrect ? 'correct-opt' : ''; const mobileAn = zxMap[letter] ? `<div class="opt-mobile-analysis">${zxMap[letter]}</div>` : '';
+              return `<div class="opt-block ${optClass}" data-letter="${letter}"><div class="opt-main"><div class="zx-letter">${letter}</div><div class="zx-text">${esc(match[2])}</div></div>${mobileAn}</div>`;
+          } else { return `<div class="opt-block"><div class="opt-main"><div class="zx-text">${esc(line)}</div></div></div>`; }
       });
-      optsHtml = '<div class="opts">'+processedLines.join('')+'</div>';
+      optsHtml = '<div class="opts">' + processedLines.join('') + '</div>';
   }
   const hasHistory = currentPass && currentPass.history && currentPass.history.length > 0;
-
-  // 使用新版 Markdown Parser 组合卡片内容
   const hasSplit = cardObj.kaodian || cardObj.jiangjie || cardObj.zhuxiang || cardObj.guanlian;
   let allSections, pcSections, zhuxiangHtml;
   if (hasSplit) {
-    const kd = formatKaodian(cardObj.kaodian);
-    const jj = formatJiangjie(cardObj.jiangjie);
-    const zx = formatZhuxiang(cardObj.zhuxiang);
-    const gl = formatGuanlian(cardObj.guanlian);
-    
-    allSections = kd + jj + zx + gl;
-    pcSections = kd + jj + gl;
-    zhuxiangHtml = zx;
+    const kd = formatKaodian(cardObj.kaodian); const jj = formatJiangjie(cardObj.jiangjie); const zx = formatZhuxiang(cardObj.zhuxiang); const gl = formatGuanlian(cardObj.guanlian);
+    allSections = kd + jj + `<div class="pc-zhuxiang-container">${zx}</div>` + gl; pcSections = kd + jj + gl; zhuxiangHtml = `<div class="pc-zhuxiang-container">${zx}</div>`;
   } else if (cardObj.analysis) {
-    allSections = '<div class="divider"><span>解析</span></div><div class="analysis">'+esc(cardObj.analysis)+'</div>';
-    pcSections = allSections;
-    zhuxiangHtml = '';
-  } else {
-    allSections = ''; pcSections = ''; zhuxiangHtml = '';
-  }
+    allSections = '<div class="divider"><span>解析</span></div><div class="analysis">'+esc(cardObj.analysis)+'</div>'; pcSections = allSections; zhuxiangHtml = '';
+  } else { allSections = ''; pcSections = ''; zhuxiangHtml = ''; }
 
-  const cfootHtml = '<div class="cfoot">'
-    +'<span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span>'
-    +'<button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button>'
-  +'</div>';
+  const cfootHtml = '<div class="cfoot"><span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span><button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button></div>';
 
-  return '<div class="card" data-index="'+index+'" style="'+style+'">'
-    +'<div class="card-main-surface">'
-        +'<div class="card-overlay"></div>'
-        +'<div class="card-scroll-area">'
-            +'<div class="ctop">'
-              +'<div class="ctop-left">'
-                +chapterHtml
-                +'<span class="badge lvl'+cardObj.level+'">'+LVL[cardObj.level]+'</span>'
-                +starHtml
-              +'</div>'
-              +'<div class="inline-answer">答案：'+esc(shortAns)+'</div>'
-            +'</div>'
-            +'<div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'
-            +optsHtml
-            +'<div class="revealed-only">'+zhuxiangHtml+'</div>'
-            +'<div class="unrevealed-only">'
-                +'<button class="undo-btn" '+(hasHistory?'':'disabled')+' title="撤回上题">撤</button>'
-                +'<button class="reveal-btn">查看解析 (空格)</button>'
-            +'</div>'
-            +'<div class="card-back mobile-back">'
-                +(allSections || '<div class="analysis" style="opacity:0.6">暂无解析</div>')
-                +cfootHtml
-            +'</div>'
-        +'</div>'
-        +'<div class="swipe-hints">'
-            +'<button class="action-btn" data-act="left" style="color:var(--again);">\u2190 答错</button>'
-            +'<span class="pc-hint">电脑可按 \u2190/1, \u2192/2</span>'
-            +'<button class="action-btn" data-act="right" style="color:var(--success);">答对 \u2192</button>'
-        +'</div>'
-    +'</div>'
-    +'<div class="card-back pc-back">'
-        +'<div class="card-scroll-area">'
-            +(pcSections || '<div class="analysis" style="opacity:0.6;margin-top:8px;">暂无解析</div>')
-            +'<div class="cfoot" style="margin-top: auto;">'
-              +'<span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span>'
-              +'<button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button>'
-            +'</div>'
-        +'</div>'
-    +'</div>'
-  +'</div>';
+  return '<div class="card" data-index="'+index+'" style="'+style+'"><div class="card-main-surface"><div class="card-overlay"></div><div class="card-scroll-area">'
+    +'<div class="ctop"><div class="ctop-left">'+chapterHtml+'<span class="badge lvl'+cardObj.level+'">'+LVL[cardObj.level]+'</span>'+starHtml+'</div><div class="inline-answer">答案：'+esc(shortAns)+'</div></div>'
+    +'<div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'
+    +optsHtml+'<div class="revealed-only">'+zhuxiangHtml+'</div>'
+    +'<div class="unrevealed-only"><button class="undo-btn" '+(hasHistory?'':'disabled')+' title="撤回上题">撤</button><button class="reveal-btn">查看解析 (空格)</button></div>'
+    +'<div class="card-back mobile-back">'+(allSections || '<div class="analysis" style="opacity:0.6">暂无解析</div>')+cfootHtml+'</div>'
+    +'</div><div class="swipe-hints"><button class="action-btn" data-act="left" style="color:var(--again);">\u2190 答错</button><span class="pc-hint">电脑可按 \u2190/1, \u2192/2</span><button class="action-btn" data-act="right" style="color:var(--success);">答对 \u2192</button></div>'
+    +'</div><div class="card-back pc-back"><div class="card-scroll-area">'+(pcSections || '<div class="analysis" style="opacity:0.6;margin-top:8px;">暂无解析</div>')+'<div class="cfoot" style="margin-top: auto;"><span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span><button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button></div></div></div></div>';
 }
 
 function renderReview(){
-  const p = currentPass; const activeI = activeIdx(p);
-  const topCardData = cardById(p.pool[activeI].id);
-  const remaining = p.pool.length;
-  const graduated = p.total - remaining;
-
-  let stackHtml = '';
-  if (p.pool.length > 1) {
-      let nextI = (activeI + 1) % p.pool.length;
-      stackHtml += buildCardHtml(cardById(p.pool[nextI].id), 1, p.pool[nextI]);
-  }
+  const p = currentPass; const activeI = activeIdx(p); const topCardData = cardById(p.pool[activeI].id); const remaining = p.pool.length;
+  let stackHtml = ''; if (p.pool.length > 1) { let nextI = (activeI + 1) % p.pool.length; stackHtml += buildCardHtml(cardById(p.pool[nextI].id), 1, p.pool[nextI]); }
   stackHtml += buildCardHtml(topCardData, 0, p.pool[activeI]);
-
-  app.innerHTML = 
-    '<div class="rev-layout">'
-        +'<div class="rev-head">'
-            +'<div class="rh-left"><button class="linkbtn" id="endPass">\u2039 结束本轮（剩 '+remaining+'/'+p.total+'）</button></div>'
-            +'<div class="rh-right">'
-                +'<button class="ico sq glass" id="revThemeBtn">'+(settings.theme==='dark'?'\u2600':'\u263e')+'</button>'
-                +'<button class="ico glass" id="revManageBtn">题库</button>'
-            +'</div>'
-        +'</div>'
-        +'<div class="rev-play-area">'
-            +'<div id="card-container">'+stackHtml+'</div>'
-        +'</div>'
-    +'</div>';
+  app.innerHTML = '<div class="rev-layout"><div class="rev-head"><div class="rh-left"><button class="linkbtn" id="endPass">\u2039 结束本轮（剩 '+remaining+'/'+p.total+'）</button></div><div class="rh-right"><button class="ico sq glass" id="revThemeBtn">'+(settings.theme==='dark'?'\u2600':'\u263e')+'</button><button class="ico glass" id="revManageBtn">题库</button></div></div><div class="rev-play-area"><div id="card-container">'+stackHtml+'</div></div></div>';
   document.getElementById('endPass').onclick = () => { currentPass=null; view='home'; render(); };
-  const rtBtn = document.getElementById('revThemeBtn'); if(rtBtn) rtBtn.onclick = toggleTheme;
-  const rmBtn = document.getElementById('revManageBtn'); if(rmBtn) rmBtn.onclick = () => { view='manage'; render(); };
-  
-  const topCard = app.querySelector('.card[data-index="0"]');
-  if(topCard) addDragEvents(topCard, false);
+  const rtBtn = document.getElementById('revThemeBtn'); if(rtBtn) rtBtn.onclick = toggleTheme; const rmBtn = document.getElementById('revManageBtn'); if(rmBtn) rmBtn.onclick = () => { view='manage'; render(); };
+  const topCard = app.querySelector('.card[data-index="0"]'); if(topCard) addDragEvents(topCard, false);
 }
 
 function addDragEvents(card, isSkimMode) {
-  let isDragging = false; let isScrolling = false; let isSwiping = false;
-  let startX, startY;
-  const threshold = 50; 
-  const opacitySensitivity = 30; 
-  const overlay = card.querySelector('.card-overlay');
-  let rafId = null;
-
-  const startDrag = (e) => {
-      if (isAnimatingOut) return; if(e.target.closest('button')) return;
-      isDragging = true; isScrolling = false; isSwiping = false;
-      startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
-      startY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY;
-      card.style.transition = 'none'; 
-  };
-
+  let isDragging = false; let isScrolling = false; let isSwiping = false; let startX, startY; const threshold = 50; const opacitySensitivity = 30; const overlay = card.querySelector('.card-overlay'); let rafId = null;
+  const startDrag = (e) => { if (isAnimatingOut) return; if(e.target.closest('button')) return; isDragging = true; isScrolling = false; isSwiping = false; startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; startY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY; card.style.transition = 'none'; };
   const doDrag = (e) => {
-      if (!isDragging) return;
-      const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
-      const currentY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY;
-      const pullDeltaX = currentX - startX; const pullDeltaY = currentY - startY;
-
-      if (!isScrolling && !isSwiping) {
-          if (Math.abs(pullDeltaY) > 8 && Math.abs(pullDeltaY) > Math.abs(pullDeltaX)) isScrolling = true;
-          else if (Math.abs(pullDeltaX) > 6) isSwiping = true;
-      }
-
+      if (!isDragging) return; const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; const currentY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY; const pullDeltaX = currentX - startX; const pullDeltaY = currentY - startY;
+      if (!isScrolling && !isSwiping) { if (Math.abs(pullDeltaY) > 8 && Math.abs(pullDeltaY) > Math.abs(pullDeltaX)) isScrolling = true; else if (Math.abs(pullDeltaX) > 6) isSwiping = true; }
       if (isScrolling) return;
-
       if (isSwiping) {
-          if(e.cancelable) e.preventDefault(); 
-          if(rafId) cancelAnimationFrame(rafId);
-          
+          if(e.cancelable) e.preventDefault(); if(rafId) cancelAnimationFrame(rafId);
           rafId = requestAnimationFrame(() => {
-              const rotateDeg = pullDeltaX * 0.08;
-              const arcY = Math.abs(pullDeltaX) * 0.06;
-              const scale = Math.max(0.95, 1 - Math.abs(pullDeltaX) * 0.00015);
-              card.style.transform = 'translate('+pullDeltaX+'px, '+arcY+'px) rotate('+rotateDeg+'deg) scale('+scale+')';
-
-              if (pullDeltaX > 0) overlay.style.background = 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(7,193,96,0.3) 100%)'; 
-              else if (pullDeltaX < 0) overlay.style.background = 'linear-gradient(270deg, rgba(255,255,255,0) 0%, rgba(220,53,69,0.3) 100%)'; 
-              overlay.style.opacity = Math.min(Math.abs(pullDeltaX) / opacitySensitivity, 1);
+              const rotateDeg = pullDeltaX * 0.08; const arcY = Math.abs(pullDeltaX) * 0.06; const scale = Math.max(0.95, 1 - Math.abs(pullDeltaX) * 0.00015); card.style.transform = 'translate('+pullDeltaX+'px, '+arcY+'px) rotate('+rotateDeg+'deg) scale('+scale+')';
+              if (pullDeltaX > 0) overlay.style.background = 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(7,193,96,0.3) 100%)'; else if (pullDeltaX < 0) overlay.style.background = 'linear-gradient(270deg, rgba(255,255,255,0) 0%, rgba(220,53,69,0.3) 100%)'; overlay.style.opacity = Math.min(Math.abs(pullDeltaX) / opacitySensitivity, 1);
           });
       }
   };
-
   const endDrag = (e) => {
-      if (!isDragging) return; isDragging = false;
-      if(rafId) cancelAnimationFrame(rafId);
-      if (!isSwiping || isScrolling) { resetCard(); return; }
-
-      const currentX = e.type.includes('mouseup') ? e.pageX : e.changedTouches[0].clientX;
-      const pullDeltaX = currentX - startX;
-
-      if (Math.abs(pullDeltaX) > threshold) {
-          triggerSwipe(card, pullDeltaX > 0 ? 'right' : 'left', isSkimMode);
-      } else {
-          resetCard(); 
-      }
+      if (!isDragging) return; isDragging = false; if(rafId) cancelAnimationFrame(rafId); if (!isSwiping || isScrolling) { resetCard(); return; }
+      const currentX = e.type.includes('mouseup') ? e.pageX : e.changedTouches[0].clientX; const pullDeltaX = currentX - startX;
+      if (Math.abs(pullDeltaX) > threshold) { triggerSwipe(card, pullDeltaX > 0 ? 'right' : 'left', isSkimMode); } else { resetCard(); }
   };
-
-  const resetCard = () => {
-      card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
-      card.style.transform = 'translate(0, 0) rotate(0deg) scale(1)';
-      overlay.style.opacity = 0;
-  }
-
-  card.addEventListener('mousedown', startDrag);
-  card.addEventListener('touchstart', startDrag, {passive: true});
-  document.addEventListener('mousemove', doDrag, {passive: false});
-  document.addEventListener('touchmove', doDrag, {passive: false});
-  document.addEventListener('mouseup', endDrag);
-  document.addEventListener('touchend', endDrag);
-  
-  card.cleaner = () => {
-      document.removeEventListener('mousemove', doDrag);
-      document.removeEventListener('touchmove', doDrag);
-      document.removeEventListener('mouseup', endDrag);
-      document.removeEventListener('touchend', endDrag);
-  }
+  const resetCard = () => { card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)'; card.style.transform = 'translate(0, 0) rotate(0deg) scale(1)'; overlay.style.opacity = 0; }
+  card.addEventListener('mousedown', startDrag); card.addEventListener('touchstart', startDrag, {passive: true}); document.addEventListener('mousemove', doDrag, {passive: false}); document.addEventListener('touchmove', doDrag, {passive: false}); document.addEventListener('mouseup', endDrag); document.addEventListener('touchend', endDrag);
+  card.cleaner = () => { document.removeEventListener('mousemove', doDrag); document.removeEventListener('touchmove', doDrag); document.removeEventListener('mouseup', endDrag); document.removeEventListener('touchend', endDrag); }
 }
 
 function particleDissolve(card) {
-    const backs = card.querySelectorAll('.pc-back, .mobile-back');
-    const theme = document.documentElement.getAttribute('data-theme');
-    const cardZ = parseInt(card.style.zIndex) || 10;
-    
+    const backs = card.querySelectorAll('.pc-back, .mobile-back'); const theme = document.documentElement.getAttribute('data-theme'); const cardZ = parseInt(card.style.zIndex) || 10;
     backs.forEach(back => {
         if(window.getComputedStyle(back).display === 'none') return;
-        const rect = back.getBoundingClientRect();
-        const container = document.createElement('div');
-        container.style.position = 'fixed';
-        container.style.left = rect.left + 'px';
-        container.style.top = rect.top + 'px';
-        container.style.width = rect.width + 'px';
-        container.style.height = rect.height + 'px';
-        container.style.zIndex = cardZ - 1; 
-        container.style.pointerEvents = 'none';
-        document.body.appendChild(container);
-        back.style.visibility = 'hidden';
+        const rect = back.getBoundingClientRect(); const container = document.createElement('div'); container.style.position = 'fixed'; container.style.left = rect.left + 'px'; container.style.top = rect.top + 'px'; container.style.width = rect.width + 'px'; container.style.height = rect.height + 'px'; container.style.zIndex = cardZ - 1; container.style.pointerEvents = 'none'; document.body.appendChild(container); back.style.visibility = 'hidden';
         const pCount = Math.min(Math.max(Math.floor((rect.width * rect.height) / 4000), 30), 80);
         for(let i=0; i<pCount; i++) {
-            const p = document.createElement('div');
-            let bg = 'var(--surface)';
-            const rand = Math.random();
-            if (rand > 0.7) bg = 'var(--ink-faint)';
-            else if (rand > 0.85) bg = 'var(--primary)';
-            else bg = theme === 'dark' ? '#262A34' : '#FFFFFF';
-            const size = Math.random() * 10 + 4;
-            p.style.cssText = 'position: absolute; left: '+(Math.random()*rect.width)+'px; top: '+(Math.random()*rect.height)+'px; width: '+size+'px; height: '+size+'px; background: '+bg+'; border-radius: '+(Math.random()>0.5?'50%':'3px')+'; box-shadow: 0 2px 8px rgba(0,0,0,0.15); opacity: 1;';
-            container.appendChild(p);
-            const tx = (Math.random() - 0.5) * 200; 
-            const ty = -(Math.random() * 300 + 100);
-            const rot = (Math.random() - 0.5) * 720;
-            const dur = 0.4 + Math.random() * 0.4;
-            p.style.transition = 'transform '+dur+'s cubic-bezier(0.2, 0.8, 0.2, 1), opacity '+dur+'s ease-out';
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    p.style.transform = 'translate('+tx+'px, '+ty+'px) rotate('+rot+'deg) scale(0)';
-                    p.style.opacity = '0';
-                });
-            });
+            const p = document.createElement('div'); let bg = 'var(--surface)'; const rand = Math.random(); if (rand > 0.7) bg = 'var(--ink-faint)'; else if (rand > 0.85) bg = 'var(--primary)'; else bg = theme === 'dark' ? '#262A34' : '#FFFFFF'; const size = Math.random() * 10 + 4;
+            p.style.cssText = 'position: absolute; left: '+(Math.random()*rect.width)+'px; top: '+(Math.random()*rect.height)+'px; width: '+size+'px; height: '+size+'px; background: '+bg+'; border-radius: '+(Math.random()>0.5?'50%':'3px')+'; box-shadow: 0 2px 8px rgba(0,0,0,0.15); opacity: 1;'; container.appendChild(p);
+            const tx = (Math.random() - 0.5) * 200; const ty = -(Math.random() * 300 + 100); const rot = (Math.random() - 0.5) * 720; const dur = 0.4 + Math.random() * 0.4; p.style.transition = 'transform '+dur+'s cubic-bezier(0.2, 0.8, 0.2, 1), opacity '+dur+'s ease-out';
+            requestAnimationFrame(() => { requestAnimationFrame(() => { p.style.transform = 'translate('+tx+'px, '+ty+'px) rotate('+rot+'deg) scale(0)'; p.style.opacity = '0'; }); });
         }
         setTimeout(() => container.remove(), 1000);
     });
 }
 
 function triggerSwipe(card, direction, isSkimMode) {
-  if (isAnimatingOut) return; isAnimatingOut = true;
-  if(card.cleaner) card.cleaner();
-
-  const finish = () => {
-      if (isSkimMode) {
-          if (skim.idx >= skim.list.length - 1) finishSkim(); else { skim.idx++; render(); }
-      } else {
-          grade(direction === 'right' ? 'good' : 'again');
-      }
-  };
-
-  const isRevealed = card.classList.contains('revealed');
-  if (isRevealed) {
-      particleDissolve(card);
-  } 
-  
+  if (isAnimatingOut) return; isAnimatingOut = true; if(card.cleaner) card.cleaner();
+  const finish = () => { if (isSkimMode) { if (skim.idx >= skim.list.length - 1) finishSkim(); else { skim.idx++; render(); } } else { grade(direction === 'right' ? 'good' : 'again'); } };
+  if (card.classList.contains('revealed')) { particleDissolve(card); } 
   card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease-in';
-  const flyX = direction === 'right' ? window.innerWidth + 50 : -window.innerWidth - 50;
-  const rotate = direction === 'right' ? 25 : -25;
-  card.style.transform = 'translate('+flyX+'px, 50px) rotate('+rotate+'deg)';
-  card.style.opacity = '0';
-  
-  setTimeout(finish, 250); 
+  const flyX = direction === 'right' ? window.innerWidth + 50 : -window.innerWidth - 50; const rotate = direction === 'right' ? 25 : -25;
+  card.style.transform = 'translate('+flyX+'px, 50px) rotate('+rotate+'deg)'; card.style.opacity = '0'; setTimeout(finish, 250); 
 }
 
-/* ---------- keyboard shortcuts ---------- */
 document.addEventListener('keydown', e => {
-  if(document.querySelector('.modal')) return;
-  const tag = (e.target.tagName||'').toLowerCase(); if(tag==='input'||tag==='textarea') return;
-  
+  if(document.querySelector('.modal')) return; const tag = (e.target.tagName||'').toLowerCase(); if(tag==='input'||tag==='textarea') return;
   if (view === 'review' || view === 'skim') {
-    const topCard = document.querySelector('.card[data-index="0"]'); if(!topCard || isAnimatingOut) return;
-    const isSkim = (view === 'skim');
-
-    if(e.key === ' ' || e.key === 'Enter') {
-        e.preventDefault();
-        if(isSkim) { triggerSwipe(topCard, 'right', true); } 
-        else { topCard.classList.add('revealed'); document.body.classList.add('is-revealed'); }
-    } else if (e.key === 'ArrowLeft' || e.key === '1') {
-        e.preventDefault(); triggerSwipe(topCard, 'left', isSkim);
-    } else if (e.key === 'ArrowRight' || e.key === '2') {
-        e.preventDefault(); triggerSwipe(topCard, 'right', isSkim);
-    }
+    const topCard = document.querySelector('.card[data-index="0"]'); if(!topCard || isAnimatingOut) return; const isSkim = (view === 'skim');
+    if(e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if(isSkim) { triggerSwipe(topCard, 'right', true); } else { topCard.classList.add('revealed'); document.body.classList.add('is-revealed'); } } 
+    else if (e.key === 'ArrowLeft' || e.key === '1') { e.preventDefault(); triggerSwipe(topCard, 'left', isSkim); } 
+    else if (e.key === 'ArrowRight' || e.key === '2') { e.preventDefault(); triggerSwipe(topCard, 'right', isSkim); }
   }
 });
 
-/* ---------- skim mode ---------- */
+/* ---------- SKIM & SUMMARY ---------- */
 function startSkim(){ skim={ list:shuffle(state.cards.map(c=>c.id)), idx:0 }; view='skim'; render(); }
 function renderSkim(){
   const cardObj = cardById(skim.list[skim.idx]);
-  app.innerHTML =
-    '<div class="rev-layout">'
-        +'<div class="rev-head">'
-            +'<div class="rh-left"><button class="linkbtn" id="endSkim">\u2039 结束扫题（'+(skim.idx+1)+'/'+skim.list.length+'）</button></div>'
-            +'<div class="rh-right">'
-                +'<button class="ico sq glass" id="revThemeBtnSkim">'+(settings.theme==='dark'?'\u2600':'\u263e')+'</button>'
-                +'<button class="ico glass" id="revManageBtnSkim">题库</button>'
-            +'</div>'
-        +'</div>'
-        +'<div class="rev-play-area">'
-            +'<div id="card-container">'
-                +'<div class="card" data-index="0" style="z-index: 10;">'
-                    +'<div class="card-main-surface">'
-                        +'<div class="card-overlay"></div>'
-                        +'<div class="card-scroll-area">'
-                            +'<div class="ctop"><div class="ctop-left">'+(cardObj.chapter?'<span class="chapchip">'+esc(cardObj.chapter)+'</span>':'')+(cardObj.flagMemory?' <span class="star">\u2605</span>':'')+'</div></div>'
-                            +'<div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'
-                            +(cardObj.options ? '<div class="opts">'+esc(cardObj.options)+'</div>' : '')
-                        +'</div>'
-                        +'<div class="swipe-hints" style="display:flex; justify-content:center;">'
-                            +'<span style="color:var(--ink-faint); font-size:13px; cursor:pointer;" onclick="triggerSwipe(this.closest(\'.card\'), \'right\', true)">心里默答，划动或点击本栏翻下一张</span>'
-                        +'</div>'
-                    +'</div>'
-                +'</div>'
-            +'</div>'
-        +'</div>'
-    +'</div>';
-  document.getElementById('endSkim').onclick = () => { skim=null; view='home'; render(); };
-  document.getElementById('revThemeBtnSkim').onclick = toggleTheme;
-  document.getElementById('revManageBtnSkim').onclick = () => { view='manage'; render(); };
-  const topCard = app.querySelector('.card[data-index="0"]'); if(topCard) addDragEvents(topCard, true);
+  app.innerHTML = '<div class="rev-layout"><div class="rev-head"><div class="rh-left"><button class="linkbtn" id="endSkim">\u2039 结束扫题（'+(skim.idx+1)+'/'+skim.list.length+'）</button></div><div class="rh-right"><button class="ico sq glass" id="revThemeBtnSkim">'+(settings.theme==='dark'?'\u2600':'\u263e')+'</button><button class="ico glass" id="revManageBtnSkim">题库</button></div></div><div class="rev-play-area"><div id="card-container"><div class="card" data-index="0" style="z-index: 10;"><div class="card-main-surface"><div class="card-overlay"></div><div class="card-scroll-area"><div class="ctop"><div class="ctop-left">'+(cardObj.chapter?'<span class="chapchip">'+esc(cardObj.chapter)+'</span>':'')+(cardObj.flagMemory?' <span class="star">\u2605</span>':'')+'</div></div><div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'+(cardObj.options ? '<div class="opts">'+esc(cardObj.options)+'</div>' : '')+'</div><div class="swipe-hints" style="display:flex; justify-content:center;"><span style="color:var(--ink-faint); font-size:13px; cursor:pointer;" onclick="triggerSwipe(this.closest(\'.card\'), \'right\', true)">心里默答，划动或点击本栏翻下一张</span></div></div></div></div></div></div>';
+  document.getElementById('endSkim').onclick = () => { skim=null; view='home'; render(); }; document.getElementById('revThemeBtnSkim').onclick = toggleTheme; document.getElementById('revManageBtnSkim').onclick = () => { view='manage'; render(); }; const topCard = app.querySelector('.card[data-index="0"]'); if(topCard) addDragEvents(topCard, true);
 }
 function finishSkim(){ skim=null; view='summary'; render(); }
 
-/* ---------- SUMMARY ---------- */
 function renderSummary(){
-  const total=state.cards.length;
-  const c2=state.cards.filter(c=>c.level===2).length;
-  const c1=state.cards.filter(c=>c.level===1).length;
-  const c0=state.cards.filter(c=>c.level===0).length;
-  const name=currentPass?currentPass.type.name:'本轮';
-  app.innerHTML=
-    '<div class="wrap"><div class="summary">'
-      +'<div class="big">\u2713</div>'
-      +'<h2>'+esc(name)+'完成</h2>'
-      +'<p>这一轮过完了。休息一下，或接着下一轮。</p>'
-      +'<div class="stat-row">'
-        +'<div class="stat"><div class="n" style="color:var(--primary)">'+c2+'</div><div class="l">稳</div></div>'
-        +'<div class="stat"><div class="n" style="color:var(--hard)">'+c1+'</div><div class="l">虚</div></div>'
-        +'<div class="stat"><div class="n" style="color:var(--again)">'+c0+'</div><div class="l">生</div></div>'
-      +'</div>'
-      +'<button class="go" id="backHome">回到首页</button>'
-    +'</div></div>';
+  const c2=state.cards.filter(c=>c.level===2).length; const c1=state.cards.filter(c=>c.level===1).length; const c0=state.cards.filter(c=>c.level===0).length; const name=currentPass?currentPass.type.name:'本轮';
+  app.innerHTML='<div class="wrap"><div class="summary"><div class="big">\u2713</div><h2>'+esc(name)+'完成</h2><p>这一轮过完了。休息一下，或接着下一轮。</p><div class="stat-row"><div class="stat"><div class="n" style="color:var(--primary)">'+c2+'</div><div class="l">稳</div></div><div class="stat"><div class="n" style="color:var(--hard)">'+c1+'</div><div class="l">虚</div></div><div class="stat"><div class="n" style="color:var(--again)">'+c0+'</div><div class="l">生</div></div></div><button class="go" id="backHome">回到首页</button></div></div>';
   document.getElementById('backHome').onclick=()=>{ currentPass=null; view='home'; render(); };
 }
 
-/* ---------- MANAGE ---------- */
+/* ---------- MANAGE & HTML EXPORT ---------- */
 function renderManage(){
-  const total=state.cards.length;
-  let rows='';
-  if(total===0){
-    rows='<div class="empty" style="padding:40px 0"><p>题库是空的。点"添加题目"逐条录入，或"批量导入"一次粘贴多题。</p></div>';
-  } else {
+  const total=state.cards.length; let rows='';
+  if(total===0){ rows='<div class="empty" style="padding:40px 0"><p>题库是空的。点"添加题目"逐条录入，或"批量导入"一次粘贴多题。</p></div>'; } 
+  else {
     state.cards.forEach((c,i)=>{
-      rows+='<div class="qrow">'
-        +'<span class="badge lvl'+c.level+' qbadge">'+LVL[c.level]+'</span>'
-        +'<div class="qtext">'
-          +'<div class="qstem">'+esc(c.question||'（空题干）')+'</div>'
-          +'<div class="qmeta">'+(c.chapter?esc(c.chapter)+' \u00b7 ':'')+'第 '+(i+1)+' 题'+(c.flagMemory?' \u00b7 \u2605记忆类':'')+' \u00b7 见 '+c.seen+' 次</div>'
-        +'</div>'
-        +'<div class="qact">'
-          +'<button class="tiny" data-edit="'+c.id+'">编辑</button>'
-          +'<button class="tiny del" data-del="'+c.id+'">删除</button>'
-        +'</div>'
-      +'</div>';
+      rows+='<div class="qrow"><span class="badge lvl'+c.level+' qbadge">'+LVL[c.level]+'</span><div class="qtext"><div class="qstem">'+esc(c.question||'（空题干）')+'</div><div class="qmeta">'+(c.chapter?esc(c.chapter)+' \u00b7 ':'')+'第 '+(i+1)+' 题'+(c.flagMemory?' \u00b7 \u2605记忆类':'')+' \u00b7 见 '+c.seen+' 次</div></div><div class="qact"><button class="tiny" data-edit="'+c.id+'">编辑</button><button class="tiny del" data-del="'+c.id+'">删除</button></div></div>';
     });
   }
   app.innerHTML=
     '<div class="wrap">'
-      +'<div class="mg-head">'
-        +'<button class="linkbtn" id="mgBack">\u2039 首页</button>'
-        +'<h2>题库</h2>'
-        +'<button class="add" id="mgAdd">\uff0b 添加题目</button>'
-        +'<span class="mg-count">共 '+total+' 题</span>'
-      +'</div>'
+      +'<div class="mg-head"><button class="linkbtn" id="mgBack">\u2039 首页</button><h2>题库管理</h2><button class="add" id="mgAdd">\uff0b 添加题目</button><span class="mg-count">共 '+total+' 题 \u00b7 编辑/导入后，须导出 HTML 才能永久生效</span></div>'
       +'<div class="home-foot" style="margin-top:0">'
-        +'<button class="ghost" id="mgBulk">批量导入</button>'
-        +'<button class="ghost" id="mgExport">导出备份</button>'
-        +'<button class="ghost" id="mgImport">导入备份</button>'
-        +'<button class="ghost" id="mgClear" style="margin-left:auto">清空题库</button>'
+        +'<button class="ghost" id="mgBulk">批量导入题目</button>'
+        +'<button class="ghost" id="mgExportHtml" style="color:var(--primary); border-color:var(--primary)">\u2b07 导出最新 HTML (包含题库)</button>'
+        +'<button class="ghost" id="mgExportProg">导出进度(JSON)</button>'
+        +'<button class="ghost" id="mgImportProg">导入进度(JSON)</button>'
+        +'<button class="ghost" id="mgClear" style="margin-left:auto; color:var(--again)">清空学习进度</button>'
       +'</div>'
       +'<div style="margin-top:16px">'+rows+'</div>'
     +'</div>';
   document.getElementById('mgBack').onclick=()=>{ view='home'; render(); };
   document.getElementById('mgAdd').onclick=()=> openEditor(null);
   document.getElementById('mgBulk').onclick=openBulk;
-  document.getElementById('mgExport').onclick=exportJSON;
-  document.getElementById('mgImport').onclick=openImport;
-  document.getElementById('mgClear').onclick=clearAll;
+  document.getElementById('mgExportHtml').onclick=exportHTML;
+  document.getElementById('mgExportProg').onclick=exportProgress;
+  document.getElementById('mgImportProg').onclick=openImportProgress;
+  document.getElementById('mgClear').onclick=clearProgress;
   app.querySelectorAll('[data-edit]').forEach(b=> b.onclick=()=> openEditor(b.dataset.edit));
-  app.querySelectorAll('[data-del]').forEach(b=> b.onclick=()=>{ confirmModal('删除这道题？', ()=>{ state.cards=state.cards.filter(c=>c.id!==b.dataset.del); save(); render(); }, {confirmText:'删除', danger:true}); });
+  app.querySelectorAll('[data-del]').forEach(b=> b.onclick=>{ confirmModal('从当前列表中删除这道题？', ()=>{ state.cards=state.cards.filter(c=>c.id!==b.dataset.del); save(); render(); }, {confirmText:'删除', danger:true}); });
 }
 
-function clearAll(){
-  confirmModal('清空整个题库？所有题目都会删除，建议先导出备份。此操作不可撤销。', ()=>{
-    state.cards=[]; save(); render();
-  }, {confirmText:'清空题库', danger:true});
+function clearProgress(){
+  confirmModal('清空所有学习进度？\n仅仅是进度清零，题目不会被删除。', ()=>{
+    state.cards.forEach(c => { c.level = 0; c.seen = 0; c.flagMemory = false; }); save(); render();
+  }, {confirmText:'清空进度', danger:true});
+}
+
+// 核心功能：作者专用的 HTML 导出（提取源码并注入最新题库 JSON）
+async function exportHTML() {
+    try {
+        // 读取当前页面最原始纯净的 HTML 源码
+        const res = await fetch(location.href);
+        if (!res.ok) throw new Error('Fetch failed');
+        let html = await res.text();
+
+        // 剥离进度信息，只保留最纯粹的静态题库
+        const cleanBank = state.cards.map(c => {
+            return {
+                id: c.id, chapter: c.chapter, question: c.question, options: c.options,
+                answer: c.answer, analysis: c.analysis,
+                kaodian: c.kaodian, jiangjie: c.jiangjie, zhuxiang: c.zhuxiang, guanlian: c.guanlian
+            };
+        });
+
+        // 定位并替换标记位
+        const regex = /\/\*BANK_START\*\/[\s\S]*?\/\*BANK_END\*\//;
+        if(!regex.test(html)) { notify("未找到替换标记，导出失败。请确保代码未被意外修改。"); return; }
+        const newHtml = html.replace(regex, `/*BANK_START*/${JSON.stringify(cleanBank, null, 2)}/*BANK_END*/`);
+
+        // 触发下载
+        const blob = new Blob([newHtml], {type: 'text/html;charset=utf-8'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'index.html';
+        document.body.appendChild(a); a.click(); a.remove();
+        notify("🎉 HTML 文件已成功导出！\n\n新文件已包含你增删改查后的最新题库。\n直接用它覆盖掉 Github 或本地的旧文件即可对所有人永久生效！");
+    } catch(e) {
+        console.error(e);
+        notify("❌ 无法读取原始文件！\n\n为了保证导出的 HTML 源码干净，你需要在一个本地 HTTP 服务器环境下运行此网页（例如使用 VSCode 的 Live Server），直接双击打开文件 (file:// 协议) 会被浏览器拦截提取请求。");
+    }
 }
 
 /* ---------- modal system ---------- */
-function modalShell(inner){
-  const m=document.createElement('div'); m.className='modal';
-  m.innerHTML='<div class="sheet">'+inner+'</div>';
-  m.addEventListener('mousedown',e=>{ if(e.target===m) m.remove(); });
-  document.body.appendChild(m); return m;
-}
-function notify(msg){
-  const m=modalShell('<div class="notice">'+esc(msg)+'</div><div class="sheet-foot"><button class="add" id="nt_ok">知道了</button></div>');
-  m.querySelector('#nt_ok').onclick=()=>m.remove();
-}
-function confirmModal(msg, onYes, opts){
-  opts=opts||{};
-  const m=modalShell('<div class="notice">'+esc(msg)+'</div><div class="sheet-foot">'
-    +'<button class="ghost" id="cf_no">取消</button>'
-    +'<button class="'+(opts.danger?'danger-btn':'add')+'" id="cf_yes">'+esc(opts.confirmText||'确定')+'</button></div>');
-  m.querySelector('#cf_no').onclick=()=>m.remove();
-  m.querySelector('#cf_yes').onclick=()=>{ m.remove(); if(onYes) onYes(); };
-}
+function modalShell(inner){ const m=document.createElement('div'); m.className='modal'; m.innerHTML='<div class="sheet">'+inner+'</div>'; m.addEventListener('mousedown',e=>{ if(e.target===m) m.remove(); }); document.body.appendChild(m); return m; }
+function notify(msg){ const m=modalShell('<div class="notice">'+esc(msg)+'</div><div class="sheet-foot"><button class="add" id="nt_ok">知道了</button></div>'); m.querySelector('#nt_ok').onclick=()=>m.remove(); }
+function confirmModal(msg, onYes, opts){ opts=opts||{}; const m=modalShell('<div class="notice">'+esc(msg)+'</div><div class="sheet-foot"><button class="ghost" id="cf_no">取消</button><button class="'+(opts.danger?'danger-btn':'add')+'" id="cf_yes">'+esc(opts.confirmText||'确定')+'</button></div>'); m.querySelector('#cf_no').onclick=()=>m.remove(); m.querySelector('#cf_yes').onclick=()=>{ m.remove(); if(onYes) onYes(); }; }
+
 function openEditor(id){
   const c = id? cardById(id) : null;
   const m=modalShell(
@@ -1173,80 +832,58 @@ function openEditor(id){
     +'<div class="field"><label>答案</label><textarea id="f_answer" rows="2" placeholder="如：答案 B">'+esc(c?c.answer:'')+'</textarea></div>'
     +'<div class="field"><label>解析</label><textarea id="f_analysis" rows="4" placeholder="解析 / 考点">'+esc(c?c.analysis:'')+'</textarea></div>'
     +'<div class="field"><label class="cbline"><input type="checkbox" id="f_mem"'+(c&&c.flagMemory?' checked':'')+'> 记忆类（期限 / 天数等，考前重点过）</label></div>'
-    +'<div class="sheet-foot"><button class="ghost" id="f_cancel">取消</button><button class="add" id="f_save">保存</button></div>'
+    +'<div class="sheet-foot"><button class="ghost" id="f_cancel">取消</button><button class="add" id="f_save">保存到内存</button></div>'
   );
   m.querySelector('#f_cancel').onclick=()=> m.remove();
   m.querySelector('#f_save').onclick=()=>{
-    const data={ chapter:m.querySelector('#f_chapter').value.trim(), question:m.querySelector('#f_question').value.trim(),
-      options:m.querySelector('#f_options').value.trim(), answer:m.querySelector('#f_answer').value.trim(),
-      analysis:m.querySelector('#f_analysis').value.trim(), flagMemory:m.querySelector('#f_mem').checked };
+    const data={ chapter:m.querySelector('#f_chapter').value.trim(), question:m.querySelector('#f_question').value.trim(), options:m.querySelector('#f_options').value.trim(), answer:m.querySelector('#f_answer').value.trim(), analysis:m.querySelector('#f_analysis').value.trim(), flagMemory:m.querySelector('#f_mem').checked };
     if(!data.question){ notify('题干不能为空。'); return; }
-    if(c){ Object.assign(c,data); } else { state.cards.push(makeCard(data)); }
-    save(); m.remove(); render();
+    if(c){ Object.assign(c,data); } else { state.cards.push(makeCard(data)); } save(); m.remove(); render();
+    if (!id) notify("✅ 已存入当前网页内存。\n\n⚠️ 如果想永久保存此题，稍后请务必点击【导出最新 HTML】并覆盖源文件，否则刷新后将丢失！");
   };
 }
 
 /* ---------- bulk import ---------- */
 function openBulk(){
-  const help='每题之间用一行 --- 分隔。字段可多行：\n'
-    +'章: 章节（可选）\n题: 题干\n选: 选项（可选）\n答: 答案\n解: 解析\n记: 记忆类填 1（可选）';
-  const example='章: 管辖\n题: 这是题干\u2026\u2026\n选: A. \u2026\u2026\nB. \u2026\u2026\nC. \u2026\u2026\nD. \u2026\u2026\n答: 答案 C\n解: 解析\u2026\u2026\n记: 0\n---\n题: 第二题题干\u2026\u2026\n答: 答案 A\n解: 解析\u2026\u2026';
-  const m=modalShell(
-    '<h3>批量导入</h3>'
-    +'<div class="help">'+esc(help)+'</div>'
-    +'<div class="field"><label>粘贴题目</label><textarea id="bulk_in" rows="12" placeholder="'+esc(example)+'"></textarea></div>'
-    +'<div class="sheet-foot"><button class="ghost" id="bulk_cancel">取消</button><button class="add" id="bulk_go">导入</button></div>'
-  );
+  const help='每题用一行 --- 分隔。支持字段：\n章: 题: 选: 答: 解: 记: (1)'; const example='章: 管辖\n题: 题干\u2026\u2026\n选: A. \u2026\u2026\nB. \u2026\u2026\n答: 答案 C\n解: 解析\u2026\u2026\n---\n题: 第二题';
+  const m=modalShell('<h3>批量导入</h3><div class="help">'+esc(help)+'</div><div class="field"><label>粘贴题目</label><textarea id="bulk_in" rows="12" placeholder="'+esc(example)+'"></textarea></div><div class="sheet-foot"><button class="ghost" id="bulk_cancel">取消</button><button class="add" id="bulk_go">导入到内存</button></div>');
   m.querySelector('#bulk_cancel').onclick=()=> m.remove();
   m.querySelector('#bulk_go').onclick=()=>{
-    const cards=parseBulk(m.querySelector('#bulk_in').value);
-    if(cards.length===0){ notify('没有解析出题目，检查一下格式（每题用 --- 分隔，至少要有"题:"）。'); return; }
+    const cards=parseBulk(m.querySelector('#bulk_in').value); if(cards.length===0){ notify('没有解析出题目，检查格式。'); return; }
     state.cards=state.cards.concat(cards); save(); m.remove(); render();
-    notify('已追加 '+cards.length+' 道题。');
+    notify(`✅ 已成功追加 ${cards.length} 道题到内存。\n\n⚠️ 请务必点击【导出最新 HTML】并覆盖源文件，否则刷新页面后将丢失！`);
   };
 }
 function parseBulk(text){
-  const map={'章':'C','题':'Q','选':'O','答':'A','解':'E','记':'M','C':'C','Q':'Q','O':'O','A':'A','E':'E','M':'M'};
-  const blocks=text.split(/^\s*-{3,}\s*$/m);
-  const out=[];
+  const map={'章':'C','题':'Q','选':'O','答':'A','解':'E','记':'M','C':'C','Q':'Q','O':'O','A':'A','E':'E','M':'M'}; const blocks=text.split(/^\s*-{3,}\s*$/m); const out=[];
   for(const b of blocks){
     const f={C:'',Q:'',O:'',A:'',E:'',M:''}; let cur=null;
-    for(const line of b.split(/\r?\n/)){
-      const mt=line.match(/^\s*(章|题|选|答|解|记|[CQOAEM])\s*[:：]\s?(.*)$/);
-      if(mt){ cur=map[mt[1]]; f[cur]=(f[cur]?f[cur]+'\n':'')+mt[2]; }
-      else if(cur!==null){ f[cur]+='\n'+line; }
-    }
-    for(const k in f) f[k]=f[k].replace(/\n+$/,'').trim();
-    if(f.Q) out.push(makeCard({ chapter:f.C, question:f.Q, options:f.O, answer:f.A, analysis:f.E, flagMemory:/^(1|y|yes|是|true|\u2713)/i.test(f.M) }));
-  }
-  return out;
+    for(const line of b.split(/\r?\n/)){ const mt=line.match(/^\s*(章|题|选|答|解|记|[CQOAEM])\s*[:：]\s?(.*)$/); if(mt){ cur=map[mt[1]]; f[cur]=(f[cur]?f[cur]+'\n':'')+mt[2]; } else if(cur!==null){ f[cur]+='\n'+line; } }
+    for(const k in f) f[k]=f[k].replace(/\n+$/,'').trim(); if(f.Q) out.push(makeCard({ chapter:f.C, question:f.Q, options:f.O, answer:f.A, analysis:f.E, flagMemory:/^(1|y|yes|是|true|\u2713)/i.test(f.M) }));
+  } return out;
 }
 
-/* ---------- export / import json ---------- */
-function exportJSON(){
-  const blob=new Blob([JSON.stringify(state.cards,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob); const a=document.createElement('a');
-  const d=new Date(), pad=n=>String(n).padStart(2,'0');
-  a.href=url; a.download='minsu-cards-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json';
-  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+/* ---------- USER PROGRESS EXPORT / IMPORT ---------- */
+function exportProgress(){
+  const progress = load(K_PROG, {});
+  const blob=new Blob([JSON.stringify(progress,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  const d=new Date(), pad=n=>String(n).padStart(2,'0'); a.href=url; a.download='minsu-progress-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
-function openImport(){
-  const m=modalShell(
-    '<h3>导入备份</h3>'
-    +'<div class="help">'+esc('选择之前导出的 .json 文件，或把内容粘贴到下面。导入会覆盖当前题库（含进度）。')+'</div>'
-    +'<div class="field"><label>选择文件</label><input type="file" id="imp_file" accept="application/json,.json"></div>'
-    +'<div class="field"><label>或粘贴 JSON</label><textarea id="imp_text" rows="8" placeholder="[ ... ]"></textarea></div>'
-    +'<div class="sheet-foot"><button class="ghost" id="imp_cancel">取消</button><button class="add" id="imp_go">导入（覆盖）</button></div>'
-  );
+
+function openImportProgress(){
+  const m=modalShell('<h3>导入学习进度</h3><div class="help">选择你之前导出的 .json 进度备份文件。导入将覆盖当前的所有学习状态。</div><div class="field"><label>选择文件</label><input type="file" id="imp_file" accept="application/json,.json"></div><div class="sheet-foot"><button class="ghost" id="imp_cancel">取消</button><button class="add" id="imp_go">导入（覆盖）</button></div>');
+  let loadedRaw = '';
   m.querySelector('#imp_cancel').onclick=()=> m.remove();
-  m.querySelector('#imp_file').onchange=e=>{ const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=()=>{ m.querySelector('#imp_text').value=r.result; }; r.readAsText(file); };
+  m.querySelector('#imp_file').onchange=e=>{ const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=()=>{ loadedRaw = r.result; }; r.readAsText(file); };
   m.querySelector('#imp_go').onclick=()=>{
-    const raw=m.querySelector('#imp_text').value.trim(); if(!raw){ notify('没有内容可导入。'); return; }
-    let arr; try{ arr=JSON.parse(raw); }catch(err){ notify('JSON 解析失败：'+err.message); return; }
-    if(!Array.isArray(arr)){ notify('格式应是一个数组（[ ... ]）。'); return; }
-    confirmModal('导入 '+arr.length+' 道题，覆盖当前题库（含进度）？', ()=>{
-      state.cards=arr.map(o=>makeCard(o)); save(); m.remove(); render();
-      notify('已导入 '+arr.length+' 道题。');
+    if(!loadedRaw){ notify('请先选择文件。'); return; }
+    let arr; try{ arr=JSON.parse(loadedRaw); }catch(err){ notify('JSON 解析失败：'+err.message); return; }
+    confirmModal('覆盖当前设备的学习进度？', ()=>{
+      let newProg = typeof arr === 'object' && !Array.isArray(arr) ? arr : {};
+      if (Array.isArray(arr)) { arr.forEach(c => { if(c.id) newProg[c.id] = {level:c.level||0, seen:c.seen||0, flagMemory:!!c.flagMemory}; }); }
+      try { localStorage.setItem(K_PROG, JSON.stringify(newProg)); } catch(e) {}
+      state.cards.forEach(c => { let p = newProg[c.id] || newProg[(c.question||'').trim()] || {level:0, seen:0, flagMemory:false}; c.level = p.level; c.seen = p.seen; c.flagMemory = p.flagMemory; });
+      save(); m.remove(); render(); notify('✅ 进度导入成功！');
     }, {confirmText:'覆盖导入', danger:true});
   };
 }
