@@ -128,7 +128,7 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 .stem { font-size: 17px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; user-select: text; flex-shrink: 0;}
 .stem-tag { color: var(--primary); font-weight: 700; margin-right: 4px; } 
 
-/* 选项统一区块样式 & 手机端内联分析展开逻辑 */
+/* 选项统一区块样式 & 点选样式逻辑 */
 .opts { margin-top: 14px; font-size: 15px; line-height: 1.9; color: var(--ink); flex-shrink: 0;}
 .opt-block {
     background: var(--surface); border: 1px solid var(--surface-2);
@@ -140,6 +140,27 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 .opt-main { padding: 14px 16px; display: flex; gap: 12px; transition: 0.3s; align-items: flex-start; }
 .opt-main .zx-letter { font-size: 17px; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; margin-top: -2px; transition: 0.3s;}
 .opt-main .zx-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; transition: 0.3s;}
+
+/* 答题前交互样式 */
+.card:not(.revealed) .opt-block { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s, background-color 0.3s; }
+.card:not(.revealed) .opt-block:active { transform: scale(0.98); }
+
+.opt-block.guessed-wrong { background-color: var(--again-soft); border-color: color-mix(in srgb, var(--again) 30%, transparent); }
+.opt-block.guessed-wrong::before { background: #E57373; }
+.opt-block.guessed-wrong .zx-letter { color: #D32F2F; }
+.opt-block.guessed-wrong .zx-text { color: #D32F2F; font-weight: 650; }
+
+.opt-block.guessed-correct { background-color: var(--success-soft); border-color: color-mix(in srgb, var(--success) 30%, transparent); }
+.opt-block.guessed-correct::before { background: #66BB6A; }
+.opt-block.guessed-correct .zx-letter { color: #2E7D32; }
+.opt-block.guessed-correct .zx-text { color: #2E7D32; font-weight: 650; }
+
+[data-theme="dark"] .opt-block.guessed-wrong::before { background: #C62828; }
+[data-theme="dark"] .opt-block.guessed-wrong .zx-letter, [data-theme="dark"] .opt-block.guessed-wrong .zx-text { color: #EF5350; }
+[data-theme="dark"] .opt-block.guessed-correct::before { background: #2E7D32; }
+[data-theme="dark"] .opt-block.guessed-correct .zx-letter, [data-theme="dark"] .opt-block.guessed-correct .zx-text { color: #81C784; }
+
+/* 翻牌后的正确选项揭示 */
 .card.revealed .opt-block.correct-opt { background-color: var(--success-soft); border-color: color-mix(in srgb, var(--success) 20%, transparent); }
 .card.revealed .opt-block.correct-opt::before { background: #66BB6A; }
 .card.revealed .opt-block.correct-opt .zx-letter { color: #2E7D32; }
@@ -147,6 +168,7 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 [data-theme="dark"] .card.revealed .opt-block.correct-opt::before { background: #2E7D32; }
 [data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-letter { color: #81C784; }
 [data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-text { color: #81C784; }
+
 .opt-mobile-analysis { display: none; padding: 0 16px 14px 16px; font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; }
 
 @media (max-width: 767px) {
@@ -1414,7 +1436,7 @@ applyTheme();
 
 const SESS={ SEED:{key:'SEED',name:'熟悉',chapterOrder:true}, REVIEW:{key:'REVIEW',name:'整体过一遍'}, DRILL:{key:'DRILL',name:'巩固弱项'}, EXAM:{key:'EXAM',name:'考前过一遍',skimAfter:true} };
 const FULL_GAP_MS = 6*3600*1000; const EXAM_WINDOW_MS = 12*3600*1000;
-const PROFILES={ fast:{key:'fast',name:'快速刷题',grad:3,base:3,growth:2,drop:1,missGap:2,cleanToStable:false}, slow:{key:'slow',name:'慢速刷题',grad:4,base:5,growth:2,drop:2,missGap:3,cleanToStable:true} };
+const PROFILES={ fast:{key:'fast',name:'快速刷题',grad:1,base:3,growth:2,drop:1,missGap:2,cleanToStable:false}, slow:{key:'slow',name:'重复刷题',grad:4,base:5,growth:2,drop:2,missGap:3,cleanToStable:true} };
 function gapFor(prof, s){ return Math.max(1, Math.round(prof.base * Math.pow(prof.growth, s-1))); }
 function byChapter(a,b){ const ca=a.chapter||'', cb=b.chapter||''; if(ca<cb) return -1; if(ca>cb) return 1; return state.cards.indexOf(a)-state.cards.indexOf(b); }
 function examInfo(){ const t=settings.examTime; if(!t) return {set:false}; const ms=t-Date.now(); return {set:true, t, ms, passed:ms<=0, window: ms>0 && ms<=EXAM_WINDOW_MS}; }
@@ -1562,8 +1584,8 @@ function renderHome(){
     +'<div class="start-card">'
       +'<div class="start-hint">这次 \u00b7 '+esc(sessionHint(s))+'</div>'
       +'<div class="mode-row">'
-        +'<button class="mode-btn fast" data-prof="fast"><span class="mt">快速刷题</span><span class="mode-sub">轻快 \u00b7 答对 3 次即过，间隔短</span></button>'
-        +'<button class="mode-btn slow" data-prof="slow"><span class="mt">慢速刷题</span><span class="mode-sub">扎实 \u00b7 分散答对 4 次，一轮到稳</span></button>'
+        +'<button class="mode-btn fast" data-prof="fast"><span class="mt">快速刷题</span><span class="mode-sub">轻快 \u00b7 答对 1 次即踢出，选错重刷</span></button>'
+        +'<button class="mode-btn slow" data-prof="slow"><span class="mt">重复刷题</span><span class="mode-sub">扎实 \u00b7 分散答对 4 次，一轮到稳</span></button>'
       +'</div>'
     +'</div>'
     +'<div class="exam-row">'+examHTML+'</div>'
@@ -1619,7 +1641,22 @@ function finishPass(){ const p=currentPass; if(p.skimAfter && !p.skimDone){ p.sk
 document.addEventListener('click', (e) => {
   if(view !== 'review' && view !== 'skim') return;
   const optBlock = e.target.closest('.opt-block');
-  if (optBlock) { const card = optBlock.closest('.card'); if (card && card.classList.contains('revealed')) { optBlock.classList.toggle('active'); } return; }
+  if (optBlock) { 
+      const card = optBlock.closest('.card'); 
+      if (card) { 
+          if (card.classList.contains('revealed')) { 
+              optBlock.classList.toggle('active'); 
+          } else {
+              // 答题前交互：选对变绿，选错变红
+              if (optBlock.classList.contains('correct-opt')) {
+                  optBlock.classList.add('guessed-correct');
+              } else {
+                  optBlock.classList.add('guessed-wrong');
+              }
+          }
+      } 
+      return; 
+  }
   const btn = e.target.closest('button'); if(!btn) return;
   if (btn.classList.contains('memtog')) { const c = cardById(btn.dataset.id); if (c) { c.flagMemory = !c.flagMemory; save(); render(); } } 
   else if (btn.classList.contains('reveal-btn')) { const card = btn.closest('.card'); if (card) { card.classList.add('revealed'); document.body.classList.add('is-revealed'); } } 
@@ -1677,8 +1714,18 @@ function buildCardHtml(cardObj, index, stateData) {
 
 function renderReview(){
   const p = currentPass; const activeI = activeIdx(p); const topCardData = cardById(p.pool[activeI].id); const remaining = p.pool.length;
-  let stackHtml = ''; if (p.pool.length > 1) { let nextI = (activeI + 1) % p.pool.length; stackHtml += buildCardHtml(cardById(p.pool[nextI].id), 1, p.pool[nextI]); }
+  let stackHtml = ''; 
+  if (p.pool.length > 1) { 
+      // 预先寻找排在当前题目后面的"真实下一张"
+      let nextI = -1; let minDue = Infinity;
+      for(let i=0; i<p.pool.length; i++) {
+          if (i !== activeI && p.pool[i].due < minDue) { minDue = p.pool[i].due; nextI = i; }
+      }
+      if(nextI === -1) nextI = (activeI + 1) % p.pool.length; // 兜底
+      stackHtml += buildCardHtml(cardById(p.pool[nextI].id), 1, p.pool[nextI]); 
+  }
   stackHtml += buildCardHtml(topCardData, 0, p.pool[activeI]);
+  
   app.innerHTML = '<div class="rev-layout"><div class="rev-head"><div class="rh-left"><button class="linkbtn" id="endPass">\u2039 结束本轮（剩 '+remaining+'/'+p.total+'）</button></div><div class="rh-right"><button class="ico sq glass" id="revThemeBtn">'+(settings.theme==='dark'?'\u2600':'\u263e')+'</button><button class="ico glass" id="revManageBtn">题库</button></div></div><div class="rev-play-area"><div id="card-container">'+stackHtml+'</div></div></div>';
   document.getElementById('endPass').onclick = () => { currentPass=null; view='home'; render(); };
   const rtBtn = document.getElementById('revThemeBtn'); if(rtBtn) rtBtn.onclick = toggleTheme; const rmBtn = document.getElementById('revManageBtn'); if(rmBtn) rmBtn.onclick = () => { view='manage'; render(); };
