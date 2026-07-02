@@ -108,7 +108,8 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 .rev-play-area { flex: 1; display: flex; justify-content: center; align-items: center; padding: 66px 16px 24px; min-height: 0; }
 #card-container { position: relative; width: 100%; max-width: 480px; height: 100%; perspective: 1200px; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
-.card { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; transform-origin: 50% 100%; will-change: transform; cursor: grab; user-select: none; -webkit-user-select: none; }
+/* 优化1：在此处增加了 touch-action: pan-y，让垂直滚动始终交给浏览器原生处理 */
+.card { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; transform-origin: 50% 100%; will-change: transform; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
 .card:active { cursor: grabbing; }
 .card-main-surface { position: absolute; inset: 0; display: flex; flex-direction: column; background-color: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; z-index: 2; }
 .card-overlay { position: absolute; inset: 0; z-index: 20; pointer-events: none; opacity: 0; border-radius: var(--radius); }
@@ -130,16 +131,17 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 
 /* 选项统一区块样式 & 点选样式逻辑 */
 .opts { margin-top: 14px; font-size: 15px; line-height: 1.9; color: var(--ink); flex-shrink: 0;}
+/* 优化2：收紧 transition 过渡范围，防止全属性变动导致的大规模重排 */
 .opt-block {
     background: var(--surface); border: 1px solid var(--surface-2);
     margin-bottom: 10px; display: flex; flex-direction: column; position: relative;
     border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-    transition: 0.3s; user-select: text; line-height: normal;
+    transition: transform 0.1s, box-shadow 0.1s, background-color 0.3s, border-color 0.3s; user-select: text; line-height: normal;
 }
-.opt-block::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; transition: 0.3s; }
-.opt-main { padding: 14px 16px; display: flex; gap: 12px; transition: 0.3s; align-items: flex-start; }
-.opt-main .zx-letter { font-size: 17px; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; margin-top: -2px; transition: 0.3s;}
-.opt-main .zx-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; transition: 0.3s;}
+.opt-block::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; transition: background-color 0.3s; }
+.opt-main { padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.opt-main .zx-letter { font-size: 17px; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; margin-top: -2px; }
+.opt-main .zx-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; }
 
 /* 答题前交互样式 */
 .card:not(.revealed) .opt-block { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s, background-color 0.3s; }
@@ -169,12 +171,17 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 [data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-letter { color: #81C784; }
 [data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-text { color: #81C784; }
 
-.opt-mobile-analysis { display: none; padding: 0 16px 14px 16px; font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; }
+/* 优化3：使用 max-height 折叠方案替代原有的 display:none/block，使手机端点击选项的动画更流畅 */
+.opt-mobile-analysis { 
+    max-height: 0; overflow: hidden; opacity: 0;
+    padding: 0 16px 0 16px; font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; 
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+}
 
 @media (max-width: 767px) {
     .pc-zhuxiang-container { display: none !important; }
     .card.revealed .opt-block { cursor: pointer; }
-    .card.revealed .opt-block.active .opt-mobile-analysis { display: block; animation: fadeIn 0.3s ease; }
+    .card.revealed .opt-block.active .opt-mobile-analysis { max-height: 800px; opacity: 1; padding: 0 16px 14px 16px; }
     .card.revealed .opt-block.active .opt-main { padding: 10px 16px 4px 16px; gap: 8px; }
     .card.revealed .opt-block.active .opt-main .zx-letter { font-size: 13px; color: var(--ink-faint); margin-top: 0;}
     .card.revealed .opt-block.active .opt-main .zx-text { font-size: 13px; color: var(--ink-faint); line-height: 1.5; font-weight: normal; }
@@ -425,7 +432,7 @@ const QUESTION_BANK = /*BANK_START*/[
     "id": "dan-08",
     "chapter": "单选",
     "question": "下列关于第二审程序的表述，错误的是",
-    "options": "A. 第二审程序是终审程序\nB. 第二审人民法院对上诉案件，应当组成合议庭，开庭审理（经过阅卷、调查和询问当事人，对没有提出新的事实、证据或者理由，合议庭认为不需要开庭审理的，可以不开庭审理）\nC. 第二审人民法院对上诉案件，经过审理，认为原判决认定事实清楚，适用法律正确的，判决驳回上诉，维持原判决\nD. 当事人对第一审判决不服的，有权在判决书送达之日起 15 日内向上一级人民法院提起上诉",
+    "options": "A. 第二审程序是终审程序\nB. 第二审人民法院对上诉案件，应当组成合议庭，开庭审理\nC. 第二审人民法院对上诉案件，经过审理，认为原判决认定事实清楚，适用法律正确的，判决驳回上诉，维持原判决\nD. 当事人对第一审判决不服的，有权在判决书送达之日起 15 日内向上一级人民法院提起上诉",
     "answer": "答案：B",
     "analysis": "",
     "kaodian": "二审程序的审理形式与审判组织（关联：两审终审制、上诉期限、二审裁判结果）",
@@ -438,7 +445,7 @@ const QUESTION_BANK = /*BANK_START*/[
     "id": "dan-09",
     "chapter": "单选",
     "question": "下列关于审判监督程序的表述，正确的是",
-    "options": "A. 审判监督程序是一审、二审程序之外的独立的审判程序\nB. 当事人申请再审，应当在判决、裁定发生法律效力后一年内提出（6个月）\nC. 人民法院按照审判监督程序再审的案件，一律适用二审程序审理\nD. 最高人民检察院对各级人民法院已经发生法律效力的判决、裁定，发现有错误的，可以直接向同级人民法院提出抗诉（最高人民法院）",
+    "options": "A. 审判监督程序是一审、二审程序之外的独立的审判程序\nB. 当事人申请再审，应当在判决、裁定发生法律效力后一年内提出\nC. 人民法院按照审判监督程序再审的案件，一律适用二审程序审理\nD. 最高人民检察院对各级人民法院已经发生法律效力的判决、裁定，发现有错误的，可以直接向同级人民法院提出抗诉",
     "answer": "答案：A",
     "analysis": "",
     "kaodian": "审判监督程序综合规定（关联：再审的审理程序、申请再审期限、检察院抗诉规则）",
@@ -763,7 +770,7 @@ const QUESTION_BANK = /*BANK_START*/[
     "id": "dan-34",
     "chapter": "单选",
     "question": "贾某因家里突发急事、急需用钱，向好友艾某借了30万元，并承诺下月还钱，因是朋友关系，再加上很快就会归还，艾某也就没有让贾某打借条。过了半年之后，贾某仍未归还该笔欠款。正好赶上艾某家里有事用钱，就打电话给贾某尽快还钱。电话中，艾某要求贾某归还欠款30万，并要求贾某支付逾期利息3000元。贾某承认借款30万元，但请求艾某免除利息。后双方没有协商成功，艾某向法院起诉，要求贾某归还欠款及支付利息。艾某将其与贾某打电话时私下偷录的电话录音，剪辑之后提交给了法院。关于本案证据的认定，下列说法正确的是？",
-    "options": "A. 电话录音没有经过对方同意，不能作为证据使用\nB. 电话录音虽然没有经过对方同意，依然可以作为证据使用\nC. 电话录音经过了剪辑，存有疑点，不能作为证据使用\nD. 贾某对借款事实的承认构成了自认（自认须发生在诉讼过程中）",
+    "options": "A. 电话录音没有经过对方同意，不能作为证据使用\nB. 电话录音虽然没有经过对方同意，依然可以作为证据使用\nC. 电话录音经过了剪辑，存有疑点，不能作为证据使用\nD. 贾某对借款事实的承认构成了自认",
     "answer": "答案：B",
     "analysis": "",
     "kaodian": "非法证据排除规则（偷录证据的合法性）、视听资料的证明力规则、自认的构成要件。",
@@ -802,7 +809,7 @@ const QUESTION_BANK = /*BANK_START*/[
     "id": "dan-37",
     "chapter": "单选",
     "question": "住所在A市B区的甲公司与住所在A市C区的乙公司签订了一份买卖合同，约定履行地为D县。合同签订后尚未履行，因货款支付方式发生争议，乙公司诉至D县法院。甲公司就争议的付款方式提交了答辩状。经审理，法院判决甲公司败诉。甲公司不服，以一审法院无管辖权为由提起上诉，要求二审法院撤销一审判决，驳回起诉。关于本案，下列哪一表述是正确的？",
-    "options": "A. D县法院有管辖权，因D县是双方约定的合同履行地（被告甲公司住所地B区法院管辖，本案合同并未实际履行，且约定履行地D县并非原告或者被告住所地，故约定履行地D县法院无管辖权）\nB. 二审法院对上诉人提出的管辖权异议不予审查，裁定驳回异议\nC. 二审法院应裁定撤销一审判决，发回一审法院重审\nD. 二审法院应裁定撤销一审判决，裁定将案件移送有管辖权的法院审理",
+    "options": "A. D县法院有管辖权，因D县是双方约定的合同履行地\nB. 二审法院对上诉人提出的管辖权异议不予审查，裁定驳回异议\nC. 二审法院应裁定撤销一审判决，发回一审法院重审\nD. 二审法院应裁定撤销一审判决，裁定将案件移送有管辖权的法院审理",
     "answer": "答案：B",
     "analysis": "",
     "kaodian": "约定履行地管辖、应诉管辖与二审对管辖异议的处理（关联：默示管辖规则）",
@@ -932,7 +939,7 @@ const QUESTION_BANK = /*BANK_START*/[
     "id": "duo-07",
     "chapter": "多选",
     "question": "外国人汤姆通过网络平台以人民币500元购买了中国人杨某销售的衬衫,后双方因为衬衫质量问题发生纠纷,汤姆向互联网法院起诉杨某要求赔偿,互联网法院依法受理此案。关于本案的审理,下列表述正确的是? BCD",
-    "options": "A. 本案可以适用小额诉讼的程序审理（涉外民事案件，故不能适用小额诉讼的程序审理）\nB. 本案法院可以决定线下审理\nC. 本案经当事人同意后可以通过电子方式送达判决书\nD. 本案可以适用独任制审理",
+    "options": "A. 本案可以适用小额诉讼的程序审理\nB. 本案法院可以决定线下审理\nC. 本案经当事人同意后可以通过电子方式送达判决书\nD. 本案可以适用独任制审理",
     "answer": "答案：BCD",
     "analysis": "",
     "kaodian": "涉外民事案件的程序适用、在线诉讼与送达规则（关联：小额诉讼程序的负面清单、电子送达、独任制）",
@@ -1010,7 +1017,7 @@ const QUESTION_BANK = /*BANK_START*/[
     "id": "duo-13",
     "chapter": "多选",
     "question": "梁某被判决向曲某支付借款本金和利息320万元，梁某未及时履行，曲某申请执行法院査封梁某名下的房产，梁某的父亲老梁向执行法院提出异议，称该房产为老梁所有。关于本案，以下说法中正确的是？",
-    "options": "A. 老梁可以直接向法院提起异议之诉\nB. 在法院审査老梁提出的异议期间， 执行法院对该房产可以继续执行\nC. 如果法院经审查裁定老梁的异议成立，则应当终结对该房产的执行（中止）\nD. 如果法院经审查裁定驳回了老梁的异议，老梁可以曲某作为被告提起执行异议之诉",
+    "options": "A. 老梁可以直接向法院提起异议之诉\nB. 在法院审査老梁提出的异议期间， 执行法院对该房产可以继续执行\nC. 如果法院经审查裁定老梁的异议成立，则应当终结对该房产的执行\nD. 如果法院经审查裁定驳回了老梁的异议，老梁可以曲某作为被告提起执行异议之诉",
     "answer": "答案：BD",
     "analysis": "",
     "kaodian": "案外人对执行标的的异议及救济程序（关联：异议不停止执行、执行异议之诉的原被告）。",
@@ -1732,13 +1739,21 @@ function renderReview(){
   const topCard = app.querySelector('.card[data-index="0"]'); if(topCard) addDragEvents(topCard, false);
 }
 
+// 优化：修改了滑动判定逻辑，优先将垂直滚动意图交由浏览器默认处理
 function addDragEvents(card, isSkimMode) {
   let isDragging = false; let isScrolling = false; let isSwiping = false; let startX, startY; const threshold = 50; const opacitySensitivity = 30; const overlay = card.querySelector('.card-overlay'); let rafId = null;
   const startDrag = (e) => { if (isAnimatingOut) return; if(e.target.closest('button')) return; isDragging = true; isScrolling = false; isSwiping = false; startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; startY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY; card.style.transition = 'none'; };
   const doDrag = (e) => {
       if (!isDragging) return; const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; const currentY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY; const pullDeltaX = currentX - startX; const pullDeltaY = currentY - startY;
-      if (!isScrolling && !isSwiping) { if (Math.abs(pullDeltaY) > 8 && Math.abs(pullDeltaY) > Math.abs(pullDeltaX)) isScrolling = true; else if (Math.abs(pullDeltaX) > 6) isSwiping = true; }
-      if (isScrolling) return;
+      
+      // 优化后的逻辑：直接比较 X 与 Y 偏移绝对值，瞬间识别是否在上下滚动
+      if (!isScrolling && !isSwiping) { 
+          if (Math.abs(pullDeltaY) > Math.abs(pullDeltaX)) isScrolling = true; 
+          else if (Math.abs(pullDeltaX) > 5) isSwiping = true; 
+      }
+      
+      if (isScrolling) return; // 触发原生滚动，放行给浏览器处理
+      
       if (isSwiping) {
           if(e.cancelable) e.preventDefault(); if(rafId) cancelAnimationFrame(rafId);
           rafId = requestAnimationFrame(() => {
