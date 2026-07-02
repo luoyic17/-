@@ -274,13 +274,28 @@ const SAMPLES=[{"chapter":"单选","question":"下列关于民事诉讼基本原
 /* ---------- state ---------- */
 let state;
 {
-  const storedVer=load(K_DECK,null), stored=load(K_CARDS,null);
-  if(storedVer===DECK_VERSION && Array.isArray(stored)){
-    state={cards: stored.map(o=>(o&&o.id)?o:makeCard(o||{}))};
-  } else {
-    state={cards: SAMPLES.map(o=>makeCard(o))};
-    try{ localStorage.setItem(K_CARDS,JSON.stringify(state.cards)); localStorage.setItem(K_DECK,DECK_VERSION); }catch(e){}
+  // Try all possible storage keys — never throw away user's saved progress
+  let cards = load(K_CARDS, null);
+  let deckVer = load(K_DECK, null);
+
+  // Migration from old 改版 v3 keys
+  if (!Array.isArray(cards)) {
+    cards = load('minsu_srs_cards_v3', null);
+    deckVer = load('minsu_srs_deckver_v3', null);
   }
+
+  // Accept all known deck versions (including old 改版's v4)
+  const knownVersions = [DECK_VERSION, 'minsu80-v4'];
+  if (knownVersions.includes(deckVer) && Array.isArray(cards)) {
+    state = {cards: cards.map(o => (o && o.id) ? o : makeCard(o || {}))};
+  } else if (Array.isArray(cards) && cards.length > 0) {
+    // Valid data exists but version unknown — keep it, don't reset
+    state = {cards: cards.map(o => (o && o.id) ? o : makeCard(o || {}))};
+  } else {
+    state = {cards: SAMPLES.map(o => makeCard(o))};
+  }
+  // Persist deck version on every init so it's never stale
+  try { localStorage.setItem(K_DECK, DECK_VERSION); } catch(e) {}
 }
 let settings=load(K_SET,{theme:'light', examTime:null, lastFullReview:0});
 if(settings.examTime===undefined) settings.examTime=null;
