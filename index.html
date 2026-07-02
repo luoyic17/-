@@ -307,8 +307,7 @@ header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, v
 "use strict";
 
 /* ---------- STATIC QUESTION BANK ---------- */
-/* 
- * 题库已与本地进度完全剥离。
+/* * 题库已与本地进度完全剥离。
  * 导出 HTML 时，代码会自动将新的题库替换至下方 /*BANK_START*/ /*BANK_END*/ /* 之间。
  */
 const QUESTION_BANK = /*BANK_START*/[
@@ -774,8 +773,14 @@ function renderManage(){
   document.getElementById('mgExportProg').onclick=exportProgress;
   document.getElementById('mgImportProg').onclick=openImportProgress;
   document.getElementById('mgClear').onclick=clearProgress;
-  app.querySelectorAll('[data-edit]').forEach(b=> b.onclick=()=> openEditor(b.dataset.edit));
-  app.querySelectorAll('[data-del]').forEach(b=> b.onclick=>{ confirmModal('从当前列表中删除这道题？', ()=>{ state.cards=state.cards.filter(c=>c.id!==b.dataset.del); save(); render(); }, {confirmText:'删除', danger:true}); });
+  app.querySelectorAll('[data-edit]').forEach(b=> { b.onclick = () => { openEditor(b.dataset.edit); }; });
+  
+  // 这里修复了引发崩溃的语法错误 b.onclick=>{ 改为了 b.onclick = () => {
+  app.querySelectorAll('[data-del]').forEach(b=> { 
+      b.onclick = () => { 
+          confirmModal('从当前列表中删除这道题？', ()=>{ state.cards=state.cards.filter(c=>c.id!==b.dataset.del); save(); render(); }, {confirmText:'删除', danger:true}); 
+      }; 
+  });
 }
 
 function clearProgress(){
@@ -784,38 +789,54 @@ function clearProgress(){
   }, {confirmText:'清空进度', danger:true});
 }
 
-// 核心功能：作者专用的 HTML 导出（提取源码并注入最新题库 JSON）
-async function exportHTML() {
-    try {
-        // 读取当前页面最原始纯净的 HTML 源码
-        const res = await fetch(location.href);
-        if (!res.ok) throw new Error('Fetch failed');
-        let html = await res.text();
+// =========================================================================
+// 核心功能：作者专用的 HTML 导出（直接抓取当前网页结构并替换，无需本地服务器）
+// =========================================================================
+function exportHTML() {
+    // 1. 清空页面动态注入的 UI 内容（例如模态框和列表），防止残余内容被打包进源文件
+    const app = document.getElementById('app');
+    app.innerHTML = '';
+    document.body.className = '';
+    
+    // 2. 抓取目前页面最外层的纯净 HTML 结构代码
+    let html = "<!doctype html>\n" + document.documentElement.outerHTML;
 
-        // 剥离进度信息，只保留最纯粹的静态题库
-        const cleanBank = state.cards.map(c => {
-            return {
-                id: c.id, chapter: c.chapter, question: c.question, options: c.options,
-                answer: c.answer, analysis: c.analysis,
-                kaodian: c.kaodian, jiangjie: c.jiangjie, zhuxiang: c.zhuxiang, guanlian: c.guanlian
-            };
-        });
+    // 3. 剥离掉用户自身的进度信息，只提取纯净的原始静态题库数据
+    const cleanBank = state.cards.map(c => {
+        return {
+            id: c.id, chapter: c.chapter, question: c.question, options: c.options,
+            answer: c.answer, analysis: c.analysis,
+            kaodian: c.kaodian, jiangjie: c.jiangjie, zhuxiang: c.zhuxiang, guanlian: c.guanlian,
+            flagMemory: !!c.flagMemory
+        };
+    });
 
-        // 定位并替换标记位
-        const regex = /\/\*BANK_START\*\/[\s\S]*?\/\*BANK_END\*\//;
-        if(!regex.test(html)) { notify("未找到替换标记，导出失败。请确保代码未被意外修改。"); return; }
-        const newHtml = html.replace(regex, `/*BANK_START*/${JSON.stringify(cleanBank, null, 2)}/*BANK_END*/`);
-
-        // 触发下载
-        const blob = new Blob([newHtml], {type: 'text/html;charset=utf-8'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'index.html';
-        document.body.appendChild(a); a.click(); a.remove();
-        notify("🎉 HTML 文件已成功导出！\n\n新文件已包含你增删改查后的最新题库。\n直接用它覆盖掉 Github 或本地的旧文件即可对所有人永久生效！");
-    } catch(e) {
-        console.error(e);
-        notify("❌ 无法读取原始文件！\n\n为了保证导出的 HTML 源码干净，你需要在一个本地 HTTP 服务器环境下运行此网页（例如使用 VSCode 的 Live Server），直接双击打开文件 (file:// 协议) 会被浏览器拦截提取请求。");
+    // 4. 使用正则定位代码中用 /*BANK_START*/ 和 /*BANK_END*/ 标记的区域，并替换为最新的题库 JSON
+    const regex = /\/\*BANK_START\*\/[\s\S]*?\/\*BANK_END\*\//;
+    if(!regex.test(html)) { 
+        render(); // 恢复界面
+        notify("未找到替换标记，导出失败。请确保代码中的 /*BANK_START*/ 标记未被意外删除。"); 
+        return; 
     }
+    
+    const newHtml = html.replace(regex, `/*BANK_START*/${JSON.stringify(cleanBank, null, 2)}/*BANK_END*/`);
+
+    // 5. 将界面渲染回来（用户只会看到极快的闪烁，不影响体验）
+    render();
+
+    // 6. 触发浏览器自动下载新的 index.html 文件
+    const blob = new Blob([newHtml], {type: 'text/html;charset=utf-8'});
+    const a = document.createElement('a'); 
+    a.href = URL.createObjectURL(blob); 
+    a.download = 'index.html';
+    document.body.appendChild(a); 
+    a.click(); 
+    a.remove(); 
+    URL.revokeObjectURL(a.href);
+    
+    notify("🎉 HTML 文件已成功导出！\n\n新下载的文件已包含你刚才增/删/改的全部最新题库。\n直接用它覆盖掉 Github 或本地的旧文件，就可以对所有人永久生效了！");
 }
+// =========================================================================
 
 /* ---------- modal system ---------- */
 function modalShell(inner){ const m=document.createElement('div'); m.className='modal'; m.innerHTML='<div class="sheet">'+inner+'</div>'; m.addEventListener('mousedown',e=>{ if(e.target===m) m.remove(); }); document.body.appendChild(m); return m; }
@@ -839,7 +860,7 @@ function openEditor(id){
     const data={ chapter:m.querySelector('#f_chapter').value.trim(), question:m.querySelector('#f_question').value.trim(), options:m.querySelector('#f_options').value.trim(), answer:m.querySelector('#f_answer').value.trim(), analysis:m.querySelector('#f_analysis').value.trim(), flagMemory:m.querySelector('#f_mem').checked };
     if(!data.question){ notify('题干不能为空。'); return; }
     if(c){ Object.assign(c,data); } else { state.cards.push(makeCard(data)); } save(); m.remove(); render();
-    if (!id) notify("✅ 已存入当前网页内存。\n\n⚠️ 如果想永久保存此题，稍后请务必点击【导出最新 HTML】并覆盖源文件，否则刷新后将丢失！");
+    if (!id) notify("✅ 已存入当前网页临时内存。\n\n⚠️ 如果想永久保存此题，稍后请务必点击【导出最新 HTML】并覆盖源文件，否则刷新后将丢失！");
   };
 }
 
