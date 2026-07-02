@@ -1660,6 +1660,23 @@ document.addEventListener('click', (e) => {
               } else {
                   optBlock.classList.add('guessed-wrong');
               }
+              
+              // 【新增功能】快速模式全对自动划卡逻辑
+              if (currentPass && currentPass.prof.key === 'fast') {
+                  const wrongCount = card.querySelectorAll('.guessed-wrong').length;
+                  const correctTotal = card.querySelectorAll('.correct-opt').length;
+                  const correctGuessed = card.querySelectorAll('.guessed-correct').length;
+                  
+                  // 当没有任何错误选项被点击，且所有的正确选项都已经点击完毕时触发
+                  if (wrongCount === 0 && correctTotal > 0 && correctGuessed === correctTotal) {
+                      // 稍微延迟，让用户能看清最后一个选项变绿的反馈效果
+                      setTimeout(() => {
+                          if (!card.classList.contains('revealed') && !isAnimatingOut) {
+                              triggerSwipe(card, 'right', false);
+                          }
+                      }, 350); 
+                  }
+              }
           }
       } 
       return; 
