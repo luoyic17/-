@@ -1,2021 +1,528 @@
-<!doctype html>
-<html lang="zh-CN" data-theme="light"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>民诉 · 滑动复习</title>
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-:root{
-  --bg:#FBFAF7; --surface:#FFFFFF; --surface-2:#F3F1EC; --border:#E5E1D8;
-  --ink:#1C1E22; --ink-soft:#5A5C61; --ink-faint:#8C8E93;
-  --primary:#2F6F62; --primary-soft:#E2EFEB;
-  --again:#B5483C; --again-soft:#F6E4E1;
-  --hard:#BE8537; --hard-soft:#F6ECDB;
-  --gold:#C99A2E;
-  --success:#07C160; --success-soft:#E6F9F0;
-  --shadow:0 10px 30px rgba(28,30,34,.08), 0 2px 10px rgba(28,30,34,.04);
-  --radius:24px;
-  --font-sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
-  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
-}
-[data-theme="dark"]{
-  --bg:#14161B; --surface:#1E212A; --surface-2:#262A34; --border:#333845;
-  --ink:#E9E7E1; --ink-soft:#AEB2BB; --ink-faint:#7C818C;
-  --primary:#5BA493; --primary-soft:#21302C;
-  --again:#D9695C; --again-soft:#34201E;
-  --hard:#D69A4F; --hard-soft:#322A1C;
-  --gold:#E0B84A;
-  --success:#28C76F; --success-soft:#1B3B2B;
-  --shadow:0 10px 30px rgba(0,0,0,.4), 0 2px 10px rgba(0,0,0,.2);
-}
-* { box-sizing: border-box; }
-html,body { margin: 0; padding: 0; }
-body {
-  background: var(--bg); color: var(--ink); font-family: var(--font-sans);
-  line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh;
-}
-button { font-family: inherit; cursor: pointer; color: inherit; }
-.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
-.wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: #EEF2F7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+  }
 
-/* body scroll lock for review */
-body.in-review { position: fixed; inset: 0; overflow: hidden; touch-action: pan-x pan-y; }
-body.in-review header { display: none; }
+  .app { width: 100%; max-width: 560px; }
 
-/* header */
-header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: saturate(140%) blur(8px); border-bottom: 1px solid var(--border); transition: 0.2s; }
-.hbar { max-width: 760px; margin: 0 auto; padding: 13px 20px; display: flex; align-items: center; gap: 12px; }
-.brand { font-weight: 650; letter-spacing: .01em; font-size: 15px; }
-.brand .dot { color: var(--primary); }
-.hsp { flex: 1; }
-.ico { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 7px 12px; font-size: 13px; font-weight: 550; transition: .15s; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;}
-.ico:hover { border-color: var(--ink-faint); }
-.ico.sq { padding: 7px 10px; }
-.ico.glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(8px); border: 1px solid rgba(0,0,0,0.05); }
-[data-theme="dark"] .ico.glass { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: var(--ink); }
+  /* Header */
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .header h1 { font-size: 17px; font-weight: 800; color: #1A202C; letter-spacing: -0.3px; }
+  .counter { font-size: 13px; color: #718096; font-weight: 600; }
 
-/* home UI */
-.hero{padding:34px 0 8px}
-.hero .lead{font-size:13px; color:var(--ink-soft); margin:0 0 6px}
-.bignum{font-family:var(--font-mono); font-size:clamp(40px,11vw,64px); font-weight:600; line-height:1; letter-spacing:-.02em}
-.bignum .of{color:var(--ink-faint); font-size:.42em; font-weight:500; letter-spacing:0}
-.bignum .tag{color:var(--primary)}
-.subnote{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint); margin-top:10px; letter-spacing:.02em}
-.mbar{display:flex; height:14px; border-radius:7px; overflow:hidden; margin:18px 0 8px; background:var(--surface-2); border:1px solid var(--border)}
-.mseg{height:100%; transition:flex-grow .5s ease}
-.mseg.s0{background:var(--again)} .mseg.s1{background:var(--hard)} .mseg.s2{background:var(--primary)}
-.mleg{display:flex; gap:18px; font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); flex-wrap:wrap}
-.mleg b{font-weight:600; color:var(--ink)}
-.mleg .sw{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px; vertical-align:middle}
-.sw.s0{background:var(--again)} .sw.s1{background:var(--hard)} .sw.s2{background:var(--primary)}
-.start-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:22px; margin:30px 0 14px}
-.start-hint{font-size:14.5px; color:var(--ink-soft); margin-bottom:18px; line-height:1.65}
-.mode-row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-.mode-btn{display:flex; flex-direction:column; gap:4px; align-items:flex-start; text-align:left; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 15px; transition:.15s}
-.mode-btn:hover{border-color:var(--primary); transform:translateY(-1px)}
-.mode-btn .mt{font-weight:650; font-size:15.5px}
-.mode-btn.fast .mt{color:var(--primary)}
-.mode-sub{font-size:11.5px; color:var(--ink-faint); line-height:1.45}
-@media (max-width:520px){ .mode-row{grid-template-columns:1fr} }
+  /* Progress */
+  .progress-bar { height: 5px; background: #E2E8F0; border-radius: 3px; margin-bottom: 14px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #4F46E5, #7C3AED); transition: width 0.4s ease; }
 
-/* exam row */
-.exam-row{display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--ink-faint); margin:8px 0 0; flex-wrap:wrap; min-height:24px}
-.ex-set{background:none; border:none; color:var(--ink-soft); font-size:12.5px; padding:4px 0; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
-.ex-set:hover{color:var(--ink)}
-.ex-count{font-family:var(--font-mono); color:var(--primary)}
-.ex-edit{background:none; border:none; color:var(--ink-faint); font-size:12px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
-.ex-edit:hover{color:var(--ink)}
+  /* Topic chips */
+  .topics { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .chip {
+    padding: 4px 11px; border-radius: 20px; border: none; cursor: pointer;
+    font-size: 11.5px; font-weight: 600; transition: all 0.15s; line-height: 1.4;
+  }
+  .chip-inactive { background: #E2E8F0; color: #4A5568; }
+  .chip-inactive:hover { background: #CBD5E0; }
+  .chip-active { background: #1A202C; color: white; }
 
-/* home foot */
-.home-foot{margin:26px 0 50px; display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-.ghost{background:none; border:1px solid var(--border); border-radius:9px; padding:7px 13px; font-size:12.5px; color:var(--ink-soft); transition:.15s}
-.ghost:hover{border-color:var(--ink-faint); color:var(--ink)}
-.foot-note{font-size:11.5px; color:var(--ink-faint); margin-top:14px; line-height:1.7}
-.go{background:var(--primary); color:#fff; border:none; border-radius:10px; padding:9px 20px; font-weight:600; font-size:14px; box-shadow:0 1px 0 rgba(0,0,0,.04); cursor:pointer;}
-[data-theme="dark"] .go{color:#0c130f}
+  /* Card container */
+  .card-area { position: relative; margin-bottom: 12px; cursor: pointer; }
 
-.empty{text-align:center; padding:60px 20px}
-.empty h2{font-size:19px; margin:0 0 8px}
-.empty p{color:var(--ink-soft); font-size:14px; margin:0 0 20px}
+  /* The card itself */
+  .card {
+    background: white;
+    border-radius: 18px;
+    padding: 26px 24px 22px;
+    min-height: 250px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.09), 0 1px 3px rgba(0,0,0,0.06);
+    border-left: 5px solid #4F46E5;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.25s, border-color 0.25s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .card.flipped { background: #F7F6FF; }
 
-/* sliding review card area */
-.rev-layout { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: var(--surface-2); }
-.rev-head { position: absolute; top: 0; left: 0; width: 100%; z-index: 50; padding: 12px 16px; pointer-events: none; display: flex; align-items: center; justify-content: space-between; }
-.rh-left { display: flex; align-items: center; pointer-events: auto; }
-.rh-right { display: flex; align-items: center; gap: 8px; pointer-events: auto; }
-.linkbtn { background: rgba(0,0,0,0.05); border: none; font-size: 13px; font-weight: 500; color: var(--ink); padding: 6px 14px; border-radius: 20px; pointer-events: auto; backdrop-filter: blur(4px); cursor: pointer; transition: 0.2s;}
-.linkbtn:active { opacity: 0.7; }
-[data-theme="dark"] .linkbtn { background: rgba(255,255,255,0.1); }
-.rev-play-area { flex: 1; display: flex; justify-content: center; align-items: center; padding: 66px 16px 24px; min-height: 0; }
-#card-container { position: relative; width: 100%; max-width: 480px; height: 100%; perspective: 1200px; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  /* Card top row */
+  .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .type-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+  .flip-hint { font-size: 11px; color: #A0AEC0; }
 
-/* 优化1：在此处增加了 touch-action: pan-y，让垂直滚动始终交给浏览器原生处理 */
-.card { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; transform-origin: 50% 100%; will-change: transform; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
-.card:active { cursor: grabbing; }
-.card-main-surface { position: absolute; inset: 0; display: flex; flex-direction: column; background-color: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; z-index: 2; }
-.card-overlay { position: absolute; inset: 0; z-index: 20; pointer-events: none; opacity: 0; border-radius: var(--radius); }
-.card-scroll-area { flex: 1; overflow-y: auto; padding: 24px 20px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; min-height: 0; display: flex; flex-direction: column; }
+  /* Card body */
+  .card-body {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+  }
+  .question {
+    font-size: 17px; font-weight: 700; color: #1A202C;
+    text-align: center; line-height: 1.65; white-space: pre-line;
+  }
+  .answer {
+    font-size: 15px; font-weight: 400; color: #2D3748;
+    text-align: left; line-height: 1.85; white-space: pre-line;
+    width: 100%;
+  }
 
-/* card content typography */
-.ctop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-shrink: 0;}
-.ctop-left { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.chapchip{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); background:var(--surface-2); padding:3px 9px; border-radius:6px}
-.badge { font-family: var(--font-mono); font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; letter-spacing: .02em; }
-.badge.lvl0 { color: var(--again); background: var(--again-soft); }
-.badge.lvl1 { color: var(--hard); background: var(--hard-soft); }
-.badge.lvl2 { color: var(--primary); background: var(--primary-soft); }
-.star { font-size: 13px; color: var(--gold); }
-.inline-answer { display: none; color: var(--success); font-weight: 650; font-size: 14.5px; margin-left: 10px; }
-.card.revealed .inline-answer { display: block; animation: fadeIn 0.3s ease; }
-.stem { font-size: 17px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; user-select: text; flex-shrink: 0;}
-.stem-tag { color: var(--primary); font-weight: 700; margin-right: 4px; } 
+  /* Hint */
+  .hint { margin-top: 16px; font-size: 12px; color: #A0AEC0; text-align: center; }
+  .hint strong { color: #7C3AED; }
 
-/* 选项统一区块样式 & 点选样式逻辑 */
-.opts { margin-top: 14px; font-size: 15px; line-height: 1.9; color: var(--ink); flex-shrink: 0;}
-/* 优化2：收紧 transition 过渡范围，防止全属性变动导致的大规模重排 */
-.opt-block {
-    background: var(--surface); border: 1px solid var(--surface-2);
-    margin-bottom: 10px; display: flex; flex-direction: column; position: relative;
-    border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-    transition: transform 0.1s, box-shadow 0.1s, background-color 0.3s, border-color 0.3s; user-select: text; line-height: normal;
-}
-.opt-block::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; transition: background-color 0.3s; }
-.opt-main { padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
-.opt-main .zx-letter { font-size: 17px; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; margin-top: -2px; }
-.opt-main .zx-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; }
+  /* Topic label on back */
+  .topic-label { margin-top: 14px; font-size: 11px; color: #A0AEC0; text-align: center; font-weight: 600; }
 
-/* 答题前交互样式 */
-.card:not(.revealed) .opt-block { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s, background-color 0.3s; }
-.card:not(.revealed) .opt-block:active { transform: scale(0.98); }
+  /* Buttons */
+  .btn-row { display: flex; gap: 8px; }
+  .btn {
+    border: none; border-radius: 12px; cursor: pointer;
+    font-size: 14px; font-weight: 700; padding: 13px 16px;
+    transition: all 0.15s; flex: 1;
+    font-family: inherit;
+  }
+  .btn-nav { flex: 0; background: #E2E8F0; color: #4A5568; padding: 13px 18px; font-size: 16px; }
+  .btn-nav:hover { background: #CBD5E0; }
+  .btn-flip { background: #1A202C; color: white; }
+  .btn-flip:hover { background: #2D3748; transform: translateY(-1px); }
+  .btn-know { background: #C6F6D5; color: #22543D; }
+  .btn-know:hover { background: #9AE6B4; }
+  .btn-review { background: #FEFCBF; color: #744210; }
+  .btn-review:hover { background: #FAF089; }
 
-.opt-block.guessed-wrong { background-color: var(--again-soft); border-color: color-mix(in srgb, var(--again) 30%, transparent); }
-.opt-block.guessed-wrong::before { background: #E57373; }
-.opt-block.guessed-wrong .zx-letter { color: #D32F2F; }
-.opt-block.guessed-wrong .zx-text { color: #D32F2F; font-weight: 650; }
+  /* Marked status */
+  .marked-status { text-align: center; margin-top: 9px; font-size: 12.5px; font-weight: 600; }
 
-.opt-block.guessed-correct { background-color: var(--success-soft); border-color: color-mix(in srgb, var(--success) 30%, transparent); }
-.opt-block.guessed-correct::before { background: #66BB6A; }
-.opt-block.guessed-correct .zx-letter { color: #2E7D32; }
-.opt-block.guessed-correct .zx-text { color: #2E7D32; font-weight: 650; }
+  /* Stats panel */
+  .stats { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.09); }
+  .stats h2 { font-size: 15px; font-weight: 800; color: #1A202C; margin-bottom: 18px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-box { text-align: center; border-radius: 12px; padding: 14px 8px; }
+  .stat-val { font-size: 28px; font-weight: 800; }
+  .stat-lbl { font-size: 11px; color: #718096; margin-top: 3px; }
+  .reset-btn { background: #FED7D7; color: #9B2C2C; border: none; border-radius: 10px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 700; font-family: inherit; }
+  .reset-btn:hover { background: #FEB2B2; }
 
-[data-theme="dark"] .opt-block.guessed-wrong::before { background: #C62828; }
-[data-theme="dark"] .opt-block.guessed-wrong .zx-letter, [data-theme="dark"] .opt-block.guessed-wrong .zx-text { color: #EF5350; }
-[data-theme="dark"] .opt-block.guessed-correct::before { background: #2E7D32; }
-[data-theme="dark"] .opt-block.guessed-correct .zx-letter, [data-theme="dark"] .opt-block.guessed-correct .zx-text { color: #81C784; }
-
-/* 翻牌后的正确选项揭示 */
-.card.revealed .opt-block.correct-opt { background-color: var(--success-soft); border-color: color-mix(in srgb, var(--success) 20%, transparent); }
-.card.revealed .opt-block.correct-opt::before { background: #66BB6A; }
-.card.revealed .opt-block.correct-opt .zx-letter { color: #2E7D32; }
-.card.revealed .opt-block.correct-opt .zx-text { color: #2E7D32; font-weight: 650; }
-[data-theme="dark"] .card.revealed .opt-block.correct-opt::before { background: #2E7D32; }
-[data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-letter { color: #81C784; }
-[data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-text { color: #81C784; }
-
-/* 优化3：使用 max-height 折叠方案替代原有的 display:none/block，使手机端点击选项的动画更流畅 */
-.opt-mobile-analysis { 
-    max-height: 0; overflow: hidden; opacity: 0;
-    padding: 0 16px 0 16px; font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; 
-    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
-}
-
-@media (max-width: 767px) {
-    .pc-zhuxiang-container { display: none !important; }
-    .card.revealed .opt-block { cursor: pointer; }
-    .card.revealed .opt-block.active .opt-mobile-analysis { max-height: 800px; opacity: 1; padding: 0 16px 14px 16px; }
-    .card.revealed .opt-block.active .opt-main { padding: 10px 16px 4px 16px; gap: 8px; }
-    .card.revealed .opt-block.active .opt-main .zx-letter { font-size: 13px; color: var(--ink-faint); margin-top: 0;}
-    .card.revealed .opt-block.active .opt-main .zx-text { font-size: 13px; color: var(--ink-faint); line-height: 1.5; font-weight: normal; }
-    .card.revealed .opt-block.active.correct-opt .opt-main .zx-letter,
-    .card.revealed .opt-block.active.correct-opt .opt-main .zx-text { color: var(--success); opacity: 0.8; }
-}
-@media (min-width: 768px) {
-    .opt-mobile-analysis { display: none !important; }
-    .pc-zhuxiang-container { display: block; }
-}
-
-.divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 12px; color: var(--ink-faint); flex-shrink: 0;}
-.divider::before, .divider::after { content: ""; height: 1px; background: var(--border); flex: 1; }
-.divider span { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
-
-/* card bottom area */
-.unrevealed-only { margin-top: auto; padding-top: 20px; flex-shrink: 0; display: flex; gap: 10px; align-items: center; width: 100%; }
-.reveal-btn { flex: 1; background: var(--surface-2); color: var(--ink); border: none; border-radius: 12px; padding: 15px; font-size: 15px; font-weight: 600; transition: .15s; cursor: pointer; }
-.reveal-btn:active { background: var(--border); }
-.undo-btn { width: 50px; height: 50px; border-radius: 12px; background: var(--surface-2); border: none; font-size: 15.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: .15s; flex-shrink: 0; color: var(--ink-soft); }
-.undo-btn:active { background: var(--border); }
-.undo-btn:disabled { opacity: 0.25; cursor: not-allowed; }
-.cfoot { display: flex; align-items: center; gap: 14px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); flex-shrink: 0;}
-.seen { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-faint); }
-.memtog { margin-left: auto; background: none; border: 1px solid var(--border); border-radius: 8px; padding: 5px 11px; font-size: 12px; color: var(--ink-soft); transition: .15s; display: inline-flex; align-items: center; cursor: pointer;}
-.memtog.on { color: var(--gold); border-color: var(--gold); }
-.analysis { font-size: 14.5px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; color: var(--ink-soft); margin-top: 4px; user-select: text;}
-.swipe-hints { display: none; justify-content: space-between; align-items: center; padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
-.card.revealed .swipe-hints { display: flex; }
-.action-btn { background: none; border: none; font-size: 15px; font-weight: bold; padding: 8px 12px; margin: -4px -8px; cursor: pointer; transition: 0.15s; }
-.action-btn:active { opacity: 0.5; }
-.pc-hint { display: none; font-size:12px; color:var(--ink-faint); font-weight:normal; font-family:var(--font-mono); }
-
-/* analysis panel slide-out */
-.pc-back { display: none !important; }
-.mobile-back { display: none; flex-shrink: 0; padding-bottom: 20px;}
-.card.revealed .unrevealed-only { display: none; }
-.revealed-only { display: none; }
-.card.revealed .revealed-only { display: block; animation: fadeIn 0.3s ease; }
-
-/* 解析界面专用样式 */
-.analysis-section { margin-bottom: 24px; }
-.analysis-section:last-child { margin-bottom: 0; }
-.sec-title { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; margin-bottom: 12px; }
-.sec-title svg { width: 16px; height: 16px; flex-shrink: 0; }
-
-.kd-main-title { font-size: 15px; font-weight: 650; color: var(--ink); margin-bottom: 10px; line-height: 1.5; }
-.kd-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
-.kd-tag { background: #E8F0FE; color: #1A73E8; padding: 4px 12px; border-radius: 12px; font-size: 12.5px; font-weight: 500; }
-[data-theme="dark"] .kd-tag { background: rgba(26,115,232,0.2); color: #8AB4F8; }
-
-.jj-desc { font-size: 14.5px; color: var(--ink-soft); margin-bottom: 12px; line-height: 1.6; }
-.jj-card { background: #FFF9EB; border: 1px solid #FDE4A9; border-radius: 8px; padding: 14px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
-.jj-num { background: #F6AD3C; color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; margin-top: 1px;}
-.jj-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; }
-.jj-text strong { color: var(--ink); font-weight: 650; }
-[data-theme="dark"] .jj-card { background: #2A2518; border-color: #4A3C1F; }
-[data-theme="dark"] .jj-num { background: #C58A2E; color: #111; }
-
-.zx-block { background: var(--surface); border: 1px solid var(--surface-2); padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 12px; position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-.zx-block::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
-.zx-block.wrong::before { background: #E57373; }
-.zx-block.correct::before { background: #66BB6A; }
-.zx-letter { font-size: 17px; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; margin-top: -2px;}
-.zx-block.wrong .zx-letter { color: #D32F2F; }
-.zx-block.correct .zx-letter { color: #2E7D32; }
-.zx-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; }
-.zx-text strong { color: var(--ink); font-weight: 650; }
-[data-theme="dark"] .zx-block.wrong::before { background: #C62828; }
-[data-theme="dark"] .zx-block.correct::before { background: #2E7D32; }
-[data-theme="dark"] .zx-block.wrong .zx-letter { color: #EF5350; }
-[data-theme="dark"] .zx-block.correct .zx-letter { color: #81C784; }
-
-.gl-header { display: flex; gap: 10px; align-items: flex-start; margin: 18px 0 10px 0; }
-.gl-header:first-child { margin-top: 0; }
-.gl-bar { width: 4px; height: 18px; background: #1A73E8; border-radius: 2px; flex-shrink: 0; margin-top: 2px;}
-.gl-title { font-size: 15px; font-weight: 650; color: var(--ink); line-height: 1.5; }
-.gl-bullet { display: flex; gap: 10px; margin-bottom: 8px; padding-left: 14px; align-items: flex-start;}
-.gl-circle { width: 5px; height: 5px; border: 1px solid var(--ink-faint); border-radius: 50%; flex-shrink: 0; margin-top: 8px; }
-.gl-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; }
-.gl-text strong { color: var(--ink); font-weight: 650; }
-.gl-text-norm { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 8px; word-break: break-word; }
-[data-theme="dark"] .gl-bar { background: #8AB4F8; }
-
-.card.revealed .mobile-back { display: block; animation: drawFromDeckMobile 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-@keyframes drawFromDeckMobile { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@media (min-width: 768px) {
-    .pc-hint { display: inline; }
-    .mobile-back { display: none !important; }
-    .pc-back { 
-        display: flex !important; flex-direction: column; position: absolute; top: 0; width: 100%; height: 100%; 
-        margin-left: 20px; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
-        left: 0; z-index: -1; opacity: 0; transform: scale(0.95) translateY(10px); pointer-events: none; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    .card.revealed .pc-back { left: 100%; opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
-    body.is-revealed #card-container { transform: translateX(-250px); }
-}
-@keyframes fadeIn { from{ opacity:0; transform:translateY(5px) } to{ opacity:1; transform:translateY(0) } }
-
-/* summary & manage */
-.summary{text-align:center; padding:50px 0}
-.summary .big{font-size:46px; margin:0 0 6px; color:var(--success)}
-.summary h2{font-size:22px; margin:0 0 6px}
-.summary p{color:var(--ink-soft); font-size:14px; margin:0 0 26px}
-.stat-row{display:flex; justify-content:center; gap:26px; margin:24px 0 30px; flex-wrap:wrap}
-.stat{text-align:center}
-.stat .n{font-family:var(--font-mono); font-size:30px; font-weight:600}
-.stat .l{font-size:12px; color:var(--ink-faint)}
-.mg-head{display:flex; align-items:center; gap:10px; margin:26px 0 18px; flex-wrap:wrap}
-.mg-head h2{font-size:20px; margin:0; flex:1}
-.add{background:var(--primary); color:#fff; border:none; border-radius:9px; padding:8px 16px; font-weight:600; font-size:13.5px; cursor:pointer;}
-[data-theme="dark"] .add{color:#0c130f}
-.mg-count{font-family:var(--font-mono); font-size:12px; color:var(--ink-faint); width:100%}
-.qrow{background:var(--surface); border:1px solid var(--border); border-radius:11px; padding:12px 14px; margin-bottom:9px; display:flex; align-items:flex-start; gap:11px}
-.qrow .qbadge{margin-top:2px}
-.qrow .qtext{flex:1; min-width:0}
-.qrow .qstem{font-size:14px; line-height:1.5; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
-.qrow .qmeta{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); margin-top:3px}
-.qact{display:flex; gap:4px; flex:none}
-.tiny{background:none; border:1px solid var(--border); border-radius:7px; padding:4px 9px; font-size:12px; color:var(--ink-soft); cursor:pointer}
-.tiny:hover{border-color:var(--ink-faint); color:var(--ink)}
-.tiny.del:hover{color:var(--again); border-color:var(--again)}
-.modal{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-start; justify-content:center; padding:30px 16px; z-index:100; overflow-y:auto}
-.sheet{background:var(--surface); border-radius:16px; width:100%; max-width:620px; padding:22px; box-shadow:var(--shadow); margin:auto 0}
-.sheet h3{margin:0 0 16px; font-size:17px}
-.field{margin-bottom:14px}
-.field label{display:block; font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px}
-.field input[type=text],.field input[type=datetime-local],.field textarea{width:100%; background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:10px 12px; font-family:inherit; font-size:14px; color:var(--ink); resize:vertical; line-height:1.6}
-.field textarea:focus,.field input:focus{outline:none; border-color:var(--primary)}
-.cbline{display:flex; align-items:center; gap:9px; font-size:14px; color:var(--ink-soft)}
-.cbline input{width:18px; height:18px; accent-color:var(--gold)}
-.sheet-foot{display:flex; gap:10px; justify-content:flex-end; margin-top:8px}
-.help{background:var(--surface-2); border-radius:9px; padding:11px 13px; font-family:var(--font-mono); font-size:11.5px; line-height:1.85; color:var(--ink-soft); white-space:pre-wrap; margin-bottom:14px}
-.notice{font-size:14.5px; line-height:1.65; color:var(--ink); margin-bottom:18px; white-space:pre-wrap}
-.danger-btn{background:var(--again); color:#fff; border:none; border-radius:9px; padding:8px 16px; font-weight:600; font-size:13.5px; cursor:pointer}
-[data-theme="dark"] .danger-btn{color:#1a0f0e}
+  /* Sticker (showing result) */
+  .sticker { position: absolute; top: 12px; right: 14px; font-size: 20px; }
 </style>
 </head>
-<body class="">
-<header>
-  <div class="hbar">
-    <span class="brand">民诉 <span class="dot">·</span> 滑动复习</span>
-    <span class="hsp"></span>
-    <button class="ico sq" id="themeBtn" title="切换深浅色">☾</button>
-    <button class="ico" id="navManage">题库</button>
+<body>
+<div class="app">
+
+<div class="header">
+  <h1>习概闪卡 · 32张</h1>
+  <div style="display:flex;gap:10px;align-items:center">
+    <span class="counter" id="counterEl">1 / 32</span>
+    <button class="btn" style="flex:0;padding:5px 12px;font-size:12px;background:#E2E8F0;color:#4A5568;border-radius:8px" onclick="toggleStats()">统计</button>
   </div>
-</header>
-<main id="app"></main>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+<div class="topics" id="topicChips"></div>
+
+<!-- Main Card View -->
+<div id="mainView">
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card" id="cardEl">
+      <div class="card-meta">
+        <span class="type-badge" id="typeBadge"></span>
+        <span class="flip-hint" id="flipHint">点击翻转</span>
+      </div>
+      <div class="card-body" id="cardBody"></div>
+      <div class="hint" id="hintEl"></div>
+    </div>
+    <div class="sticker" id="stickerEl"></div>
+  </div>
+
+  <div class="btn-row" id="btnRow">
+    <button class="btn btn-nav" onclick="navigate(-1)">←</button>
+    <button class="btn btn-flip" id="mainBtn" onclick="handleMainBtn()">翻转查看答案 →</button>
+    <button class="btn btn-nav" onclick="navigate(1)">→</button>
+  </div>
+
+  <div class="marked-status" id="markedStatus"></div>
+</div>
+
+<!-- Stats View -->
+<div id="statsView" style="display:none">
+  <div class="stats">
+    <h2>学习进度统计</h2>
+    <div class="stat-grid">
+      <div class="stat-box" style="background:#EBF8FF">
+        <div class="stat-val" style="color:#2B6CB0" id="statTotal">0</div>
+        <div class="stat-lbl">已翻看</div>
+      </div>
+      <div class="stat-box" style="background:#F0FFF4">
+        <div class="stat-val" style="color:#276749" id="statKnow">0</div>
+        <div class="stat-lbl">✅ 已掌握</div>
+      </div>
+      <div class="stat-box" style="background:#FFFFF0">
+        <div class="stat-val" style="color:#975A16" id="statReview">0</div>
+        <div class="stat-lbl">🔄 需复习</div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:#718096;margin-bottom:14px" id="statsDetail"></div>
+    <button class="reset-btn" onclick="resetAll()">🔁 重置全部进度</button>
+  </div>
+</div>
+
+</div>
 
 <script>
-"use strict";
+const TYPE_CONFIG = {
+  "列举": { color: "#2B6CB0", bg: "#BEE3F8", border: "#3182CE" },
+  "填空": { color: "#6B21A8", bg: "#E9D8FD", border: "#805AD5" },
+  "框架": { color: "#276749", bg: "#C6F6D5", border: "#38A169" },
+  "解释": { color: "#92400E", bg: "#FEFCBF", border: "#D69E2E" },
+  "匹配": { color: "#9B2C2C", bg: "#FED7D7", border: "#E53E3E" },
+};
 
-/* ---------- STATIC QUESTION BANK ---------- */
-/* 题库已与本地进度完全剥离。导出 HTML 时会自动替换。 */
-const QUESTION_BANK = /*BANK_START*/[
-  {
-    "id": "dan-01",
-    "chapter": "单选",
-    "question": "下列关于民事诉讼基本原则的表述，哪一项是正确的？",
-    "options": "A. 当事人诉讼权利平等原则意味着当事人拥有相同的诉讼权利\nB. 辩论原则仅适用于法庭辩论阶段\nC. 处分原则是指当事人可以自由处分自己的实体权利和诉讼权利\nD. 诚实信用原则仅适用于当事人，不适用于法院和其他诉讼参与人",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "民事诉讼法的四大基本原则（关联：平等原则、辩论原则、处分原则、诚信原则的内涵与边界）",
-    "jiangjie": "1\\. **平等原则**：打官司时双方地位平等，但权利并非长得“一模一样”。有的是完全一样（比如都有权请律师），有的是“相对应”的（比如原告有权起诉，被告就有权答辩）。\n\n2\\. **辩论原则**：只要是在**诉讼程序**（一审、二审、再审）里，随时随地都能辩论，**不限于**庭审时的“法庭辩论阶段”。但是，像执行程序，或者不需要解决纠纷的非讼程序（特别程序、督促程序等），大家没啥可争的，就不能辩论。\n\n3\\. **处分原则**：当事人自己的权利（包括实体权利和诉讼权利）自己做主。**但是，必须在“法律允许的范围内”**，绝不是想怎么自由瞎处分都可以。\n\n4\\. **诚信原则**：所有参与诉讼的人（包括法官、当事人、证人、代理人等）都要讲诚信，不能瞎搞。",
-    "zhuxiang": "\\- **A ✗**错误。平等原则不仅包括诉讼权利相同，还包括诉讼权利的“相对应”。把平等狭隘地理解为拥有“相同”的权利是片面的。\n\n\\- **B ✗**错误。辩论原则贯穿于整个诉讼过程（包括一审、二审、再审），而不仅仅局限于开庭时的法庭辩论阶段。\n\n\\- **C ✗**（本题给定答案，但表述存在瑕疵）。处分原则是指当事人有权处分自己的实体权利和诉讼权利，但**前提是必须在“法律规定的范围内”**。选项中表述为可以“自由处分”，忽略了法律的限制条件，法院是有权依据法律进行干涉的。\n\n\\- **D ✗**错误。诚实信用原则不仅约束当事人，也同样约束法院以及其他所有的诉讼参与人（如证人、代理人、鉴定人等）。",
-    "guanlian": "一、辩论原则与诉讼程序的关联\n有纠纷才有辩论，所以只有用来“解决纠纷”的诉讼程序（一审、二审、再审），才适用辩论原则。执行程序以及特别程序、督促程序、公示催告程序等非讼程序不解决纠纷，因此不适用辩论原则。\n\n**二、处分原则与约束性辩论原则的判断技巧\n在判断法院的裁判是否违反基本原则时，主要看法院“超”出了什么：\n\n1\\. **裁判超“请求”，违反处分原则**：处分原则针对的是诉讼请求层面，强调法院判决不能超出当事人的诉讼请求（比如原告只要5万，法院硬判给8万），否则侵犯了当事人的处分权。\n\n2\\. **裁判超“事实”，违反辩论原则**：辩论原则针对的是事实、证据层面，强调法院的判决不能超出当事人在事实、证据层面的主张，法官不能擅自将当事人没有主张的事实作为裁判依据。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-02",
-    "chapter": "单选",
-    "question": "甲与乙因合同纠纷诉至法院，法院受理后，丙认为该合同标的物是自己的，要求参加诉讼。丙在诉讼中的地位是",
-    "options": "A. 共同原告\nB. 共同被告\nC. 有独立请求权第三人\nD. 无独立请求权第三人",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "第三人的种类与识别（关联：有独立请求权第三人、无独立请求权第三人、共同诉讼人）",
-    "jiangjie": "在民事诉讼中，区分第三人和共同诉讼人，教你一个“两步走”的绝招：\n\n第一步：找本案的“主角”和“剧本”（即找出本案的原告、被告以及他们之间的法律关系）。\n\n第二步：看“插班生”（想要加入诉讼的人）在不在这个“剧本”里。\n\n1\\. 如果他在这个“剧本”里（即该主体是本案原、被告之间法律关系的一方当事人），那就是“共同原告”或“共同被告”。\n\n2\\. 如果他不在这个“剧本”里（即该主体不是本案原、被告之间法律关系的一方当事人），那就是“第三人”。\n\n第三人又分两种：\n\n\\- **有独立请求权第三人（有独三）**：相当于半路杀出的程咬金，大喊“你们争的东西是我的，你们俩别抢了！”（即基于一个独立的法律关系主张自己独立的权利）。\n\n\\- **无独立请求权第三人（无独三）**：相当于在旁边看戏但可能要受牵连的人，他不说东西是自己的，但案件判决结果可能会让他掏钱或受影响（即对诉讼标的没有独立请求权，只是与案件的处理结果存在法律上的利害关系而参加诉讼）。",
-    "zhuxiang": "A ✗ 丙不是甲、乙之间合同关系的一方当事人，因此不可能是共同原告。\n\nB ✗ 同理，丙不是甲、乙合同关系的一方当事人，因此不可能是共同被告。\n\nC ✓ 本案的原、被告是甲和乙，争议的法律关系是合同纠纷。丙不是合同当事人，但丙认为“合同标的物是自己的”，也就是对甲乙争议的诉讼标的提出了独立的请求权，为了维护自己权利而参加诉讼。这完全符合“有独立请求权第三人”的定义。\n\nD ✗ 丙明确主张标的物是自己的（有独立的请求权），而不是仅仅与案件处理结果有利害关系，因此不是无独立请求权第三人。",
-    "guanlian": "一、有独立请求权第三人：对本诉当事人争议的诉讼标的有独立的请求权，为了维护自己权利而参加诉讼的人。其参诉理由是认为原、被告的权利主张侵犯了自己的权利，因此将其一并作为被告，提起独立的诉讼请求。其诉讼地位相当于原告。\n\n二、无独立请求权第三人：对原、被告争议的诉讼标的没有独立请求权，但与案件处理结果有法律上的利害关系而参加诉讼的人。\n\n三、共同诉讼与第三人的本质区别：共同原告、被告一定是本案争议的实体法律关系（诉讼标的）的一方当事人；而有独三、无独三一定不是本案争议的实体法律关系（诉讼标的）的一方当事人。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-03",
-    "chapter": "单选",
-    "question": "下列哪种案件可以适用简易程序审理？",
-    "options": "A. 起诉时被告下落不明的案件\nB. 发回重审的案件\nC. 共同诉讼中一方当事人人数众多的案件\nD. 事实清楚、权利义务关系明确、争议不大的简单民事案件",
-    "answer": "答案：D",
-    "analysis": "",
-    "kaodian": "简易程序的适用范围与禁止适用情形（关联：简易程序的适用前提、协议适用与程序特点）",
-    "jiangjie": "简易程序可以理解为基层法院为了“快刀斩乱麻”解决简单纠纷而设立的“快车道”。\n\n要想上这条“快车道”，必须满足基本条件：必须是“基层法院及其派出法庭”审理的“一审”民事案件，并且案子得是“事实清楚、权利义务关系明确、争议不大”的简单案子。\n\n但是，如果案子带有某些“复杂”或“特殊”属性，就坚决不能走简易程序（这在法律上被称为“消极条件”或“负面清单”），比如：\n\n1\\. 找不到人的：起诉时被告下落不明的。\n\n2\\. “回炉重造”的：发回重审的。\n\n3\\. 人多嘴杂的：当事人一方人数众多的。\n\n4\\. “翻案”的：适用审判监督程序的（即再审案件），或者第三人起诉请求改变、撤销生效判决、裁定、调解书的。\n\n5\\. 牵扯面广的：涉及国家利益、社会公共利益的。",
-    "zhuxiang": "A ✗：起诉时被告下落不明的，属于法定的不能适用简易程序的案件。因为被告下落不明通常需要公告送达，而简易程序为了追求效率，一旦原告无法提供准确地址且法院查证不到，会裁定转为普通程序或驳回起诉。\n\nB ✗：发回重审的案件，说明之前的审理可能存在事实不清或程序严重违法等问题，必须适用一审程序另行组成合议庭进行重新审理，明确被排除在简易程序适用范围之外。\n\nC ✗：共同诉讼中一方当事人人数众多（通常指10人以上），案情和利益诉求往往较为复杂，属于法定禁止适用简易程序的情形。\n\nD ✓：基层法院及其派出法庭审理的事实清楚、权利义务关系明确、争议不大的简单民事案件，属于法院依职权应当适用简易程序审理的情形。",
-    "guanlian": "一、适用前提：简易程序只能适用于基层法院（及其派出法庭）审理的第一审民事案件。中级法院的一审不能适用，发回重审和适用一审程序的再审也不能适用简易程序。\n\n二、协议适用：对于基层法院管辖的、除上述法定简单案件以外的民事案件，只要没有触犯上述“负面清单”（禁止性规定），双方当事人也可以在开庭前书面约定适用简易程序。但反过来，依法应当适用简易程序的案件，当事人不能约定适用普通程序。\n\n三、简易程序的特点：\n\n1\\. 审判组织简单：必须由审判员一人独任审判。\n\n2\\. 程序灵活：可以采取捎口信、电话、短信等简便方式传唤当事人和送达文书；但如果用简便方式送达开庭通知，未经当事人确认或者没有其他证据证明其收到的，绝对不得缺席判决。\n\n3\\. 审限短：立案之日起3个月内审结，有特殊情况经院长批准可以延长1个月（即“3+1”模式）。\n\n四、程序的转化：简易程序在审理中发现案情复杂或当事人提出异议成立的，应当裁定转为普通程序（审限从立案之日起计算）；但是，需要特别注意“单行道”规则：已经按照普通程序审理的案件，在开庭后绝对不得再转为简易程序审理。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-04",
-    "chapter": "单选",
-    "question": "人民法院适用普通程序审理的案件，应当在立案之日起（　）内审结。有特殊情况需要延长的，由本院院长批准，可以延长六个月；还需要延长的，报请上级人民法院批准。",
-    "options": "A. 三个月\nB. 六个月\nC. 九个月\nD. 一年",
-    "answer": "答案：B",
-    "analysis": "",
-    "kaodian": "一审普通程序的审理期限（关联：简易程序审限、小额诉讼程序审限、涉外案件审限）",
-    "jiangjie": "法院审理案件不能无限期拖延，法律为不同类型的程序设定了“倒计时”（审限）：\n\n1\\. **普通程序（基本款）**：针对一般或较复杂的案件，法院需要充足的时间调查和审理，因此规定从立案那天起 **6个月**内必须审完。遇到特殊情况（比如案子实在太复杂），本院院长点头可以再宽限6个月；如果1年了还审不完，就必须向更高级别的法院打报告申请了。\n\n2\\. **简易程序（快捷版）**：针对简单的案件，法官一个人就能审，要求速度快，**3个月**内要搞定。遇到特殊情况院长批准可以延长1个月（即“3+1”模式）。\n\n3\\. **小额诉讼程序（闪电版）**：针对金额很小、没啥大争议的案件，要求神速，**2个月**内审完。特殊情况院长批准可以延长1个月（即“2+1”模式）。\n\n**记忆口诀**：普通6个月，简易3个月，小额2个月。",
-    "zhuxiang": "A ✗ 三个月是**简易程序**的法定基本审限，不是普通程序的审限。\n\nB ✓ **六个月**是**一审普通程序**法定的基本审限，符合法律规定。\n\nC ✗ 九个月不是任何一种一审程序的法定基本审限。\n\nD ✗ 一年是一审普通程序经过本院院长批准延长一次后的最长可能时间（基本6个月+延长6个月），并非起算的基本审限。",
-    "guanlian": "一、 各类一审程序的审限对比：\n\n1\\. **普通程序**：6个月（可本院院长批延6个月，再延需上级批）。\n\n2\\. **简易程序**：3个月（可本院院长批延1个月）。\n\n3\\. **小额诉讼的程序**：2个月（可本院院长批延1个月）。\n\n二、 特殊情况的审限：\n\n**涉外民事案件**：因为涉及到域外送达、域外调查取证等耗时极长的环节，所以法院审理涉外民事案件**不受一审、二审审限的限制**。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-05",
-    "chapter": "单选",
-    "question": "下列关于证据的表述，正确的是",
-    "options": "A. 书证应当提交原件，提交原件确有困难的，可以提交复制品、照片、副本、节录本\nB. 证人必须是自然人，单位不能作为证人\nC. 鉴定意见必须由法院指定的鉴定机构作出\nD. 视听资料不能单独作为认定案件事实的依据",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "民事诉讼证据规则（关联：书证最佳证据规则、证人资格、鉴定人的确定、不能单独定案的证据情形）",
-    "jiangjie": "证据使用有规矩：\n\n1\\. **书证讲究“原汁原味”（最佳证据规则）**：拿书面证据打官司，最好给法官看原件。如果原件拿过来确有困难，经法院同意，拿复印件、照片或节录本也行。\n\n2\\. **“单位”也能开口说话（证人资格）**：只要知道案件事实并且能正常表达的，不论是“单位”还是“个人”，都有义务作证，所以证人不局限于有血有肉的自然人。\n\n3\\. **鉴定找谁先“商量”（鉴定机构确定）**：需要做鉴定时，大家“有商有量”，先由双方当事人自己协商找哪家机构；如果大家谈不拢，才由法院来“拍板”指定。\n\n4\\. **录音录像不能“有猫腻”（视听资料证明力）**：录音录像等视听资料，只有在**“存在疑点”**（比如听着像剪辑过、画面模糊不清）的情况下，才不能单独定案，需要找其他证据互相印证。如果清清楚楚、毫无疑点，是完全可以单独用来定案的。",
-    "zhuxiang": "A ✓ **书证原则上应当提交原件**。根据最佳证据规则，书证应当提交原件，提交原件确有困难的，经过法院准许可以提交复制品、照片、副本、节录本。\n\nB ✗ **单位也可以作为证人**。法律明确规定，凡是知道案件情况的单位和个人都有义务出庭作证。证人并不必须是自然人。\n\nC ✗ **鉴定人原则上先由当事人协商确定**。当事人申请鉴定的，应当**先由法院组织当事人协商**确定鉴定人，只有在协商不成的形况下，才由法院指定。并非一开始就必须由法院指定。\n\nD ✗ **只有“存在疑点”的视听资料才不能单独定案**。法律规定的是“存在疑点”的视听资料、电子数据不得单独作为认定案件事实的证据。没有疑点的视听资料是可以单独作为认定依据的。",
-    "guanlian": "一、**最佳证据规则**：因为复制件存在作伪的风险，所以原件是最佳证据，当事人原则上应当提交书证原件。\n\n二、**证人资格的两个硬条件**：\n\n1.**知晓案情**：必须了解案件真实情况。\n\n2.**能正确表达**：不能正确表达意思的人不能作证。\n\n注意：证人不适用回避制度，无民事行为能力人（只要能正确表达）以及与案件有利害关系的人，**都可以作为证人**，只是他们的证言可能需要其他证据进行证明力上的补强。\n\n三、**不得单独作为定案根据的证据（孤证不能定案的情形）**：\n\n有些证据虽然可以当证据用，但证明力较弱，不能“单打独斗”定案，必须有其他证据补强，主要有：\n\n1.当事人的陈述；\n\n2.无、限制民事行为能力人所作的与其年龄、智力或者精神健康状况不相当的证言；\n\n3.与一方当事人或者其代理人有利害关系的证人陈述的证言；\n\n4.**存在疑点**的视听资料、电子数据；\n\n5.无法与原件核对的复制件、复制品。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-06",
-    "chapter": "单选",
-    "question": "甲向法院起诉乙要求偿还借款，乙在答辩中称借款已经偿还，并提供了甲出具的收条。乙提供收条的行为属于",
-    "options": "A. 本证\nB. 反证\nC. 直接证据\nD. 间接证据",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "本证与反证的区分（关联：直接证据与间接证据的分类、证明责任的分配）",
-    "jiangjie": "区分“本证”和“反证”，核心就看证据与证明责任的关系（即“谁有义务交这份作业”）：\n1\\. **本证**= “做自己的作业”。你主张了一个事实，法律规定这个事实归你来证明，你拿出了证据，你拿出的这个证据就叫“本证”。\n\n2\\. **反证**= “挑别人作业的错”。法律没规定归你证明（你不承担证明责任），但对方拿出了证据，你为了反驳他，也拿出了一个证据来“打脸”，这就叫“反证”。\n\n**本、反证的判断三步曲：\n- **第一步：该证据的待证事实是什么？**本题中乙主张“借款已经偿还”，收条的待证事实就是“是否已经还款”。\n\n- **第二步：对该事实应当由谁承担证明责任？**根据“谁主张，谁举证”的原则，主张法律关系消灭的当事人，应当对该法律关系消灭的基本事实承担举证证明责任。因此，应当由主张已经还钱的**债务人（乙）**来证明。\n\n- **第三步：该证据是谁提出来的？**这个收条正是承担举证责任的**乙**自己拿出来的。\n\n**结论：**承担证明责任的人提出来的证据，就是**本证**。",
-    "zhuxiang": "- **A ✓ 本证**。乙主张借款已经归还，对于是否已经还款应当由承担还款义务的人（乙）证明。该收条是由承担举证责任的乙提出来的，属于承担证明责任的人提出来的证据，是本证。\n\n- **B ✗ 反证**。反证是由不承担证明责任的一方当事人提出来的证据。本题中乙对“还款事实”负有证明责任，所以他提供的不是反证。\n\n- **C ✗ 直接证据**。此选项有一定迷惑性。从证据与待证事实的关系来看，收条能够单独、直接证明借款已经归还这一事实，确实属于直接证据。但本题**题干**：\n\n强调的是“乙提供收条的**行为**”，考察的核心语境是当事人举证行为与证明责任之间的关系，而非单纯界定证据本身的内容完整性。在单选题中，“本证”是最精准、最契合出题人意图的选项。\n\n- **D ✗ 间接证据**。间接证据是不能单独、直接证明待证事实，需要与其他证据相结合的证据。收条在内容上可以单独、完整地证明还款事实，不属于间接证据。",
-    "guanlian": "一、证据的理论分类：\n1\\. **根据证据与证明责任的关系（核心考点）：\n - **本证**：提出该证据的当事人对该待证事实承担举证责任。提出本证应当达到法定的证明标准，否则当事人要承担不利后果。\n\n - **反证**：提出该证据的当事人对该待证事实不承担举证责任。提供反证无需达到证明标准，只要能让法官对对方的证据产生怀疑即可。\n\n2\\. **根据证据与待证事实的关系：\n - **直接证据**：能够单独、直接证明待证事实的证据。直接证据在内容上能够完整地证明待证事实。\n\n - **间接证据**：不能直接或单独证明待证事实，需要与其他证据相结合。间接证据在内容上只能证明待证事实的一个部分、一个片段，因此间接证据**一定不能单独定案**。\n\n3\\. **根据证据的来源：\n - **原始证据**：直接来源于案件事实而未经复制、转述等中间传播环节的证据（如原件、原物）。\n\n - **传来证据**：指不直接来源于案件事实，而是经过复制、转述等传播环节的证据（如复印件、传闻）。\n\n**二、证明责任的分配（“谁主张，谁举证”）：\n1\\. **主张法律关系存在**的当事人，应当对产生该法律关系的基本事实（如：原告主张借款事实的存在）承担举证证明责任。\n\n2\\. **主张法律关系变更、消灭或权利受到妨害**的当事人，应当对该法律关系变更、消灭或者权利受到妨害的基本事实（如：被告主张借款已经归还）承担举证证明责任。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-07",
-    "chapter": "单选",
-    "question": "人民法院对下列哪种案件，根据当事人的申请，可以裁定先予执行？",
-    "options": "A. 追索劳动报酬的案件\nB. 解除收养关系的案件\nC. 要求确认合同效力的案件\nD. 要求返还借款的案件",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "先予执行的适用情形（关联：先予执行概念、适用条件、程序）",
-    "jiangjie": "先予执行适用急案：\n\n1.讨要“生活费/救命钱”：赡养费、扶养费、抚养费、抚恤金、医疗费。\n\n2.讨要“血汗钱”：拖欠的劳动报酬。\n\n3.其他急案：突发且十万火急的情况。\n\n4.注意：劳动仲裁阶段也能申请，由仲裁委裁决后交法院执行。",
-    "zhuxiang": "A ✓追索劳动报酬是法定的先予执行情形。\n\nB ✗解除收养关系是身份关系纠纷，不涉及先予执行。\n\nC ✗确认合同效力是确认之诉，没有给付内容，无法先予执行。\n\nD ✗普通借款纠纷不属于法定先予执行范围（除非情况紧急）。",
-    "guanlian": "一、概念：先予执行可以理解为法院最终判决前，为了救急，根据当事人申请，强制对方提前给钱或办事的制度。\n\n二、适用条件：\n\n1.事实清楚：谁该给谁钱，一清二楚（权利义务关系明确）。\n\n2.十万火急：真等不及了，不马上解决就没法生活或经营（有迫切需要）。\n\n3.主动申请：必须自己向法院提要求，法院不告不理（法院不主动依职权裁定）。\n\n4.对方有底子：被申请人确实有钱或有能力履行。\n\n三、程序与规则\n\n1.什么时间提？法院立案后～最终判决前。\n\n2.对裁定不服怎么办？只能向原法院申请复议一次。但请注意：复议期间照常执行，不许停",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-08",
-    "chapter": "单选",
-    "question": "下列关于第二审程序的表述，错误的是",
-    "options": "A. 第二审程序是终审程序\nB. 第二审人民法院对上诉案件，应当组成合议庭，开庭审理\nC. 第二审人民法院对上诉案件，经过审理，认为原判决认定事实清楚，适用法律正确的，判决驳回上诉，维持原判决\nD. 当事人对第一审判决不服的，有权在判决书送达之日起 15 日内向上一级人民法院提起上诉",
-    "answer": "答案：B",
-    "analysis": "",
-    "kaodian": "二审程序的审理形式与审判组织（关联：两审终审制、上诉期限、二审裁判结果）",
-    "jiangjie": "二审程序有三大“不一定”，初学者可以这样快速记忆：\n\n1\\. **不一定开庭**：二审原则上要开庭，但如果法官把案卷看了一遍、做完调查、也问过当事人了，发现大家都没提出什么“新花样”（新事实、新证据、新理由），法官觉得没必要再开庭折腾一趟，就可以“不开庭审理”。\n\n2\\. **不一定合议**：二审原则上由法官组成合议庭（大家一起商量着判），但如果是中级法院审理“一审是简易程序”或“不服一审裁定”的上诉案件，只要事实清楚、权利义务明确，且**双方当事人都同意**，也可以由一名法官“单挑”（适用独任制）。\n\n3\\. **上诉期不一定一样**：不服一审“判决”的上诉期是15天，但不服一审“裁定”的上诉期只有10天。",
-    "zhuxiang": "A ✓ **正确。**我国民事诉讼实行“两审终审制”，一个案件经过两级法院审理就终结了，所以第二审程序作出的裁判就是生效的终结裁判。\n\nB ✗ **错误。**选项前半句表述“应当组成合议庭，开庭审理”过于绝对。首先，二审并非绝对开庭，在没有新事实、新证据等法定情形下可以不开庭（选项括号内的补充说明也印证了这一点）；其次，二审并非绝对组成合议庭，符合特定条件且经双方当事人同意的，也可以由一名审判员独任审理。\n\nC ✓ **正确。**这是二审法院“维持原判”的情形。二审法院审理后，如果发现一审法官无论是查明事实还是适用法律都做得全对，挑不出毛病，就会判决“驳回上诉，维持原判决”。\n\nD ✓ **正确。**对于一审判决，当事人有权在收到判决书之日起 15 日内向上级法院提交书面上诉状提起上诉，这是法定的判决上诉期间。",
-    "guanlian": "一、两审终审制：民事案件一般经过两级法院审判后即告终结。但有例外，例如最高人民法院一审的案件、调解书、小额诉讼程序、非讼程序（特别程序、督促程序、公示催告程序）以及一般的裁定等都是一审终审，不能上诉。\n\n二、上诉的期限与形式：\n\n1\\. 上诉期：判决为15天，裁定为10天，均自一审裁判文书送达之日起计算。\n\n2\\. 形式：必须提交书面上诉状，口头上诉无效。\n\n三、二审的结案方式（裁判）：\n\n1\\. 维持原判：原判决认定事实清楚，适用法律正确。\n\n2\\. 改判/撤销/变更：原判决认定事实或者适用法律错误。\n\n3\\. 发回重审：原判决基本事实不清，或者严重违反法定程序（如遗漏必须参加诉讼的当事人、违法缺席判决等）。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-09",
-    "chapter": "单选",
-    "question": "下列关于审判监督程序的表述，正确的是",
-    "options": "A. 审判监督程序是一审、二审程序之外的独立的审判程序\nB. 当事人申请再审，应当在判决、裁定发生法律效力后一年内提出\nC. 人民法院按照审判监督程序再审的案件，一律适用二审程序审理\nD. 最高人民检察院对各级人民法院已经发生法律效力的判决、裁定，发现有错误的，可以直接向同级人民法院提出抗诉",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "审判监督程序综合规定（关联：再审的审理程序、申请再审期限、检察院抗诉规则）",
-    "jiangjie": "1\\. **审判监督程序是“独立的审判程序”（本题按此设定，选 A）**：再审（审判监督程序）是与第一审程序、第二审程序相并列的一类审判程序，是对已经生效的裁判进行纠错的特别救济程序。（注：另有观点强调再审只是“借用”一审/二审程序审理、并无独立的审理规则，故本题存在一定争议，请以老师/考试给定的答案 **A** 为准。）\n\n2\\. **申请再审的“保质期”是 6 个月**：裁判生效后申请再审原则上须在 6 个月内提出，B 说“一年内”错误。\n\n3\\. **再审并非“一律适用二审程序”**：原裁判是一审作出的按一审程序再审，是二审作出的或上级法院提审的才按二审程序，C 错误。\n\n4\\. **检察院抗诉是“应当”而非“可以”**：对符合法定情形的生效裁判，有抗诉权的检察院“应当”提出抗诉；D 说“可以”，用语不够准确。",
-    "zhuxiang": "\\- **A ✓** 正确（本题指定答案）。审判监督程序（再审）是与一审、二审相并列的独立的审判程序，属于针对已生效裁判的特别纠错程序。\n\n\\- **B ✗** 错误。当事人申请再审原则上应当在判决、裁定发生法律效力后**六个月内**提出，而非“一年内”。\n\n\\- **C ✗** 错误。再审并非一律适用二审程序：原裁判是一审作出的按一审程序再审，是二审作出的或上级法院提审的才按二审程序再审。\n\n\\- **D ✗** 错误。对符合法定情形的生效裁判，有抗诉权的检察院“**应当**”提出抗诉，D 表述为“可以”，用语不准确；故本题正确答案为 **A**。",
-    "guanlian": "**一、再审的审理程序（“借壳”规则）\n1\\. **原一审终审**（如当事人未上诉导致一审生效）：再审按照一审程序另行组成合议庭审理，作出的裁判还能再上诉。\n\n2\\. **原二审终审**：再审按照二审程序另行组成合议庭审理，作出的裁判直接是终审裁判，一锤定音。\n\n3\\. **上级提审**：如果是上级法院把案子提上来自己审，统一按照二审程序审理，作出的裁判也是终审裁判。\n\n**二、申请再审期限的例外（何时突破6个月）\n虽然一般是生效后6个月内，但如果是以下4种“隐藏得深”的严重错误，可以自**知道或者应当知道之日起**算6个月：\n\n1\\. 发现了足以推翻原判的新证据。\n\n2\\. 发现原判决主要证据是伪造的。\n\n3\\. 作为原判决依据的法律文书被撤销/变更了。\n\n4\\. 发现审判人员贪污受贿、枉法裁判。\n\n**三、检察院启动再审的双重武器\n1\\. **抗诉**：上级检察院监督下级法院（上抗下），但**抗诉书要向同级法院提交**，接受抗诉的法院**必须在30日内裁定再审**（法院没有实质审查拒绝权）。\n\n2\\. **检察建议**：同级检察院监督同级法院（同级提），需报上级检察院备案，法院收到后有3个月审查期，可以决定不予再审。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-10",
-    "chapter": "单选",
-    "question": "下列关于执行程序的表述，错误的是",
-    "options": "A. 发生法律效力的民事判决、裁定，以及刑事判决、裁定中的财产部分，由第一审人民法院或者与第一审人民法院同级的被执行的财产所在地人民法院执行\nB. 申请执行的期间为二年\nC. 执行员接到申请执行书或者移交执行书，应当向被执行人发出执行通知，并可以立即采取强制执行措施\nD. 被执行人未按执行通知履行法律文书确定的义务，人民法院可以对其采取或者通知有关单位协助采取限制出境措施，但不能在征信系统记录其信息",
-    "answer": "答案：D",
-    "analysis": "",
-    "kaodian": "执行程序的相关规定（关联：执行管辖、申请执行时效、执行通知、执行保障措施）",
-    "jiangjie": "打赢了官司对方不给钱怎么办？申请强制执行！\n\n1\\. **找谁执行（执行管辖）**：判决生效后，你可以找作出一审判决的法院去申请执行，或者直接去找“老赖”财产所在地且跟一审法院平级的法院申请。\n\n2\\. **多长时间内申请（执行时效）**：申请强制执行的期限是2年，这就像是判决书的强制执行“保质期”。\n\n3\\. **法院怎么启动（执行通知）**：法院接到执行申请或移交的文书后，会给老赖发个“通知”。同时，为了防止老赖偷偷把钱转走，法院发通知的同时就可以立刻采取查封、冻结等强制执行措施。\n\n4\\. **对付老赖的手段（保障措施）**：如果老赖还不掏钱，法院有各种手段治他，比如限制他出国（限制出境）；不让他坐高铁飞机（限制高消费）；在媒体上曝光他，还可以把他的违约黑历史写进个人征信系统，让他在社会上寸步难行。",
-    "zhuxiang": "A ✓ 表述正确。发生法律效力的民事判决、裁定，以及刑事裁判中的财产部分，依法由一审法院或者与一审法院同级的被执行财产所在地法院执行。\n\nB ✓ 表述正确。申请强制执行是有法定期限的，申请执行的时效期间为2年。\n\nC ✓ 表述正确。执行员接到申请书或移交书后应当向被执行人发出执行通知，同时为了防止被执行人转移财产，法院可以立即采取强制措施。\n\nD ✗ 表述错误。被执行人拒不履行法律文书确定的义务，法院不仅可以对其采取限制出境等措施，还可以将其不履行义务的信息记录在个人征信系统中以示惩戒。选项称“不能在征信系统记录其信息”是不符合法律规定的。",
-    "guanlian": "一、**执行管辖规则**：诉讼程序作出的文书（判决、裁定、调解书）由一审法院或与之同级的被执行财产所在地法院执行；非讼程序作出的文书（如支付令）由作出该文书的法院或与之同级的被执行财产所在地法院执行。\n\n二、**执行的启动与时效**：申请执行的时效为2年，且该2年适用时效中止、中断的规定。\n\n三、**其他执行保障措施**：对于拒不履行义务的被执行人，法院还可以采取诸多措施，如强制报告当前及前1年的财产情况；加倍支付迟延履行期间债务利息或支付迟延履行金；限制高消费及有关消费（如禁止乘坐飞机、G字头动车等）；媒体公布不履行义务信息等。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-11",
-    "chapter": "单选",
-    "question": "张三起诉李四要求解除合同，在案件审理的过程中，张三变更诉讼请求，要求李四承担违约责任并继续履行合同。下列说法中正确的有？",
-    "options": "A. 张三作出的是对诉讼请求的变更\nB. 张三应当先申请撤回起诉，之后再另行起诉\nC. 对张三请求的继续履行和违约责任，法院应作出诉的合并审理\nD. 张三作出的是对诉讼标的的变更",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "诉讼标的与诉讼请求的区别、处分原则（关联：诉的要素、诉的合并）",
-    "jiangjie": "要分清这道题，先要搞懂“诉讼标的”和“诉讼请求”这对双胞胎：\n\n1\\. **诉讼标的（核心纠纷点）**：指的是原被告双方“吵架的核心法律关系”（比如：买卖合同关系、借款关系）。通俗说就是“我凭什么基础告你”。\n\n2\\. **诉讼请求（具体要什么）**：指的是原告基于这个核心关系，向法院提出来的“具体要求”（比如：要赔钱、要解除合同、要道歉）。通俗说就是“我告你要你干嘛”。\n\n3\\. **打个比方**：你起诉借钱不还的朋友，“借款合同关系”就是诉讼标的。一开始你要他“还本金”，后来觉得亏，改成要他“还本金+利息”，你的具体要求（诉讼请求）变了，但你们始终是因为那笔“借款”（诉讼标的）在打官司，核心纠纷点没变。",
-    "zhuxiang": "- **A ✓正确**。张三把原本“解除合同”的具体要求，改成了“承担违约责任并继续履行”，这显然属于原告对具体要求的改变，即“诉讼请求的变更”\\[1-3]。\n\n- **B ✗错误**。在民事诉讼中，当事人享有处分原则，有权在法庭辩论终结前直接申请变更诉讼请求，法院应予准许并继续审理，不需要“先撤诉再重新起诉”折腾一圈\\[4]。\n\n- **C ✗错误**。“诉的合并”一般指把多个拥有不同诉讼标的（不同法律关系）的纠纷拉到一起审理。本案中，“继续履行”和“违约责任”都是基于同一个“合同关系”（同一个诉讼标的）派生出的多项具体要求，不构成诉的合并\\[3, 5]。\n\n- **D ✗错误**。无论张三是要求解除合同，还是要求继续履行，他们打官司的基础始终是两人之间的“合同关系”。核心关系没有变，所以诉讼标的没有变更\\[2, 3]。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-12",
-    "chapter": "单选",
-    "question": "住所地位于甲市的A将自己的玉石借给住所地位于乙市的B进行展览，住所地位于丙市的C不知玉石是A的，以20万元的价格从B处将该玉石买下。B对A谎称以15万元的价格将玉石卖出，后来A得知B实际上是以20万元的价格出售的玉石，于是诉至法院要求B返还差额5万元。 本案的管辖法院是",
-    "options": "A. 甲市法院\nB. 乙市法院\nC. 丙市法院\nD. 甲市法院和乙市法院均有管辖权",
-    "answer": "答案：B",
-    "analysis": "",
-    "kaodian": "不当得利纠纷的地域管辖（关联：诉由的精准定性、一般地域管辖原则、合同特殊地域管辖的排他适用）",
-    "jiangjie": "这道题的核心陷阱在于**“透过要钱的表象，看清官司的本质”**。\n\n1\\. **这到底是个什么官司（定性）？\nA把玉石借给B，B背着A偷偷卖了属于无权处分。A没有要回玉石，而是跑去向B讨要B私吞的5万元差价。这5万元是B没有合法根据多赚的钱，在法律上这叫**“不当得利”**。所以A告B，打的是不当得利返还的官司，而不是借展合同的官司。\n\n2\\. **不当得利去哪告（管辖）？\n《民事诉讼法》对不当得利没有设定专门的“特殊地域管辖”，所以只能用最基础的兜底规则——**“原告就被告”**（被告在哪，就去哪的法院告）。本案被告是B，B住在乙市，因此只能去乙市法院起诉。\n\n3\\. **防坑指南（为什么不能选甲市）：\n很多同学一看诉讼请求是“返还5万元”，立刻眼睛一亮，想起合同管辖中的神规则：“给付货币的，接收货币一方所在地为合同履行地”，从而误以为原告A所在的甲市也有管辖权。\n\n**记住两个防错大招：\n\\- **第一招**：那条神规则的前提必须是“因合同纠纷提起的诉讼”，本案是不当得利纠纷，严禁跨界套用！\n\n\\- **第二招**：退一万步讲，就算你把它当成借用合同违约纠纷，这个合同的核心义务是“归还玉石”（属于交付其他标的），履行地应当是履行义务一方（B所在的乙市）。要这5万元只是因为没还玉石转化来的赔偿/返还，不能一看只要是索要钱财就当成“给付货币”。所以，无论是按不当得利还是合同纠纷，甲市统统没有管辖权。",
-    "zhuxiang": "\\- **A ✗ 甲市法院\n甲市是原告A的住所地。在民事诉讼中，只有在少数特定情形（如特定合同纠纷中原告作为接收货币一方、或者特殊的被告就原告情形）才会由原告地管辖。本案为不当得利纠纷，不适用合同纠纷的特殊管辖规则，甲市法院无权管辖。\n\n\\- **B ✓ 乙市法院\n本案案由属不当得利纠纷，依法应适用“原告就被告”的一般地域管辖原则。由于被告B的住所地在乙市，因此乙市法院享有唯一管辖权。\n\n\\- **C ✗ 丙市法院\n丙市是买受人C的住所地。C在不知情的情况下买下玉石，构成善意取得。本案中A并未起诉C，C不是本案当事人，丙市与本案A、B之间的不当得利纠纷没有任何法律上的管辖连接点。\n\n\\- **D ✗ 甲市法院和乙市法院均有管辖权\n这是命题人专门为“死背法条、生搬硬套”的考生设置的强干扰项。只有在被错误定性为合同纠纷，且被错误认定争议标的为“给付货币”时，才会得出原告所在地和被告所在地都有管辖权的结论。本案定性明确，排除了甲市的管辖权。",
-    "guanlian": "**一、一般地域管辖（原告就被告）：\n我国《民事诉讼法》第22条确立了最基础的管辖规则：对公民提起的民事诉讼，由被告住所地人民法院管辖。对于像不当得利、无因管理这样没有特殊管辖规定的纠纷，一律回归适用一般地域管辖。\n\n**二、合同纠纷的特殊地域管辖（《民诉法解释》第18条）：\n因合同纠纷提起的诉讼，由被告住所地或者合同履行地人民法院管辖。\n\n当合同没有约定履行地时，履行地的确认规则如下：\n\n1\\. **给付货币的**：接收货币一方所在地为合同履行地；\n\n2\\. **交付不动产的**：不动产所在地为合同履行地；\n\n3\\. **其他标的**：履行义务一方所在地为合同履行地。\n\n*(注：判断是哪种标的，必须结合合同的原始性质，不能仅仅因为原告诉请赔偿金或返还款项，就简单认定为“给付货币”。)*",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-13",
-    "chapter": "单选",
-    "question": "王某与胜达公司订立了商品房买卖合同，由王某购买位于甲市的房屋一套。后胜达公司拒绝交付房屋，王某根据买卖合同中的仲裁条款向设立在乙市的仲裁委员会申请仲裁，要求胜达公司依约交付房屋。在仲裁过程中，王某提出案件法律关系清楚,且自己结婚在即急需用房，于是申请先予执行。关于本案，下列选项中说法正确的有？",
-    "options": "A. 王某无权申请先予执行\nB. 王某应当向乙市仲裁委提出申请，由乙市仲裁委将申请转交法院\nC. 王某应当向房屋所在地的基层人民法院申请先予执行\nD. 王某应当向乙市仲裁委所在地的基层人民法院申请先予执行",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "商事仲裁不适用先予执行。 关联知识点：民商事仲裁与劳动仲裁在保全、先予执行程序上的区别。",
-    "jiangjie": "“先予执行”可以理解为：案子还没彻底打完、最终结果还没出，法院看在某一方**十万火急（等米下锅、等着救命）**的份上，强行让对方先掏钱或办事的“救急”制度。因为这种做法比较霸道，所以适用范围非常窄（主要是追索赡养费、抚养费、医疗费或劳动报酬等）。\n\n仲裁分为两种：“民商事仲裁”和“劳动仲裁”。劳动仲裁里，弱势的打工人讨要血汗钱确实可能等不及，因此劳动仲裁允许适用“先予执行”；但是在**普通的民商事仲裁**（如买房、做生意产生的合同纠纷）中，大家都是平等的商事主体，法律认为不存在谁离开谁就活不下去的问题。因此，**民商事仲裁程序中压根就没有“先予执行”这项制度**（只能申请财产或证据保全）。本题中王某急着结婚用房，在法律上不属于法定的救急情形，无法适用先予执行。",
-    "zhuxiang": "- **A ✓正确**：本案属于商品房买卖引发的商事仲裁纠纷，法律并未明确规定在此类仲裁中可以申请先予执行，因此王某无权申请。\n\n- **B ✗错误**：民商事仲裁中不存在先予执行制度，自然也无法向仲裁委提出申请并转交法院。（提示：如果是申请“财产保全”或“证据保全”，才是向仲裁委申请并由其转交法院的做法）。\n\n- **C ✗错误**：王某在商事仲裁中无权申请先予执行，更不能绕过仲裁委直接跑去法院申请。\n\n- **D ✗错误**：同上，既然该程序不存在，向任何法院申请都是错误的。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-14",
-    "chapter": "单选",
-    "question": "朱某起诉杨某离婚，经法院调解，双方同意离婚并达成协议，法院依据调解协议制作调解书。送达调解书时，朱某签收了调解书，杨某因有事未能签收。此时，签收调解书的朱某反悔，法院正确的处理方式是？",
-    "options": "A. 根据案件事实及时制作判决书\nB. 根据调解协议制作判决书\nC. 朱某可以反悔，撤回起诉\nD. 朱某不能反悔，法院应当继续向杨某送达调解书",
-    "answer": "答案：D",
-    "analysis": "",
-    "kaodian": "调解书的签收与生效规则、当事人反悔权的消灭。 关联知识点：原告的撤诉权与调解反悔权的区别。",
-    "jiangjie": "法院调解书有一个铁律：**“双方当事人都签字画押（签收），调解书才算板上钉钉（生效）”**。\n\n在调解书送到你手里之前，你就算在调解现场答应了一百遍，也随时可以说“我改主意了，我不接受调解”（这叫签收前反悔）。一旦你反悔，法院就不能下发调解书，必须老老实实往下审，最后出判决。\n\n但是，**一旦你自己签收了调解书，你就被自己的签字“锁死”了，你单方面丧失了反悔调解的权利**。题目中朱某已经签收，所以朱某不能反悔。此时调解书生效了吗？还要看对方（杨某）。因为杨某还没签收，调解书还处于“未生效”状态。既然朱某不能反悔，调解书又还没生效，法院唯一正确的做法就是：接着去找杨某送达。杨某签了就生效；如果杨某拒签，调解才算彻底黄了，法院再下判决。\n\n*(避坑小提示：朱某虽然不能说“我反悔调解，请法官直接判吧”，但由于调解书还没生效、官司还在进行中，朱某作为原告依然有权行使“撤诉权”直接把案子撤了。)*",
-    "zhuxiang": "- **A ✗错误**：只有在当事人“签收前”反悔的，法院才应当根据案件事实及时判决。朱某已经签收，丧失了反悔权，法院不能因此直接进入判决环节。\n\n- **B ✗错误**：判决书代表着国家审判权，必须严格基于事实和法律作出。法院绝对不能直接把双方商量的“调解协议”当成判决书出具。\n\n- **C ✗错误**：选项错在前半句。朱某作为原告确实可以申请“撤回起诉”，但朱某已经签收，依法绝对不能对调解本身“反悔”。\n\n- **D ✓正确**：朱某已经签收调解书，针对调解的反悔权已经消灭。此时调解书由于杨某未签收而尚未生效，法院正确的处理方式是继续向杨某送达。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-15",
-    "chapter": "单选",
-    "question": "下列各情形中，可以成立自认的有？",
-    "options": "A. 被告向法庭提交了一份在诉讼前形成的书面材料，其中记载了其向原告借款20万元的事实以及借款的具体过程\nB. 在庭审结束后，被告跟原告说：“我借了你5万元，的确是事实，但是在法庭上我就不承认，气死你”\nC. 被告在证据交换的过程中承认向原告借款5万元，但是主张已经还款。开庭时，原告不承认还款事实，被告说，既然他不承认还款，那我也不承认借款\nD. 原告主张被告向其借款5万元，庭审中法官问被告是否借款5万元，被告说当时向好几个同事借款，已经记不清。",
-    "answer": "答案：D",
-    "analysis": "",
-    "kaodian": "自认的构成要件（场合限制）、附条件自认的认定规则、默示自认。 关联知识点：免证事实。",
-    "jiangjie": "“自认”就是打官司时，当事人当着法官的面，主动承认对自己不利的事实。一旦自认，对方就不需要再费劲找证据证明了。自认有几个“硬杠杠”：\n\n1\\. **必须在正式的诉讼场合**：只在开庭、法庭组织的证据交换，或提交给法院的书面材料（起诉状、答辩状等）中承认才算数。起诉前写的字据、或者庭审结束后在走廊里随口吹的牛，都不叫自认，只能当成普通证据（书证、视听资料等）使用。\n\n2\\. **附带条件的承认不能硬拆（附条件自认）**：比如被告说“我确实借了钱，但我已经还了”。借钱和还钱是一脉相承的事，原告不能耍赖说“太好了，你承认借钱了，自认成立！但我不同意你已经还钱了”。法律规定，要认就必须连带条件当成一个整体。原告既然否认了“已还款”的条件，那被告“承认借钱”的话就不能被单独摘出来当自认。\n\n3\\. **装傻充愣算你认（默示自认）**：对方主张一个事实，你不承认也不否认。法官特意询问你到底借没借，你还含糊其辞说“记不清了”，法律就会视为你默认了这件事，这就构成了“默示自认”。",
-    "zhuxiang": "- **A ✗错误**：材料是在“诉讼前”形成的。自认必须是在“诉讼过程中”作出的陈述。诉前写的材料只是一份普通的“书证”，需要经过质证环节，不直接构成诉讼法上的“自认”。\n\n- **B ✗错误**：该言论是在“庭审结束后”私下说的，脱离了诉讼过程的正式场合，不构成自认。\n\n- **C ✗错误**：属于典型的“附条件自认”（承认借款但附带了“已还款”的条件）。由于借款和还款属于同一法律关系，不能被机械割裂。既然原告否认了“已还款”这个条件，那么被告关于借款事实的承认就不能单独生效。\n\n- **D ✓正确**：属于“默示自认”。面对原告主张的事实，经法官说明并专门询问后，被告依然推脱“记不清”，既不明确承认也不明确否认，法律上依法将其视为对该事实的承认。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-16",
-    "chapter": "单选",
-    "question": "王某诉钱某返还借款案审理中，王某向法院提交了一份有钱某签名、内容为钱某向王某借款5万元的借条，证明借款的事实；钱某向法院提交了一份有王某签名、内容为王某收到钱某返还借款5万元并说明借条因王某过失已丢失的收条。经法院质证，双方当事人确定借条和收条所说的5万元是相对应的款项。关于本案，下列哪一选项是错误的？",
-    "options": "A. 王某承担钱某向其借款事实的证明责任\nB. 钱某自认了向王某借款的事实\nC. 钱某提交的收条是案涉借款事实的反证\nD. 钱某提交的收条是案涉还款事实的本证",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "证明责任的分配、本证与反证的区分（关联：自认）",
-    "jiangjie": "1\\. **证明责任：打官司有个基本规矩叫“谁主张，谁举证”。王某要债，得负责证明“确实借过钱”；钱某主张还了，得负责证明“确实还过钱”。\n\n2\\. **本证与反证**：这就好比一场攻防战。你身上背着“证明任务”，为了完成任务拿出的证据就是“本证”（主力军）；你本身没有这项证明任务，只是为了去破坏对方的证明任务而拿出的证据，叫“反证”（捣乱军）。\n\n3\\. **自认**：就是“自己承认”。在法庭上，只要你对不利于自己的事实点头说“确实有这事”，这就叫自认，对方就不用再费劲去证明了。",
-    "zhuxiang": "- **A ✓** 王某是原告，主张借款关系成立，自然由他承担“借款事实”的证明责任。\n\n- **B ✓** 钱某拿出了还款收条，这等于钱某间接承认了“之前确实借过这笔钱”的基础事实，这在法律上构成了对借款事实的“自认”。\n\n- **C ✗**反证是不承担证明责任的一方提出来的。钱某对“已经还款”这个事实承担证明责任，他提交的收条是为了完成他自己的还款证明任务，所以属于针对还款事实的“本证”。此外，因为钱某已经自认了借款事实，他根本不需要再去反驳借款事实。因此，C选项的说法是错误的。\n\n- **D ✓** 钱某对还款事实承担证明责任，他拿出的收条正是为了证明还款事实，所以是案涉还款事实的本证。",
-    "guanlian": "- 判断本证与反证的核心标准是看“谁有证明责任”。承担证明责任的当事人提出的证据为本证；不承担证明责任的当事人，为了反驳对方主张而提出的证据为反证。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-17",
-    "chapter": "单选",
-    "question": "不同的审判程序，审判组织的组成往往是不同的。关于审判组织的适用，下列哪一选项是正确的？",
-    "options": "A. 适用简易程序审理的案件，当事人不服一审判决上诉后发回重审的，可由审判员独任审判\nB. 适用简易程序审理的案件，判决生效后启动再审程序进行再审的，可由审判员独任审判\nC. 适用普通程序审理的案件，当事人双方同意，经上级法院批准，可由审判员独任审判\nD. 适用选民资格案件审理程序的案件，应组成合议庭审理，而且只能由审判员组成合议庭",
-    "answer": "答案：D",
-    "analysis": "",
-    "kaodian": "各种审判程序的审判组织适用（关联：独任制与合议制的适用条件）",
-    "jiangjie": "法院审案子，要么是一个法官自己审（独任制，讲究快），要么是三个或以上的人一起审（合议制，讲究稳）。\n\n1\\. **一审普通程序**：原则上必须合议，但如果是在基层法院且案子很简单（事实清楚、权利义务明确），法官也可以一个人审。\n\n2\\. **简易/小额程序**：因为案子本身就简单，所以全由法官一个人单挑。\n\n3\\. **二审案件**：原则上合议。但满足特殊条件（中级法院 + 一审是简易程序或裁定上诉 + 案子简单 + 双方同意）时，也可以独任。\n\n4\\. **必须合议的“硬骨头”**：发回重审和再审的案件因为要纠错求稳，必须“合议”。特别程序里的“选民资格案件”或重大疑难案件由于事关重大，也必须由法官组成合议庭，且不能让老百姓（人民陪审员）参与。",
-    "zhuxiang": "- **A ✗** 发回重审的案件，原审法院应当按照一审普通程序“另行组成合议庭”审理，绝对不能由法官独任审判。\n\n- **B ✗** 启动再审的案件，无论原来是简易还是普通，原来是一审的就按一审程序组成合议庭，原来是二审的就按二审程序组成合议庭，均不能独任审判。\n\n- **C ✗** 基层法院审理简单的普通程序案件可以适用独任制，这是法律直接赋予的权力，不需要“当事人双方同意”，更不需要“上级法院批准”。\n\n- **D ✓**选民资格案件属于特别程序中的案件，法律明确规定必须由审判员组成合议庭审理，且因为不属于普通诉讼，不能有人民陪审员参加，只能由审判员组成。",
-    "guanlian": "- 独任制适用范围有扩张，但必须严格死记硬背适用条件；遇到“发回重审”和“再审”这两个词，永远直接绑定“合议庭”。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-18",
-    "chapter": "单选",
-    "question": "冉某诉潘某借款纠纷一案，法院判决驳回了冉某的诉讼请求，冉某拟提出上诉，但在上诉期间冉某因车祸失去意识，送医院治疗一个月后不幸身亡。关于本案，下列说法中正确的是？",
-    "options": "A. 当事人已经死亡，法院应裁定终结诉讼\nB. 冉某继承人可以申请法院顺延上诉期限\nC. 冉某继承人可以向法院申请继承冉某的诉讼地位\nD. 上诉期限已过，一审判决生效",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "诉讼中止与当事人诉讼地位的承继（关联：诉讼终结、期间顺延）",
-    "jiangjie": "打官司就像一场马拉松，中间突发当事人去世的意外怎么办？\n\n1\\. **诉讼中止（按下暂停键）**：一般的财产纠纷，人死了但钱还在，法院不能马上结案，要先“暂停”（中止），等死者的继承人表态愿不愿意接替死者接着打官司。\n\n2\\. **诉讼终结（直接大结局）**：只有在像离婚、要抚养费这种高度绑定人身关系的案子，人死案销；或者当事人死了且真的没有继承人时，法院才会直接“全剧终”（终结）。\n\n3\\. **不可抗力补时**：因为车祸昏迷错过了上诉期，属于“不可抗力耽误时间”，醒来后或者换了接班人后，是可以申请把错过的时间补回来的。",
-    "zhuxiang": "- **A ✗** 借款纠纷属于普通财产纠纷，冉某死亡后，应当裁定“诉讼中止”，等待其继承人表明是否参加诉讼，而不是直接“诉讼终结”。\n\n- **B ✗** 在程序先后顺序上，由于冉某本人已经死亡，必须先由其继承人向法院申请“承继诉讼地位”接手案件后，继承人才能以当事人的身份去行使诉讼权利（包括申请顺延期限或提起上诉）。B选项跳过了主体承继这一核心步骤。\n\n- **C ✓**因为是财产性质的纠纷，冉某死亡后，他的诉讼权利和义务可以依法发生继承。继承人可以向法院申请接替冉某的诉讼地位，继续进行后续诉讼活动。\n\n- **D ✗** 冉某在上诉期间遭遇车祸昏迷并随后死亡，这属于客观上的“不可抗拒的事由”，上诉期间因此被合法耽误。在继承人承受诉讼并决定是否上诉前，一审判决并未直接生效。",
-    "guanlian": "- 判断诉讼中止与终结的核心是看“法律关系能不能继承”。财产关系能继承，选中止；身份关系（离婚、解除收养）不能继承，选终结。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-19",
-    "chapter": "单选",
-    "question": "海昌公司因丢失票据申请公示催告，期间届满无人申报权利，海昌公司遂申请除权判决。在除权判决作出前，家佳公司看到权利申报公告，向法院申报权利。对此，法院下列哪一做法是正确的？",
-    "options": "A. 因公示催告期满，裁定驳回家佳公司的权利申报\nB. 裁定追加家佳公司参加案件的除权判决审理程序\nC. 应裁定终结公示催告程序\nD. 作出除权判决，告知家佳公司另行起诉",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "公示催告程序（关联：利害关系人申报权利的处理规则）",
-    "jiangjie": "1\\. **公示催告程序：这就像法院帮忙发的高级“寻物启事”。票丢了，失主找法院登报找人，到期如果没人来认领，法院就下个判决宣布这票作废（除权判决）。\n\n2\\. **压哨也算数**：虽然公告上写了期限，但法律给了宽限，只要法院的“除权判决”还没正式盖章下发，哪怕期满了，只要有人拿着票跑出来喊“票是我的”，法院就必须得认。\n\n3\\. **法院不管吵架**：公示催告属于“非讼程序”，前提是大家都没争议。现在突然跳出一个人主张权利，说明票到底归谁有了争议。法院一看要吵架了，就会立刻喊停（终结公示催告程序），让你们俩去正经打官司（诉讼程序）解决。",
-    "zhuxiang": "- **A ✗** 根据司法解释，虽然公示催告的公告期限届满，但只要在“除权判决作出前”，利害关系人都有权申报权利，法院不能裁定驳回。\n\n- **B ✗** 公示催告属于非讼程序，不负责解决当事人之间的实质争议，因此绝对不存在“追加当事人一起审理”的做法。\n\n- **C ✓**一旦有利害关系人申报了权利且出示了票据，说明票据的权利归属产生了争议。既然有了争议，非讼程序就办不了了，法院应当依法裁定“终结公示催告程序”。\n\n- **D ✗** 既然有人申报了权利，法院就绝对不能再作出除权判决（不能宣告票据无效了）。正确的做法是终结程序，让双方去另行起诉。",
-    "guanlian": "- 非讼程序（特别程序、督促程序、公示催告程序等）的核心特征就是“不解决民事争议”。只要在程序中发现双方产生了实质争议，该程序往往只能走向“终结”，转化为普通的民事诉讼来解决。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-20",
-    "chapter": "单选",
-    "question": "郑某因与某公司发生合同纠纷，委托马律师全权代理诉讼，但未作具体的授权。此种情况下，马律师在诉讼中有权实施下列哪一行为？",
-    "options": "A. 提出管辖权异议\nB. 提起反诉\nC. 提起上诉\nD. 部分变更诉讼请求",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "诉讼代理人的代理权限（关联：一般授权与特别授权的区分）",
-    "jiangjie": "找律师代打官司，授权书上的字眼大有讲究：\n\n1\\. **一般授权（走个流程）**：如果授权书上只笼统地写了“全权代理”，法律上就认为你只给了“一般授权”。律师只能帮你干一些程序上的活，比如交材料、申请法官回避、提出管辖权异议等。\n\n2\\. **特别授权（事关钱财）**：如果是要放弃赔偿、承认欠钱、主动和解、提出反诉、提出上诉等直接影响你实体利益和最终结果的事，必须你在授权书里“一条一条明确写清楚”。没写清楚，律师就没权替你做主。",
-    "zhuxiang": "根据《民事诉讼法》相关规定，授权委托书中仅写明“全权代理”而无具体授权的，一律视为“一般授权”。\n\n- **A ✓**提出管辖权异议属于纯粹的程序性诉讼权利，不涉及对当事人实体权利的处分，马律师在“一般授权”范围内有权实施。\n\n- **B ✗** 提起反诉属于向对方提出新的独立诉求，涉及处分当事人的实体权利，必须有当事人的“特别授权”。\n\n- **C ✗** 提起上诉属于处分重要诉讼权利并直接影响案件实体结果的行为，必须有当事人的“特别授权”。\n\n- **D ✗** 部分变更诉讼请求直接涉及实体权利的处分，同样必须有当事人的“特别授权”。",
-    "guanlian": "- 必须具备“特别授权”的五个高频考点行为：代为承认、放弃、变更诉讼请求，进行和解，提起反诉或者上诉。在考试中看到“全权代理”四个字，请直接把它划掉并在旁边写上“一般授权”。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-21",
-    "chapter": "单选",
-    "question": "根据《民事诉讼法》相关司法解释，下列哪个法院对专利纠纷案件不享有管辖权？",
-    "options": "A. 知识产权法院\nB. 所有的中级法院\nC. 最高法院确定的中级法院\nD. 最高法院确定的基层法院",
-    "answer": "答案：B",
-    "analysis": "",
-    "kaodian": "专利等知识产权纠纷案件的专门（集中）管辖",
-    "jiangjie": "专利纠纷技术性强，法律把它交给“专门的、被点名的”法院管，而不是随便哪个中院都能审。有资格审专利一审的法院：①知识产权法院（北京、上海、广州等）；②最高人民法院确定（指定）的中级法院；③少数经最高人民法院批准的基层法院。所以“所有的中级法院”这个说法太绝对——没被点名的普通中院无权管专利案。本题选“不享有管辖权”的，答案是 B。",
-    "zhuxiang": "- **A ✓** 有管辖权（不当选）：知识产权法院依法对专利纠纷享有管辖权。\n\n- **B ✗** 无管辖权（当选）：并非所有中级法院都能审专利案，只有最高人民法院确定的中级法院才有权管辖，“所有的中级法院”表述错误。\n\n- **C ✓** 有管辖权（不当选）：最高人民法院确定的中级法院是法定的专利案件管辖法院。\n\n- **D ✓** 有管辖权（不当选）：经最高人民法院批准，个别基层法院也可以管辖专利纠纷案件。",
-    "guanlian": "专利、垄断等专业技术性强的知识产权民事案件实行集中（指定）管辖，由知识产权法院、最高人民法院确定的中级人民法院以及经批准的基层人民法院管辖，普通中级法院不当然享有管辖权。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-22",
-    "chapter": "单选",
-    "question": "某区法院审理原告许某与被告某饭店食物中毒纠纷一案。审前，法院书面告知许某合议庭由审判员甲、乙和人民陪审员丙组成时，许某未提出回避申请。开庭后，许某始知人民陪审员丙与被告法定代表人是亲兄弟，遂提出回避申请。关于本案的回避，下列哪一说法是正确的？",
-    "options": "A. 许某可在知道丙与被告法定代表人是亲兄弟时提出回避申请\nB. 法院对回避申请作出决定前，丙不停止参与本案审理\nC. 应由审判长决定丙是否应回避\nD. 法院作出回避决定后，许某可对此提出上诉",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "回避申请的提出时间、被申请人的暂停职务、回避决定权与救济",
-    "jiangjie": "回避有几条硬规矩：①提出时间——一般在案件开始审理时提出，但如果开庭后才知道回避事由，可以在法庭辩论终结前提出；②提出后果——被申请回避的人，在法院作出决定前原则上应暂停参与本案工作（需采取紧急措施的除外）；③谁决定——审判人员（含人民陪审员）的回避由院长决定；④不服救济——只能申请复议一次，不能上诉。本题许某开庭后才得知陪审员丙与被告法定代表人是亲兄弟，属于“事后才知道”，可在法庭辩论终结前补提回避申请，A 正确。",
-    "zhuxiang": "- **A ✓** 许某开庭后才知道回避事由，可以在法庭辩论终结前提出回避申请，正确。\n\n- **B ✗** 被申请回避的人员在法院作出决定前应当暂停参与本案工作（须采取紧急措施的除外），并非“不停止”。\n\n- **C ✗** 人民陪审员属于审判人员，其回避应由法院院长决定，而非审判长。\n\n- **D ✗** 对回避决定不服只能申请复议一次，不能提起上诉。",
-    "guanlian": "回避决定权：院长担任审判长时的回避由审判委员会决定；审判人员（审判员、人民陪审员）的回避由院长决定；其他人员（书记员、翻译、鉴定人、勘验人）的回避由审判长或独任审判员决定。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-23",
-    "chapter": "单选",
-    "question": "甲省A市庆安公司超标排污导致河流下游B市严重污染，A市环保组织（符合起诉条件）向A市中院提起公益诉讼，A市中院受理案件之后，B市环保组织（符合起诉条件）向B市中院也提起公益诉讼。关于本案，表述错误的是？",
-    "options": "A. A市中院、B市中院均有权审理各自的案件，分别判决\nB. B市中院应当把案件移送给A市中院\nC. A市环保组织和B市环保组织可做共同原告\nD. 如果对管辖权有争议，可报甲省高院指定管辖",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "环境民事公益诉讼的管辖与重复诉讼的处理（关联：共同管辖、指定管辖）",
-    "jiangjie": "针对同一污染行为提起的公益诉讼，为了避免同一件事被两个法院重复判、判出互相矛盾的结果，采取“先立案的法院管、后立案的移送并案”规则。多个符合条件的机关或社会组织针对同一侵权行为起诉的，法院可以合并审理、列为共同原告。管辖有争议且协商不成的，报请共同上级法院（本案为甲省高院）指定管辖。本题要选“错误”的，答案是 A。",
-    "zhuxiang": "- **A ✗** 错误（当选）：两个中院不能各审各的、分别判决，否则会造成重复诉讼与裁判冲突；后立案的B市中院应将案件移送先立案的A市中院合并处理。\n\n- **B ✓** 正确（不当选）：对同一污染行为，B市中院受理在后，应当将案件移送先立案的A市中院。\n\n- **C ✓** 正确（不当选）：A、B两市环保组织对同一污染行为起诉，可以作为共同原告参加同一诉讼。\n\n- **D ✓** 正确（不当选）：管辖权发生争议且协商不成的，报请共同上级法院（甲省高院）指定管辖。",
-    "guanlian": "两个以上人民法院都有管辖权的诉讼，先立案的法院不得将案件移送另一个有管辖权的法院；受诉法院立案后发现其他有管辖权的法院已先立案的，应当裁定移送先立案的人民法院。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-24",
-    "chapter": "单选",
-    "question": "程某的房子临街，把房子租给陆某，双方约定租赁期间产生的一切责任由陆某承担。陆某在阳台养花，小区物业多次提醒其花盆掉下容易砸伤楼下行人，不要在阳台放花盆。某日狂风暴雨致使阳台花盆掉落，正巧砸中楼下的李某。李某欲请求赔偿，本案应当以谁为被告？",
-    "options": "A. 程某和陆某为共同被告\nB. 程某为被告\nC. 小区物业为被告\nD. 陆某为被告",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "搁置物、悬挂物脱落坠落致害案件中适格被告的确定",
-    "jiangjie": "阳台花盆坠落砸伤人，属于搁置物、悬挂物脱落致害。责任主体是物件的“所有人、管理人或者使用人”。本案房屋的所有人是程某，实际使用（在阳台养花放盆）的是承租人陆某，两人都可能是责任人。受害人李某有权把可能担责的所有人程某和使用人陆某一起列为共同被告，由法院查明各自过错后确定责任。至于程某与陆某之间“一切责任由陆某承担”的约定，只是内部约定，不能对抗外部受害人。",
-    "zhuxiang": "- **A ✓** 花盆坠落属于搁置物、悬挂物致害，所有人程某与使用人陆某均为可能的责任主体，李某可将两人列为共同被告。\n\n- **B ✗** 只列所有人程某并不全面，实际使用人陆某同样可能担责。\n\n- **C ✗** 小区物业只是尽了提醒义务，并非搁置物的所有人、管理人或使用人，不是本案适格被告。\n\n- **D ✗** 程某与陆某关于“责任由陆某承担”的约定属内部约定，不能对抗受害人，不能据此免除所有人程某的被告地位。",
-    "guanlian": "建筑物、构筑物或者其他设施及其搁置物、悬挂物发生脱落、坠落造成他人损害，所有人、管理人或者使用人不能证明自己没有过错的，应当承担侵权责任。受害人起诉时可将上述主体列为共同被告。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-25",
-    "chapter": "单选",
-    "question": "张兄与张弟因遗产纠纷诉至法院，一审判决张兄胜诉。张弟不服，却在赴法院提交上诉状的路上被撞昏迷，待其经抢救苏醒时已超过上诉期限一天。对此，下列哪一说法是正确的？",
-    "options": "A. 法律上没有途径可对张弟上诉权予以补救\nB. 因意外事故耽误上诉期限，法院应依职权决定顺延期限\nC. 张弟可在清醒后10日内，申请顺延期限，是否准许，由法院决定\nD. 上诉期限为法定期间，张弟提出顺延期限，法院不应准许",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "期间的耽误与顺延（关联：期间的种类、法定期间）",
-    "jiangjie": "期间耽误顺延规则（法律给的“后悔药”）：\n如果遇到天灾人祸等“不可抗力”或者其他“正当理由”（比如突发车祸昏迷），导致错过了法定的办案时间（如上诉期）。法律是很有人情味的，给了补救机会，但这颗“后悔药”得满足三个条件：\n\n1\\. **时限要求：**障碍消除后（比如病好了、清醒了）的 **10天之内**必须提出。\n\n2\\. **动作要求：**必须自己主动向法院“申请”，法院不会主动发善心帮你顺延（不告不理）。\n\n3\\. **决定权：**法官来拍板（法院决定是否准许）。",
-    "zhuxiang": "- **A ✗ 说法错误。**法律上是有明确的补救途径的，即申请期间顺延。\n\n- **B ✗ 说法错误。**法院不能“依职权”（即主动）决定顺延，必须由当事人自己主动提出申请。\n\n- **C ✓ 说法正确。**张弟被撞昏迷属于典型的不可抗拒的正当理由。他可以在清醒（障碍消除）后的10日内主动申请顺延期限，最后由法院审查决定是否准许。\n\n- **D ✗ 说法错误。**虽然上诉期限是法律明文规定的“法定期间”，但遇到不可抗力或正当理由，是可以依法申请顺延的，并不是绝对死板不能变通。",
-    "guanlian": "一、**期间的分类：**分为法定期间（法律明文规定的，如上诉期15天/10天）和指定期间（法院法官视情况指定的，如举证期限）。\n\n二、**期间的绝对与相对：**法定期间中，像上诉期属于相对不可变期间，一般不能改，但遇到车祸等特殊事由可以顺延。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-26",
-    "chapter": "单选",
-    "question": "甲向乙借款20万元，丙是甲的担保人，现已到偿还期限，经多次催讨未果，乙向法院申请支付令。法院受理并审查后，向甲送达支付令。甲在法定期间未提出异议，但以借款不成立为由向另一法院提起诉讼。关于本案，下列哪一说法是正确的？",
-    "options": "A. 甲向另一法院提起诉讼，视为对支付令提出异议\nB. 甲向另一法院提起诉讼，法院应裁定终结督促程序\nC. 甲在法定期间未提出书面异议，不影响支付令效力\nD. 法院发出的支付令，对丙具有拘束力",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "督促程序中债务人异议的效力及支付令的拘束力（关联：督促程序的适用条件）",
-    "jiangjie": "支付令异议的“正确姿势”与“谁挨板子”：\n1\\. **异议必须“对口”：**对支付令不服，必须要在15天内向**发出支付令的那个法院**提出异议。你跑去别的法院起诉，这叫“走错门”，不算提异议。\n\n2\\. **异议必须“书面”：**打电话、当面口头抱怨都不算数，必须落实在纸面上。\n\n3\\. **起诉不影响效力：**只要没向发令法院提书面异议，支付令该按期生效就生效，哪怕你在别的法院闹翻天也不影响。\n\n4\\. **支付令只管债务人本人：**支付令是快速催债的简易工具，为了保持简单高效，只约束欠债人本人，**不管担保人**。",
-    "zhuxiang": "- **A ✗ 说法错误。**只有向发出支付令的法院提出书面异议才算数。向其他法院起诉不视为对支付令提出异议。\n\n- **B ✗ 说法错误。**既然向其他法院起诉不视为提出异议，那么原来的督促程序自然不会因此而终结。\n\n- **C ✓ 说法正确。**甲没有在法定期间内向发出支付令的法院提出书面异议，因此该支付令到期后自动取得强制执行效力，他在别处起诉不影响这个结果。\n\n- **D ✗ 说法错误。**支付令只约束主债务人甲，对担保人丙没有拘束力。如果让担保人受约束，因为担保人没法行使异议权，对他是不公平的。",
-    "guanlian": "督促程序（支付令）的本质，就是在欠债事实板上钉钉、没有实质争议的情况下，帮债权人快速讨债的非讼程序。一旦债务人按规矩提了异议，说明有争议，支付令就立刻失效，双方老老实实回去打普通官司。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-27",
-    "chapter": "单选",
-    "question": "A想在乙区买一个店铺，和甲县的B签居间合同，和乙区的C签店铺买卖合同。C不肯交房并办理过户。A将B、C起诉到甲县法院要求交付店铺办理过户，甲县法院判决C交付办理过户，以B不是适格被告为由判决驳回A对B的诉讼请求。C不服上诉，认为既然B不是适格被告，那么B的住所地甲县法院就没有管辖权，故而在二审中提管辖权异议。二审法院应当如何处理？",
-    "options": "A. 二审法院应移送管辖\nB. 二审法院应指定管辖\nC. 二审法院对管辖权异议不予审查\nD. 二审法院应当撤销原判，发回重审",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "管辖权异议的提出时间及二审对管辖异议的处理（关联：应诉管辖）",
-    "jiangjie": "管辖异议的“过期不候”原则：\n如果你对法院“有没有资格管这个案子”（管辖权）有意见，必须在案件刚开始的“提交答辩状期间”（一般是收到起诉状后15天内）提出来。\n\n1\\. **没提的后果：**如果你在这个期间没提管辖异议，还老老实实应诉答辩了，法院就自动取得了管辖权，这在法律上叫“应诉管辖”。\n\n2\\. **秋后算账不行：**一审的时候你不提异议，等一审打输了，到了二审才突然想起来说“一审法院没资格管”？晚了！法律不惯着这种马后炮，二审法院对于这种迟到的异议直接“不予审查”。",
-    "zhuxiang": "- **A ✗ 说法错误。**二审法院对于这种违规提出的异议直接不理睬（不予审查），自然不存在移送管辖的问题。\n\n- **B ✗ 说法错误。**指定管辖通常用于管辖权发生争议且协商不成，或有管辖权法院因特殊原因不能行使管辖权的情况。本案完全不适用。\n\n- **C ✓ 说法正确。**C在一审答辩期内没有提出管辖权异议，到了二审才提出。根据规定，对于发回重审或者二审中提出的管辖权异议，人民法院一律不予审查。\n\n- **D ✗ 说法错误。**C在一审未提异议已经让一审法院取得了“应诉管辖权”（且本案商铺买卖不属于专属管辖的例外情况），所以一审法院的管辖是合法的，二审法院不需要撤销原判发回重审。",
-    "guanlian": "**应诉管辖：**当事人未提出管辖权异议，并应诉答辩或提出反诉的，视为受诉人民法院有管辖权。但如果案子违反了级别管辖和专属管辖规定则除外。（注：普通的商品房、商铺买卖合同纠纷属于普通合同纠纷，不适用不动产专属管辖）。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-28",
-    "chapter": "单选",
-    "question": "居住在A市甲区的蒋某在A市乙区某住宅楼拥有住房一套。为了能够顺利出租，蒋某雇佣住在A市丙区的杨某进行保洁处理。在工作过程中，杨某不慎将窗户上的玻璃撞破，其中的一块碎玻璃掉下来，将从住宅楼下经过的张某（女）的脸严重划伤。张某被送到医院紧急治疗后，与蒋某以及杨某进行交涉，但是因双方分歧较大，未取得任何结果。张某于是向人民法院提起诉讼。在本案中，张某应当以谁作为被告提起诉讼才是正确的？",
-    "options": "A. 应以蒋某作为被告\nB. 应以杨某作为被告\nC. 应以蒋某和杨某作为共同被告\nD. 可以蒋某或杨某作为被告",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "提供劳务致人损害案件中适格当事人的确定（关联：当事人适格原则的例外）",
-    "jiangjie": "“老板背锅”原则：\n在个人雇佣关系中（比如雇保姆、雇钟点工、雇保洁），干活的人（提供劳务一方）在工作时不小心伤了别人，谁来赔钱？法律规定是由“老板”（接受劳务一方）来对外承担侵权责任。\n\n因此，在打官司时，受害人只能把“老板”告上法庭作为被告，不能把那个干活的员工列为被告。至于老板赔了钱之后，要不要关起门来找员工追偿，那是他们俩内部的事，与本案无关。",
-    "zhuxiang": "- **A ✓ 说法正确。**蒋某是雇主（接受劳务一方），杨某在提供劳务（保洁）过程中致人损害，依法应由雇主蒋某承担侵权责任，因此受害人起诉必须以蒋某为被告。\n\n- **B ✗ 说法错误。**杨某虽然是直接肇事者，但在对外承担责任时，法律为了保护受害人（雇主通常赔偿能力更强），规定由雇主担责，杨某不能作为被告。\n\n- **C ✗ 说法错误。**法律规定是由雇主单方对外承担责任，并不是雇主和雇员承担连带责任，所以不能将两人列为共同被告。\n\n- **D ✗ 说法错误。**被告是法律明确规定的，受害人没有选择权，只能以蒋某为被告。",
-    "guanlian": "**当事人适格的例外：**一般情况下，“谁侵权谁当被告”。但这属于法定的例外情形。起诉时，法院会直接根据实体法（《民法典》侵权责任编）的规定，将雇主列为唯一适格的被告。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-29",
-    "chapter": "单选",
-    "question": "薛某雇杨某料理家务。一天，杨某乘电梯去楼下扔掉厨房垃圾时，袋中的碎玻璃严重划伤电梯中的邻居乔某。乔某诉至法院，要求赔偿其各项损失3万元。关于本案，下列哪一说法是正确的？",
-    "options": "A. 乔某应起诉杨某，并承担杨某主观有过错的证明责任\nB. 乔某应起诉杨某，由杨某承担其主观无过错的证明责任\nC. 乔某应起诉薛某，由薛某承担其主观无过错的证明责任\nD. 乔某应起诉薛某，薛某主观是否有过错不是本案的证明对象",
-    "answer": "答案：D",
-    "analysis": "",
-    "kaodian": "提供劳务致人损害的被告确定与证明责任（关联：证明对象、无过错责任原则）",
-    "jiangjie": "“找老板” + “无过错也得赔”：\n1\\. **告谁？**同上一题，雇主薛某和保姆杨某之间是劳务关系，杨某干活时伤了邻居，必须由“老板”薛某当被告。\n\n2\\. **要不要证明老板有过错？**法律规定，提供劳务致人损害的情况属于“无过错责任”。意思就是：不管老板薛某当时有没有盯着保姆、有没有培训好、主观上有没有错，只要是员工在干活时伤了人，老板就得赔钱。既然“有没有错都得赔”，那“薛某有没有错”这件事就根本不需要在法庭上拿证据去吵，它直接被踢出了“证明对象”的范围。",
-    "zhuxiang": "- **A ✗ 说法错误。**应当起诉雇主薛某，而不是员工杨某。\n\n- **B ✗ 说法错误。**应当起诉雇主薛某，而不是杨某。\n\n- **C ✗ 说法错误。**虽然起诉薛某是对的，但该类案件适用“无过错责任原则”，薛某不需要证明自己没有过错，因为就算他没有过错也照样要赔偿。\n\n- **D ✓ 说法正确。**乔某应起诉接受劳务一方的雇主薛某。由于适用无过错责任原则，“薛某主观是否有过错”完全不影响裁判结果，因此它根本不是本案需要用证据证明的事实（即不是证明对象）。",
-    "guanlian": "**证明对象的确定：**只有对案件裁判结果有影响的事实（待证事实）才属于证明对象。在无过错责任案件中，侵权构成要件只包括“行为、结果、因果关系”，**不包含“过错”**，所以过错不是证明对象，也就无需讨论由谁来承担证明责任的问题。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-30",
-    "chapter": "单选",
-    "question": "甲省M市A区的李某在位于乙省N市B区的张某电商平台上购买了货物，购物条款约定发生争议由乙省N市B区法院管辖。发生纠纷后，李某向甲省M市A区法院起诉，张某以有管辖协议为由提出管辖异议，李某认为，因乙省N市已成立互联网法院，管辖协议无效。M市A区法院认为管辖异议成立，将案件移送至N市B区法院，问N市B区法院如何处理？",
-    "options": "A. 报N市中院指定管辖\nB. 逐级报最高院指定管辖\nC. 退回M市A区法院\nD. 将案件移送N市互联网法院",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "移送管辖的规则（关联：管辖权转移、指定管辖）",
-    "jiangjie": "移送管辖的“皮球只能踢一次”规则：\n法院立案后发现自己没管辖权，要把案子“移”给有管辖权的法院，这叫移送管辖。但法律为了防止法院之间互相推诿扯皮，定了个死规矩：**皮球只能踢一次！\n如果B法院接到案子后，发现自己其实也没管辖权（比如本案中涉网纠纷应当归新设立的互联网法院集中专属管辖），B法院**绝对不能**再把案子退回给A，也**不能**擅自把案子转送给第三家法院（严禁踢第二次皮球）。\n\nB法院唯一能做的就是：**向上级打报告，让领导来分派**（报请上级法院指定管辖）。B区法院的直接上级是市里的中级法院，所以直接报N市中院即可。",
-    "zhuxiang": "- **A ✓ 说法正确。**受移送的N市B区法院如果认为自己也没有管辖权，只能报请其直接上级法院（N市中级人民法院）进行指定管辖。\n\n- **B ✗ 说法错误。**B区法院只需要向它的直接上级（中院）报请指定即可，不需要越级或者逐级报到最高院。\n\n- **C ✗ 说法错误。**法律明文规定，受移送法院认为自己无管辖权时，严禁将案件退回原移送法院。\n\n- **D ✗ 说法错误。**移送管辖只能进行一次，受移送法院无权再次将案件移送给第三家法院（互联网法院）。",
-    "guanlian": "**移送管辖的单向性：**移送管辖本质是法院发现自己错误立案后的纠错程序，只能纠错一次。受移送法院必须接受，即使审查后发现自己也没管辖权，也只能报请上级法院指定，不得退回，不得自行再次移送，确保当事人的诉讼能够尽快安顿下来。",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-31",
-    "chapter": "单选",
-    "question": "郑某起诉林某，审理过程中林某提起反诉，后郑某撤回起诉，法院以原告撤回起诉为由裁定驳回了林某的反诉。林某对该裁定不服，提起上诉，二审法院应当如何处理？",
-    "options": "A. 组织当事人调解，调解不成，告知另行起诉\nB. 裁定驳回上诉，维持原裁定\nC. 二审法院撤销驳回反诉的裁定，同时发回重审\nD. 二审法院撤销原裁定，同时指定原审法院审理",
-    "answer": "答案：D",
-    "analysis": "",
-    "kaodian": "反诉的独立性、二审对一审程序性裁定错误的处理方法（关联：撤诉的法律后果、发回重审与指令审理的区别）。",
-    "jiangjie": "1\\. **反诉是独立的：反诉就像是被告反过来把原告也给告了，它是一个独立的官司。就算原告中途退缩不想告了（撤回本诉），被告反告的那部分（反诉）依然有效，法院必须接着审。一审法院以原告撤诉为由把被告的反诉也赶出法院，属于乱作为。\n\n2\\. **二审法院如何纠错**：一审法院犯的是“不让进门”的程序错误（错误地作出了驳回起诉的裁定），连案子的实体内容（谁欠谁钱）都没审。所以二审法院在纠错时，只需要把这张错误的“逐客令”撕毁（撤销原裁定），然后命令一审法院：“给人家开门，好好审！”（指令/指定原审法院审理）。不能用“发回重审”，因为“发回重审”是用在一审已经对案子做了实体判决，但事实没查清或程序严重违法的情况。",
-    "zhuxiang": "\\- **A ✗**：这属于“二审中**新增**诉讼请求或反诉”时的处理方式。本案林某的反诉在一审就已经提出了，不适用这个规则。\n\n\\- **B ✗**：一审法院驳回反诉明显违反了法律规定，二审当然不能将错就错去维持原裁定。\n\n\\- **C ✗**：“发回重审”适用于一审已经作出了**实体判决**的情形。对于一审作出的“不予受理”或“驳回起诉”等程序性裁定错误，二审法院的纠错操作叫“指定/指令原审法院审理”。\n\n\\- **D ✓**：一审错误地驳回了起诉，二审撤销该错误裁定，并指令一审法院对反诉继续进行审理，程序和结论完全正确。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-32",
-    "chapter": "单选",
-    "question": "关于法院制作的调解书，下列哪一说法是正确的？",
-    "options": "A. 经法院调解，老李和小李维持收养关系，可不制作调解书\nB. 某夫妻解除婚姻关系的调解书生效后，一方以违反自愿为由可申请再审\nC. 检察院对调解书的监督方式只能是提出检察建议\nD. 执行过程中，达成和解协议的，法院可根据当事人的要求制作成调解书",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "免予制作调解书的法定情形、调解书再审的例外规定、检察监督方式、执行和解的性质。",
-    "jiangjie": "1\\. **可以不发调解书的“四种特例”：大部分案子调解完都要发个具有强制力的红头文件（调解书）。但有几类案子调解成功后，大家心里明白就行，记录在笔录里签字即可，不需要发调解书：① 调解和好的离婚案（两口子和好了，不用发文件）；② 调解维持收养关系的案子（还是一家人）；③ 能够当场结清、即时履行的案子；④ 其他不需要发的。\n\n2\\. **离婚案的“落子无悔”**：法院一旦通过判决或调解解除了婚姻关系并且生效了，两人在法律上就单身了，随时可能和别人结婚。为了防止出现“重婚”的尴尬局面，哪怕一方后来觉得当时是挨欺负了，也绝对不允许针对“解除婚姻关系”申请再审（但可以对财产分割部分申请再审）。\n\n3\\. **执行和解不能“镀金”**：到了强制执行阶段，双方私下商量怎么还钱，这叫“执行和解协议”，本质上只是一份普通的私下合同，法院不能给它盖章升级成法院调解书。",
-    "zhuxiang": "\\- **A ✓**：调解维持收养关系的案件，属于法定的可以不制作调解书的案件，记入笔录签字即可生效。\n\n\\- **B ✗**：解除婚姻关系的判决书、调解书一旦生效，禁止申请再审。以此维护再婚自由和身份关系的稳定。\n\n\\- **C ✗**：如果调解书损害了国家利益或社会公共利益，检察院的监督方式既可以是提出“检察建议”，也可以是直接提起“抗诉”，并非“只能”提出检察建议。\n\n\\- **D ✗**：执行程序中当事人达成的和解协议，法院不能将其制作成调解书。执行讲究依法按原判决办事，不能用和解协议改变原生效判决的性质。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-33",
-    "chapter": "单选",
-    "question": "甲公司诉乙公司买卖合同纠纷一案,法院判决乙公司败诉,判决生效后,乙公司发现新证据申请再审。再审审理中,再审法院发现遗漏了必须参加诉讼的丙公司,遂裁定发回重审。在重新审理中法院追加丙公司参加诉讼,在重审中乙公司提出反诉,后甲公司提出撤诉的申请。关于法院的处理错误的是？",
-    "options": "A. 法院准许乙公司提反诉\nB. 法院应适用普通程序审理\nC. 法院准许甲公司撤诉后,应裁定驳回乙公司的再审申请\nD. 法院准许甲公司撤诉后,法院应就乙公司的反诉进行审理",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "发回重审程序的规则、撤诉对反诉和再审申请的影响。",
-    "jiangjie": "这道题像个“俄罗斯套娃”，我们来剥洋葱：\n\n1\\. **重审相当于“重头来过”**：案子在再审时发现漏了关键当事人，被打回一审法院“发回重审”。既然是发回重审，就相当于时光倒流回到了第一次打官司的时候。这就必须按“一审普通程序”老老实实地开庭。既然是一审，那被告乙公司当然有权利提反诉。\n\n2\\. **原告撤诉了怎么办**：原告甲公司现在不想告了（撤回本诉），法院如果同意，那原来的判决就一起撤销作废了。但甲撤诉只代表他放弃告乙，不影响乙告甲，所以法院得继续审理乙公司的反诉。\n\n3\\. **“再审申请”去哪了**：这个案子早就已经过了“法院审查要不要再审”的阶段，已经进入实质的重审开庭了。甲撤诉撤的是他最初的“本诉”，跟乙的“再审申请”毫无关系，根本不存在“驳回乙公司再审申请”的说法。",
-    "zhuxiang": "\\- **A 事实正确**：发回重审适用一审程序。在一审法庭辩论终结前，被告提出反诉是合法的，法院应予准许。\n\n\\- **B 事实正确**：发回重审的案件，法律强制规定必须适用“普通程序”，绝对不能图省事用简易程序。\n\n\\- **C 事实错误（符合题意）**：此时案件处于发回重审的**一审程序**中。甲公司撤诉撤回的是其最初的“本诉”，法院准许后应当一并撤销原判决。而乙公司的“再审申请”早在法院裁定进入再审并最终发回重审时就已经消耗完毕，因此不存在“驳回再审申请”的逻辑。\n\n\\- **D 事实正确**：本诉和反诉是独立的。法院准许本诉原告撤诉的，应当对反诉继续审理。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-34",
-    "chapter": "单选",
-    "question": "贾某因家里突发急事、急需用钱，向好友艾某借了30万元，并承诺下月还钱，因是朋友关系，再加上很快就会归还，艾某也就没有让贾某打借条。过了半年之后，贾某仍未归还该笔欠款。正好赶上艾某家里有事用钱，就打电话给贾某尽快还钱。电话中，艾某要求贾某归还欠款30万，并要求贾某支付逾期利息3000元。贾某承认借款30万元，但请求艾某免除利息。后双方没有协商成功，艾某向法院起诉，要求贾某归还欠款及支付利息。艾某将其与贾某打电话时私下偷录的电话录音，剪辑之后提交给了法院。关于本案证据的认定，下列说法正确的是？",
-    "options": "A. 电话录音没有经过对方同意，不能作为证据使用\nB. 电话录音虽然没有经过对方同意，依然可以作为证据使用\nC. 电话录音经过了剪辑，存有疑点，不能作为证据使用\nD. 贾某对借款事实的承认构成了自认",
-    "answer": "答案：B",
-    "analysis": "",
-    "kaodian": "非法证据排除规则（偷录证据的合法性）、视听资料的证明力规则、自认的构成要件。",
-    "jiangjie": "1\\. **私自“偷录”能不能当证据？**很多人以为未经同意私下录音就不能当证据，这是电视剧看多了的误区。只要你偷录的行为没有**严重**侵犯别人的合法权益（比如去别人卧室安窃听器），也没有违反法律强制规定，这种电话录音是**完全可以提交到法庭当证据使用**的。\n\n2\\. **“剪辑”过的录音就废了吗？**录音剪辑过，说明它不完整、有疑点。法律对这种有疑点的证据的规定是：**不能“单独”**作为认定事实的依据。意思是它证明力变弱了，不能光凭这一个证据就判案，得找其他证据相互印证。但是，它依然是有资格在法庭上露脸的（具有证据资格），不能一棍子打死说它“不能作为证据使用”。\n\n3\\. **啥叫法律上的“自认”？**“自认”是一个十分严格的法律概念，它必须是在**打官司的过程中**（比如在法庭上、起诉状答辩状里），一方承认了对自己不利的事实。贾某在打官司之前的私人电话里承认借钱，这叫“诉讼外的陈述”，只能算作一个证据，绝不能叫法律意义上的“自认”。",
-    "zhuxiang": "\\- **A ✗**：未经同意的录音，只要获取手段未严重侵害他人合法权益（如侵犯隐私）或违背公序良俗，就不属于“非法证据”，具有作为证据使用的资格。\n\n\\- **B ✓**：普通的私下电话录音手段合法，不属于非法证据排除的范畴，可以作为证据提交并在法庭上使用。\n\n\\- **C ✗**：剪辑且存有疑点的视听资料，其后果是证明力受限，即“**不能单独**作为认定案件事实的根据”，但并非完全丧失证据资格（不是“不能作为证据使用”）。\n\n\\- **D ✗**：民事诉讼法上的“自认”必须发生在**诉讼过程中**（起诉后）。贾某在诉前电话中的承认属于诉讼外的陈述，不构成自认。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-35",
-    "chapter": "单选",
-    "question": "2014年9月30日，吴某租赁王某建筑搭架设备，使用结束后，经双方结算下欠王某1000元。2016年5月29日，吴某为王某出具了一张1000元欠条，后经王某多次催要，吴某一直未还，王某诉至法院。法院决定适用小额诉讼程序审理，告知了双方小额诉讼程序的特点。被告要求书面答辩，法院确定了7天的答辩期，并指定了5天的举证期限。在答辩期内，被告提出了管辖权异议，法院告知其小额诉讼程序不能提管辖权异议。关于本案诉讼程序中，法院做法错误的是？",
-    "options": "A. 法院决定适用小额诉讼程序审理该案\nB. 法院确定了7天的答辩期\nC. 法院指定的5天举证期限\nD. 法院告知其小额诉讼程序不能提管辖权异议",
-    "answer": "答案：D",
-    "analysis": "",
-    "kaodian": "小额诉讼程序的适用与程序规则（关联：适用条件、举证答辩期限、管辖权异议规则）",
-    "jiangjie": "小额诉讼程序可以理解为法院的“极速版快车道”，专门用来处理标的小（各省上年度就业人员年均工资50%以下）、没啥大争议的“要钱”案件。\n\n1\\. **快在哪里？**举证期极短（一般不超过7天），答辩期也灵活（最多不超过15天）。而且一审终审，一锤定音。\n\n2\\. **被告能抗议吗？**当然能！如果觉得法院管得不对，随时可以提**管辖权异议**。就算案件走“快车道”，也不能剥夺被告“不归你管”的抗辩权。只不过，小额诉讼程序作出的管辖权异议裁定，也是“一审终审”，不可以上诉。",
-    "zhuxiang": "- **A项正确：**本案欠款1000元，远远低于小额诉讼的法定标的额门槛，法院可以依职权决定适用小额诉讼程序。\n\n- **B项正确：**小额诉讼中被告要求书面答辩的，法院可在征得其同意的基础上合理确定答辩期间，但最长不超过15日，本案定7天合法合规。\n\n- **C项正确：**小额诉讼案件的举证期限由法院确定，一般不得超过7日，本案指定5天符合规定。\n\n- **D项错误（即当选选项）：**法院不能剥夺当事人的管辖异议权。当事人完全可以提出管辖权异议，法院应当依法审查并作出裁定（异议成立转普通程序或简易程序其他规定，不成立则裁定驳回）。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-36",
-    "chapter": "单选",
-    "question": "丁一诉弟弟丁二继承纠纷一案，在一审中，妹妹丁爽向法院递交诉状，主张应由自己继承系争的遗产，并向法院提供了父亲生前所立的其过世后遗产全部由丁爽继承的遗嘱。法院予以合并审理，开庭审理前，丁一表示撤回起诉，丁二认为该遗嘱是伪造的，要求继续进行诉讼。法院裁定准予丁一撤诉后，在程序上，下列哪一选项是正确的？",
-    "options": "A. 丁爽为另案原告，丁二为另案被告，诉讼继续进行\nB. 丁爽为另案原告，丁一、丁二为另案被告，诉讼继续进行\nC. 丁一、丁爽为另案原告，丁二为另案被告，诉讼继续进行\nD. 丁爽、丁二为另案原告，丁一为另案被告，诉讼继续进行",
-    "answer": "答案：B",
-    "analysis": "",
-    "kaodian": "有独立请求权第三人与撤诉的法律后果（关联：有独三的诉讼地位、本诉与第三人之诉的独立性）",
-    "jiangjie": "什么是“有独立请求权第三人（有独三）”？\n\n简单说就是“半路杀出的程咬金”。原告和被告正在争一块肉，第三人冲进法庭说：“都给我闭嘴，这块肉全是我的！”\n\n“程咬金”的出现相当于提起了一个**全新的、独立的诉讼**。在这个新诉讼里，“程咬金”是原告，原来在抢肉的原告和被告就成了共同被告。\n\n既然这是两个独立的诉（本诉和有独三之诉），那么如果最初的原告不想抢了（撤回本诉），完全不影响“程咬金”继续主张权利。",
-    "zhuxiang": "- **A项错误：**漏了丁一。丁爽主张的是“全部遗产”归自己，她的主张既针对弟弟丁二，也针对哥哥丁一，所以丁一和丁二都得当被告。\n\n- **B项正确：**原告丁一撤诉，本诉（丁一诉丁二）终结。但有独立请求权第三人之诉具有独立性，丁爽作为另案原告，原来的原告丁一和被告丁二作为另案的共同被告，诉讼继续打下去。\n\n- **C项错误：**丁一都已经申请撤诉并获准了，他就不可能再当原告了。\n\n- **D项错误：**丁二一直是不认同丁爽的（认为遗嘱是伪造的），两人利益冲突对立，丁二绝不可能和丁爽一起当共同原告。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-37",
-    "chapter": "单选",
-    "question": "住所在A市B区的甲公司与住所在A市C区的乙公司签订了一份买卖合同，约定履行地为D县。合同签订后尚未履行，因货款支付方式发生争议，乙公司诉至D县法院。甲公司就争议的付款方式提交了答辩状。经审理，法院判决甲公司败诉。甲公司不服，以一审法院无管辖权为由提起上诉，要求二审法院撤销一审判决，驳回起诉。关于本案，下列哪一表述是正确的？",
-    "options": "A. D县法院有管辖权，因D县是双方约定的合同履行地\nB. 二审法院对上诉人提出的管辖权异议不予审查，裁定驳回异议\nC. 二审法院应裁定撤销一审判决，发回一审法院重审\nD. 二审法院应裁定撤销一审判决，裁定将案件移送有管辖权的法院审理",
-    "answer": "答案：B",
-    "analysis": "",
-    "kaodian": "约定履行地管辖、应诉管辖与二审对管辖异议的处理（关联：默示管辖规则）",
-    "jiangjie": "1\\. **空头支票的履行地不管用：**合同里写了在哪儿交货（约定履行地），但实际上根本还没交货（未实际履行）。如果这个地方既不是原告老家，也不是被告老家，那这地方的法院管不着本案。\n\n2\\. **将错就错的“应诉管辖”：**原告虽然找错了法院，但如果被告收到了起诉状没有在规定时间内（答辩期内）说“你管不着”，反而老老实实提交了答辩状开始讲道理，那就视为被告“默认”了这个法院能管。\n\n3\\. **事后反悔无效：**被告一审乖乖答辩，输了官司才想起到二审喊“一审没管辖权”，晚了！二审法院对这种“事后诸葛亮”的异议不予审查。",
-    "zhuxiang": "- **A项错误：**按照法定规则，合同未实际履行，且约定履行地不在当事人一方住所地的，约定履行地法院无管辖权。所以D县起初是没有法定管辖权的。\n\n- **B项正确：**甲公司在答辩期间没有提出管辖权异议，反而提交了答辩状进行实体答辩，根据法律规定，这构成了“应诉管辖”，一审法院借此取得了管辖权。甲公司到二审才提异议，二审法院不予审查，裁定驳回异议。\n\n- **C项、D项错误：**一审法院因为甲公司的应诉答辩已经合法取得了管辖权，作出的判决在管辖程序上没有任何问题，不需要发回重审，也不需要移送。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-38",
-    "chapter": "单选",
-    "question": "杨青（15岁）与何翔（14岁）两人经常嬉戏打闹，一次，杨青失手将何翔推倒，致何翔成了植物人。当时在场的还有何翔的弟弟何军（11岁）。法院审理时，何军以证人身份出庭。关于何军作证，下列哪个说法成立？",
-    "options": "A. 何军只有11岁，无诉讼行为能力，不具有证人资格，故不可作为证人\nB. 何军是何翔的弟弟，应回避\nC. 何军作为未成年人，其所有证言依法都不具有证明力\nD. 何军作为何翔的弟弟，证言具有明显的倾向性，其证言不能单独作为认定案件事实的根据",
-    "answer": "答案：D",
-    "analysis": "",
-    "kaodian": "证人资格、证人回避与证明力（关联：未成年人作证规则、孤证不能定案规则）",
-    "jiangjie": "1\\. **谁能当证人？**证人的门槛极低，只要“亲眼见过/听过事儿”且“脑子清楚能表达”就行。不看岁数大小，只看智力。11岁的小孩完全能看懂并表达“谁推了谁”这种简单的打架事实，绝对可以当证人。\n\n2\\. **证人需要回避吗？**证人是不可替代的（当时就他在场，换别人啥也不知道），所以证人**绝对不适用回避制度**。哪怕是受害人的亲弟弟，也必须作证。\n\n3\\. **亲属作证信得过吗？**亲属作证往往有私心（偏袒自家人），所以法律规定：有利害关系（比如亲属）的证人证言，或者跟年龄智力不匹配的小孩证言，不能“单凭这一句话”就定案（孤证不能定案），得有别的证据打配合才行。",
-    "zhuxiang": "- **A项错误：**11岁的未成年人对简单的侵权行为（推倒）能理解并表达，具备与其年龄智力相适应的作证能力，具有证人资格。\n\n- **B项错误：**证人因为其对案件事实的不可替代性，无论与当事人是什么关系，都不适用回避制度。\n\n- **C项错误：**未成年人的证言只要与其年龄、智力状况相适应，就具有证明力，可以作为证据使用，并非毫无证明力。\n\n- **D项正确：**何军作为受害人的亲弟弟，属于“与一方当事人有利害关系”的证人，他的证言不能“单独”作为认定案件事实的根据，必须结合其他证据综合认定。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-39",
-    "chapter": "单选",
-    "question": "甲县法院受理居住在乙县的成某诉居住在甲县的罗某借款纠纷案。诉讼过程中，成某出差归途所乘航班失踪，经全力寻找仍无成某生存的任何信息，主管方宣布机上乘客不可能生还，成妻遂向乙县法院申请宣告成某死亡。对此，下列哪一说法是正确的？",
-    "options": "A. 乙县法院应当将宣告死亡案移送至甲县法院审理\nB. 借款纠纷案与宣告死亡案应当合并审理\nC. 甲县法院应当裁定中止诉讼\nD. 甲县法院应当裁定终结诉讼",
-    "answer": "答案：C",
-    "analysis": "",
-    "kaodian": "诉讼中止（关联：诉讼障碍的情形判断、延期审理与诉讼终结的区别）",
-    "jiangjie": "1\\. **什么是诉讼中止？**就是案子按下了“暂停键”。遇到突发情况，法官心里没底：不知道案子还能不能接着打、跟谁打、怎么打，只能先停下来等消息。\n\n2\\. **常见情形：**本案要等另一个案子的结果（先决关系）。或者一方当事人死了，要等看有没有继承人愿意接着打官司。\n\n3\\. **本案分析：**原告航班失踪，妻子去申请“宣告死亡”（特别程序案件）。一旦宣告死亡成立，原告在法律上就死了，那这个借款纠纷就得看他的继承人要不要继续告。所以在“宣告死亡案”出结果之前，借款案只能先“暂停（中止）”。",
-    "zhuxiang": "- **A ✗**：宣告死亡案件由被申请人（下落不明的成某）住所地基层法院管辖，成某居住在乙县，乙县法院有管辖权，无需移送甲县法院。\n\n- **B ✗**：借款纠纷适用普通程序，宣告死亡适用特别程序，两案性质与程序不同，不能合并审理。\n\n- **C ✓**：借款纠纷案原告成某能否继续参加诉讼，取决于宣告死亡案的结果；在宣告死亡案审结前，甲县法院审理的借款纠纷案应裁定中止诉讼。\n\n- **D ✗**：成某只是失踪、尚未被宣告死亡，且借款系财产纠纷可由继承人承受，不能直接裁定终结诉讼。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "dan-40",
-    "chapter": "单选",
-    "question": "齐远、张红是夫妻，因感情破裂诉至法院离婚，提出解除婚姻关系、子女抚养、住房分割等诉讼请求。一审判决准予离婚并对子女抚养问题作出判决。齐远不同意离婚提出上诉。二审中，张红增加诉讼请求，要求分割诉讼期间齐远继承其父的遗产。下列哪一说法是正确的？",
-    "options": "A. 一审漏判的住房分割诉讼请求，二审可调解，调解不成，发回重审\nB. 二审增加的遗产分割诉讼请求，二审可调解，调解不成，发回重审\nC. 住房和遗产分割的两个诉讼请求，二审可合并调解，也可一并发回重审\nD. 住房和遗产分割的两个诉讼请求，经当事人同意，二审法院可一并裁判",
-    "answer": "答案：A",
-    "analysis": "",
-    "kaodian": "二审对一审漏判请求的处理、二审中新增诉讼请求的处理",
-    "jiangjie": "两种情形要分清：①一审“漏判”的请求（本案住房分割，当事人一审提了，但一审判决没处理）——二审先调解，调解不成的，发回重审；②二审中“新增”的请求（本案遗产分割，一审根本没提过）——二审可以根据当事人自愿进行调解，调解不成的，告知另行起诉，而不是发回重审。区别在于：漏判的请求原本就属于本案审理范围，而新增的请求超出了一审范围，直接由二审处理会剥夺当事人的审级利益。",
-    "zhuxiang": "- **A ✓** 住房分割是一审已提出但被遗漏的请求，二审应先调解，调解不成的，发回重审，正确。\n\n- **B ✗** 遗产分割是二审中新增的请求，调解不成的应告知另行起诉，而不是发回重审。\n\n- **C ✗** 住房分割（漏判）与遗产分割（新增）性质不同，处理方式也不同，不能一概“合并调解、一并发回重审”。\n\n- **D ✗** 遗产分割系二审新增请求，不属于二审审理范围，不能“经当事人同意就一并裁判”，否则剥夺当事人的审级利益。",
-    "guanlian": "第二审中，原审遗漏的诉讼请求，二审可以调解，调解不成的发回重审；当事人在二审中增加独立的诉讼请求或提出反诉的，二审可以根据当事人自愿进行调解，调解不成的，告知当事人另行起诉。\n\n---\n\n# 二、多选题（第一部分）",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-01",
-    "chapter": "多选",
-    "question": "A区张某和B区甲公司在C区签订租赁合同，约定将甲公司在D区的一套公寓租赁给张某，同时约定因为履行本合同产生纠纷应当由合同签订地C区法院管辖。后来张某拒不支付租金，甲公司向C区法院起诉张某，C区法院受理案件后依法适用小额诉讼的程序审理。张某认为本案应当由D区法院专属管辖，故向C区法院提出管辖权异议。C区法院认为管辖权异议不成立，裁定驳回其异议。后C区法院经过审理后判决张某支付租金。张某认为该判决在认定事实和适用法律方面存在错误。关于本案表述正确的是？",
-    "options": "A. 张某对法院驳回其管辖权异议的裁定可以提起上诉\nB. 张某对法院驳回其管辖权异议的裁定不能上诉\nC. 张某对本案生效判决可以向C区法院申请再审\nD. 张某对本案生效判决可以向中院申请再审",
-    "answer": "答案：BC",
-    "analysis": "",
-    "kaodian": "小额诉讼程序的救济机制（关联：小额诉讼的一审终审制、再审申请管辖）。",
-    "jiangjie": "小额诉讼程序是专门为“钱少、事儿简单”的纠纷设立的“快车道”。它最大的特点就是“一锤定音”（一审终审）。\n\n1\\. **不能上诉：**为了防止当事人来回折腾，不仅最后判输赢的“实体判决”不能上诉，连审理过程中法院作出的“管辖权异议裁定”和“驳回起诉裁定”，也是一经作出立刻生效，绝对不准上诉。\n\n2\\. **错判能救济：**既然不能上诉，那法官如果真的判错了怎么办？法律给你留了后路——申请“再审”。但为了方便老百姓，小额诉讼案件申请再审不需要去找上一级法院，直接找原来判这个案子的基层法院（原审法院）申请就行了。",
-    "zhuxiang": "- **A ✗，B ✓**：本案适用小额诉讼程序，小额诉讼程序的管辖权异议裁定实行一审终审，作出即生效，不能提起上诉。因此A错B对 。\n\n- **C ✓，D ✗**：对小额诉讼程序的生效裁判申请再审，应当向“原审法院”（即本案的C区法院）提出，而不能向中级法院（上一级法院）提出。因此C对D错 。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-02",
-    "chapter": "多选",
-    "question": "下列属于民事诉讼当事人的有",
-    "options": "A. 原告\nB. 被告\nC. 共同诉讼人\nD. 诉讼代表人",
-    "answer": "答案：ABCD",
-    "analysis": "",
-    "kaodian": "民事诉讼当事人的概念与范围（关联：共同诉讼、代表人诉讼）。",
-    "jiangjie": "在法庭上，到底谁算“当事人”？简单来说，就是因为自己的权利义务有争议，以自己的名义在法庭上打官司，并且最后要受法院判决约束的人。\n\n- **主角：**告状的是“原告”，被告状的是“被告”。\n\n- **群演：**如果原告或被告不是一个人，而是一群人（两人以上），他们就统称为“共同诉讼人”。\n\n- **代表：**当“群演”实在太多（比如上百个消费者一起维权），大家挤不下法庭，就可以推选出几个人代表大家去打官司。这些被推选出来的人叫“诉讼代表人”，他们本身也是这群人中的一员，代表大家行使权利，所以他们当然也属于当事人。",
-    "zhuxiang": "- **A ✓、B ✓**：原告和被告是诉讼中最基本、最典型的当事人。\n\n- **C ✓**：当事人一方或双方为两人以上时即为共同诉讼，这些人称为共同诉讼人，依然是当事人身份 。\n\n- **D ✓**：在人数众多的共同诉讼中，由人数众多的一方推举出来进行诉讼活动的“诉讼代表人”，本身也是争议法律关系的主体之一，属于当事人的范畴 。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-03",
-    "chapter": "多选",
-    "question": "某省上年度就业人员年平均工资为8万元。张三诉李四归还借款6万元，该省某基层法院受理案件后，张三和李四均同意适用小额诉讼的程序审理。在审理过程中，李四对张三提出反诉，要求张三归还欠款8万元，下列表达正确的是？",
-    "options": "A. 法院应当继续适用小额诉讼的程序审理\nB. 如果张三、李四同意适用小额诉讼的程序审理的，法院应当适用小额诉讼的程序审理\nC. 当事人可以对法院适用小额诉讼的程序审理提出异议\nD. 法院应当适用简易程序的其他规定审理或者裁定将案件转为普通程序",
-    "answer": "答案：CD",
-    "analysis": "",
-    "kaodian": "小额诉讼程序的适用条件与程序转化（关联：小额诉讼的负面清单、反诉的独立性）。",
-    "jiangjie": "小额诉讼这条“快车道”不仅对金额有要求，而且对案件的复杂程度“零容忍”。法律专门列了一张“黑名单”（负面清单），明确规定：**只要当事人提出了“反诉”，案子就变复杂了，绝对不能再走小额诉讼程序**。这就好比快车道上突然出现了逆行的车，不管你们双方再怎么“同意”，交警（法院）都必须把案子挪到普通车道（转为普通程序或一般简易程序）。如果法院不讲理非要继续用小额程序审，当事人完全可以举手抗议（提出异议）。",
-    "zhuxiang": "- **A ✗，B ✗**：法律明确规定了小额诉讼程序的“负面清单”，当事人提出反诉的案件不得适用小额诉讼程序审理。这是法定禁止性规定，即便双方当事人同意，也不能违反禁令继续适用。因此A、B错误 。\n\n- **C ✓，D ✓**：当发现案件不宜适用小额诉讼程序（如本案出现了反诉）时，法院应当依法将程序转化，适用简易程序的其他规定或者裁定转为普通程序。如果法院没有主动转，当事人认为违反法律规定的，当然有权向法院提出异议。因此C、D正确 。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-04",
-    "chapter": "多选",
-    "question": "下列关于管辖的表述，正确的有",
-    "options": "A. 因合同纠纷提起的诉讼，由被告住所地或者合同履行地人民法院管辖\nB. 因侵权行为提起的诉讼，由侵权行为地或者被告住所地人民法院管辖\nC. 两个以上人民法院都有管辖权的诉讼，原告可以向其中一个人民法院起诉\nD. 人民法院发现受理的案件不属于本院管辖的，应当移送有管辖权的人民法院，受移送的人民法院应当受理",
-    "answer": "答案：ABCD",
-    "analysis": "",
-    "kaodian": "一般地域管辖、选择管辖与移送管辖制度。",
-    "jiangjie": "打官司该去哪个法院（管辖权），民诉法给出了清晰的“导航”：\n\n1\\. **合同纠纷：**找被告老家的法院，或者合同实际履行地的法院。\n\n2\\. **侵权纠纷（如被打、被撞）：**找侵权行为发生地的法院，或者被告老家的法院。\n\n3\\. **选法院（选择管辖）：**比如打合同官司，被告在A地，合同履行在B地。A地和B地法院都能管。此时，原告拥有主动权，挑一个对自己最方便的法院起诉就行。\n\n4\\. **送错地方（移送管辖）：**如果原告起诉错了法院，而法院一开始迷糊也收了案子。发现错误后，法院不能把老百姓往门外赶，而是要在内部走个“快递”，把案子移送给真正有管辖权的法院。而且，接收的那个法院必须乖乖受理，绝不允许再把案子踢给别人。",
-    "zhuxiang": "- **A ✓**：这是合同纠纷的法定一般地域管辖规则 。\n\n- **B ✓**：这是侵权纠纷的法定一般地域管辖规则 。\n\n- **C ✓**：这体现了“选择管辖”原则。当几个法院都有管辖权（共同管辖）时，原告有权自行选择向其中一个法院起诉 。\n\n- **D ✓**：这体现了“移送管辖”制度，是法院内部纠正错误立案的程序。受移送的法院即便认为自己也没有管辖权，也不得退回或再行移送，只能依法受理并报请上级指定管辖 。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-05",
-    "chapter": "多选",
-    "question": "甲起诉乙归还借款200元，某区法院受理后适用小额诉讼的程序审理。关于本案，下列说法正确的是？",
-    "options": "A. 法院可以采用短信方式传唤当事人\nB. 法院可以采用短信送达裁判文书\nC. 本案不得适用小额诉讼的程序审理\nD. 本案法院所作判决一审终审",
-    "answer": "答案：ABD",
-    "analysis": "",
-    "kaodian": "小额诉讼程序的适用条件、送达方式及审级（关联：简便送达、电子送达）。",
-    "jiangjie": "案子金额才200块钱，这绝对是标准的“芝麻绿豆”小案，完全应该走小额诉讼程序。既然上了这条“快车道”，不仅审得快，通知方式也很接地气。\n\n- **通知开庭：**法官不需要非得严肃地寄挂号信，打个电话、发个短信、发个微信甚至让人捎个口信叫你来开庭都可以。\n\n- **发判决书：**只要你同意了接收电子文件，法院连最后的判决书都可以通过发短信（带链接）、发邮件的方式送达给你。\n\n- **最终结果：**钱太少，禁止反复折腾，一审判决出来马上生效，不许上诉（一审终审）。",
-    "zhuxiang": "- **C ✗**：案件标的额仅为200元，符合基层法院审理的事实清楚、争议不大的简单金钱给付案件的标准，且标的额极低，**必须**依法适用小额诉讼程序。因此C错误 。\n\n- **A ✓**：小额诉讼程序属于简易程序的一种。适用简易程序审理案件，法院可以采取捎口信、电话、短信、传真、电子邮件等简便方式传唤双方当事人。因此A正确 。\n\n- **B ✓**：根据电子送达的相关规定，经受送达人同意，法院可以采用能够确认其收悉的电子方式送达文书，包括判决书、裁定书、调解书（即可以通过短信发送链接或文件进行送达）。因此B正确 。\n\n- **D ✓**：适用小额诉讼的程序审理的案件实行一审终审制，无论判赢判输，判决作出即生效。因此D正确 。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-06",
-    "chapter": "多选",
-    "question": "下列属于民事诉讼证据种类的有",
-    "options": "A. 书证\nB. 物证\nC. 视听资料\nD. 电子数据",
-    "answer": "答案：ABCD",
-    "analysis": "",
-    "kaodian": "民事诉讼证据的法定种类（关联：传统证据与电子数据、视听资料的区别）",
-    "jiangjie": "打官司要讲证据。法律明确规定了8种可以拿到法庭上的证据类型：\n\n1\\. **嘴巴说的**：当事人陈述、证人证言。\n\n2\\. **纸上写的**：书证（看内容）、勘验笔录（法官现场记录）、鉴定意见（专家出具）。\n\n3\\. **现实存在的**：物证（看物品外表、特征）。\n\n4\\. **电子设备记录的**：视听资料（录音、录像磁带）、电子数据（微信、邮件、硬盘数据）。",
-    "zhuxiang": "\\- **A ✓** **书证**是以文字、符号等记载的内容来证明案件事实的证据，是法定的证据种类。\n\n\\- **B ✓** **物证**是以物品的外在特征（如形状、痕迹等）证明案件事实的证据，是法定的证据种类。\n\n\\- **C ✓** **视听资料**是以录音、录像等技术手段反映的声音、图像证明案件事实的材料，是法定证据种类。\n\n\\- **D ✓** **电子数据**是通过电子邮件、网上聊天记录等形成或存储在电子介质中的信息，也是法定证据种类。",
-    "guanlian": "一、法定证据种类共有8种：当事人陈述、书证、物证、视听资料、电子数据、证人证言、鉴定意见、勘验笔录。\n\n二、电子数据与视听资料的区别：传统的相机、摄像机录制在胶片、磁带等特殊材料上的属于视听资料；而数码设备拍摄录制并存储在储存卡、U盘、硬盘等电子介质中的属于电子数据。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-07",
-    "chapter": "多选",
-    "question": "外国人汤姆通过网络平台以人民币500元购买了中国人杨某销售的衬衫,后双方因为衬衫质量问题发生纠纷,汤姆向互联网法院起诉杨某要求赔偿,互联网法院依法受理此案。关于本案的审理,下列表述正确的是? BCD",
-    "options": "A. 本案可以适用小额诉讼的程序审理\nB. 本案法院可以决定线下审理\nC. 本案经当事人同意后可以通过电子方式送达判决书\nD. 本案可以适用独任制审理",
-    "answer": "答案：BCD",
-    "analysis": "",
-    "kaodian": "涉外民事案件的程序适用、在线诉讼与送达规则（关联：小额诉讼程序的负面清单、电子送达、独任制）",
-    "jiangjie": "1\\. **小额诉讼程序很“挑食”：虽然这件案子标的额只有500元，但涉外案件绝对不能用一审终审的“小额诉讼程序”。\n\n2\\. **网上打官司要自愿**：虽然是互联网法院受理的案件，但如果一方不同意在线打官司，法院就要进行线下审理。\n\n3\\. **电子送达需同意**：判决书、调解书等文件可以通过微信或邮箱送达，但前提是必须经过当事人同意。\n\n4\\. **独任制适用广**：独任制（一个法官审案）不仅适用于简易程序，基层法院审理的简单案件哪怕用普通程序，也能由一名法官独任审理。",
-    "zhuxiang": "\\- **A ✗** 小额诉讼程序有“负面清单”，法律明确规定涉外案件不得适用小额诉讼的程序审理。\n\n\\- **B ✓** 在线诉讼与线下诉讼具有同等效力原则要求在线诉讼需经当事人同意，如果一方当事人不同意在线诉讼，法院应当针对该当事人采用线下方式审理。\n\n\\- **C ✓** 经受送达人同意，法院可以采用能够确认其收悉的电子方式送达判决书、裁定书和调解书等文书。\n\n\\- **D ✓** 互联网法院相当于基层法院，其审理的基本事实清楚、权利义务关系明确的第一审民事案件，可以适用普通程序由审判员一人独任审理。",
-    "guanlian": "一、不得适用小额诉讼程序的案件（负面清单）：人身关系、财产确权案件；涉外案件；需要评估、鉴定或者对诉前评估、鉴定结果有异议的案件；一方下落不明的案件；提出反诉的案件等。\n\n二、在线诉讼原则：经当事人同意，民事诉讼可以通过信息网络平台在线进行。一方同意在线诉讼，一方不同意的，对同意的一方当事人在线诉讼，对不同意的一方当事人线下诉讼。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-08",
-    "chapter": "多选",
-    "question": "下列关于保全的表述，正确的有",
-    "options": "A. 人民法院对于可能因当事人一方的行为或者其他原因，使判决难以执行或者造成当事人其他损害的案件，根据对方当事人的申请，可以裁定对其财产进行保全、责令其作出一定行为或者禁止其作出一定行为\nB. 利害关系人因情况紧急，不立即申请保全将会使其合法权益受到难以弥补的损害的，可以在提起诉讼或者申请仲裁前向被保全财产所在地、被申请人住所地或者对案件有管辖权的人民法院申请采取保全措施\nC. 财产保全采取查封、扣押、冻结或者法律规定的其他方法\nD. 申请有错误的，申请人应当赔偿被申请人因保全所遭受的损失",
-    "answer": "答案：ABCD",
-    "analysis": "",
-    "kaodian": "财产保全与行为保全制度（关联：诉讼中保全、诉前保全、保全错误赔偿）",
-    "jiangjie": "保全就是“防患于未然”，怕对方跑路、转移财产或者继续搞破坏。\n\n1\\. **诉讼中保全**：官司打着打着，怕对方偷偷转移财产，可以申请法院冻结对方账户或制止其行为，法院也可以自己主动决定保全。\n\n2\\. **诉前保全**：还没起诉但情况十万火急（比如对方正在连夜变卖机器），可以先向法院申请保全。但诉前保全必须提供担保，且30天内必须起诉。\n\n3\\. **怎么保全**：封条贴上（查封）、东西拿走（扣押）、账户锁住（冻结）。\n\n4\\. **申请错的代价**：如果申请保全搞错了，导致对方吃亏受损的，申请人必须自掏腰包赔钱。",
-    "zhuxiang": "\\- **A ✓** 诉讼中保全的法定条件，为防止判决难以执行或造成其他损害，法院可依法裁定保全财产或进行行为保全。\n\n\\- **B ✓** 诉前保全的适用条件，因情况紧急不立即保全会造成难以弥补的损害时，可向被保全财产所在地、被申请人住所地或者对案件有管辖权的法院申请诉前保全。\n\n\\- **C ✓** 财产保全的一般措施就是查封、扣押、冻结，或者法律规定的其他方法。\n\n\\- **D ✓** 如果保全错误，法院应作出解除保全裁定，且申请人应对被保全人因此遭受的损失承担赔偿责任。",
-    "guanlian": "一、诉前保全与诉讼中保全的对比：\n\n1\\. 启动方式：诉前保全只能依申请；诉讼中保全可以依当事人申请，也可以由法院依职权主动采取。\n\n2\\. 担保要求：申请诉前保全“应当”责令提供担保（不给就不保）；诉讼中保全“可以”责令申请人提供担保。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-09",
-    "chapter": "多选",
-    "question": "下列关于特别程序的表述，正确的有",
-    "options": "A. 特别程序实行一审终审\nB. 特别程序不适用辩论原则\nC. 特别程序审理的案件，除选民资格案件或者重大、疑难的案件由审判员组成合议庭审理外，其他案件由审判员一人独任审理\nD. 适用特别程序审理的案件，应当在立案之日起三十日内或者公告期满后三十日内审结。有特殊情况需要延长的，由本院院长批准",
-    "answer": "答案：ABCD",
-    "analysis": "",
-    "kaodian": "特别程序的一般规则（关联：非讼程序、一审终审、审判组织、审限）",
-    "jiangjie": "特别程序是法院处理“没争议、只办事”案件的快车道。\n\n1\\. **没有争议**：比如宣告某人失踪、确认调解协议是否有效，大家没有打架，只是需要法院走个程序给个说法，所以叫非讼程序。\n\n2\\. **无需辩论**：既然没争议，就不需要唇枪舌剑地辩论（不适用辩论原则），也不能进行调解。\n\n3\\. **快刀斩乱麻**：一审直接定音，不能上诉（一审终审），不能申请再审。\n\n4\\. **人员精简**：除了选民资格和重大疑难案件需要合议庭（三个人），其他普通办事儿都由一名法官自己说了算（独任制）。\n\n5\\. **速度要快**：一般30天内审完。",
-    "zhuxiang": "\\- **A ✓** 特别程序是一审终审，且不适用审判监督程序和第三人撤销之诉。\n\n\\- **B ✓** 辩论原则只适用于解决纠纷的诉讼程序，特别程序作为非讼程序，不解决民事权利义务纠纷，自然不适用辩论原则。\n\n\\- **C ✓** 特别程序原则上适用独任制，仅选民资格案件和其他重大疑难案件由审判员组成合议庭审理。\n\n\\- **D ✓** 特别程序的审限是立案之日起30日内或者公告期满后30日内审结，院长批准可以延长（选民资格案件例外，必须在选举日前审结）。",
-    "guanlian": "一、特别程序的适用范围包括：选民资格，宣告失踪、死亡，指定遗产管理人，认定公民无、限制民事行为能力，认定财产无主，确认调解协议效力，实现担保物权。\n\n二、特别程序的救济手段：因为不能上诉和再审，如果当事人或利害关系人认为判决裁定有错误，可以向作出该判决裁定的法院提出“异议”，法院审查成立的，会适用特别程序作出新判决裁定来撤销原判决裁定。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-10",
-    "chapter": "多选",
-    "question": "金某和全某是外国人，二人结婚后长期在中国居住，且通晓中文。全某与曹某发生争执，曹某将全某打伤，全某向法院起诉曹某要求赔偿医疗费等各项损失，关于本案，下列表述正确的是？ AC",
-    "options": "A. 全某可委托金某担任诉讼代理人\nB. 法院可发送中文和外文判决书，并加盖法院印章\nC. 法院可不提供中文翻译\nD. 本案由中院审理",
-    "answer": "答案：AC",
-    "analysis": "",
-    "kaodian": "涉外民事诉讼程序规则（关联：涉外管辖、委托代理、翻译与文书语言）",
-    "jiangjie": "1\\. **外国人打官司：只要在中国法院打官司，就得按中国的规矩来（适用中国民事诉讼法）。\n\n2\\. **找代理人**：外国人可以找自己的亲属当代理人（不论国籍）。但如果想花钱请“律师”打官司，只能请中国的律师，不能请外国律师来法庭上辩护。\n\n3\\. **语言问题**：中国法院的官方语言是中文，文书只发中文版。如果外国人听不懂、看不懂，可以要求法院提供翻译，但费用自己掏。如果他本身就懂中文（通晓中文），法院当然不用管翻译的事了。\n\n4\\. **谁来审案**：老外在中国打架索赔，这只是普通的侵权案件，去基层法院（区/县法院）就行了。只有“重大”涉外案件才归中级法院管。",
-    "zhuxiang": "\\- **A ✓** 涉外诉讼中，外国人需要委托“律师”代理诉讼时只能委托中国律师，但法律并不禁止外国人委托其近亲属（如其丈夫金某）担任普通诉讼代理人。\n\n\\- **B ✗** 中国法院审理案件使用中国语言文字。如果当事人要求，法院可以提供外文翻译文本，但值得注意的是，外文翻译的判决书不得加盖人民法院印章。\n\n\\- **C ✓** 全某与金某长期在中国居住且通晓中文，不需要翻译。即使需要翻译，也应由当事人提出请求并自行承担费用，法院没有主动提供翻译的义务。\n\n\\- **D ✗** 涉外民事诉讼中，只有“重大涉外案件”才由中级人民法院管辖。本案属于普通的打架索赔侵权纠纷，应当由基层法院管辖。",
-    "guanlian": "一、涉外管辖级别：一般的涉外案件由基层法院管辖。中级法院管辖的涉外案件主要包括：重大涉外案件、涉外仲裁的财产和证据保全以及仲裁裁决审查等。\n\n二、涉外委托代理原则：外国人、无国籍人或者外国企业、组织在我国起诉、应诉，需要委托律师代理诉讼的，只能委托中国律师代理诉讼，外国律师不能以律师身份参加诉讼。\n\n---\n\n# 三、多选题（第二部分）",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-11",
-    "chapter": "多选",
-    "question": "甲公司依据供货合同中的约定要求乙公司支付货款，法院经过审理，一审和二审均判决乙公司败诉，乙公司向法院申请再审。上级法院认为事实认定不清，指定下级法院再审，再审期间甲公司要求增加违约金，乙公司以货物质量不合格为由主张解除合同，法院应当如何处理？",
-    "options": "A. 对于增加违约金的请求，法院应当调解处理\nB. 对于解除合同的请求，法院应当调解处理\nC. 对于增加违约金的要求，法院告知当事人另行起诉\nD. 对于解除合同的请求，法院告知当事人另行起诉",
-    "answer": "答案：CD",
-    "analysis": "",
-    "kaodian": "再审的审理范围（关联：再审范围有限原则、增加诉讼请求与反诉的处理）。",
-    "jiangjie": "再审程序的核心是“纠错”，只审查原来生效的判决有没有错，不管新发生的争议。原则上不允许在再审里“加戏”。\n\n在这个案子里，甲公司要求加违约金（加请求），乙公司要求解除合同（提反诉），这都是新的戏。既然法官是来纠正旧错的，对这些新加的戏法官一概不管，也不组织调解，直接让当事人“出门左转，去立案庭重新起诉”。\n\n（注意：如果题目中出现了“发回重审”四个字，且符合追加新当事人等法定情形，才允许加戏，本题只是“指定再审”，不符合加戏条件。）",
-    "zhuxiang": "A ✗ 对于超出原审范围新增的违约金独立请求，不属于再审范围，法院不予审理和调解。\n\nB ✗ 主张解除合同属于被告在再审中提出的反诉，同样超出再审范围，法院不予调解。\n\nC ✓ 对于增加违约金的请求，再审法院直接告知另行起诉。\n\nD ✓ 对于在再审中新提出的反诉请求，再审法院直接告知当事人另行起诉。",
-    "guanlian": "再审范围有限原则：法院审理再审案件应当围绕再审请求进行。当事人超出原审范围增加、变更诉讼请求或者提出反诉的，不属于再审范围，应当告知当事人另行起诉。只有在再审中裁定撤销原判“发回重审”时，遇到特定情形（如追加新当事人、标的物灭失等），才允许增加请求或反诉。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-12",
-    "chapter": "多选",
-    "question": "乙向甲借款50万元钱，丙为乙提供担保。后乙迟迟不肯还款，甲向法院申请了对乙的支付令，之后甲又将丙诉至法院。关于本案，下列选项中说法正确的是？",
-    "options": "A. 如果法院受理了甲的起诉，则支付令失效\nB. 如果法院受理了甲的起诉，则支付令效力中止\nC. 法院对乙发出的支付令，对担保人丙也有拘束力\nD. 法院对乙发出的支付令，对担保人丙没有拘束力",
-    "answer": "答案：AD",
-    "analysis": "",
-    "kaodian": "支付令的效力与失效情形（关联：督促程序的适用条件、支付令对担保人的效力）。",
-    "jiangjie": "支付令就像是法院发的一张“催债通知单”，主打一个“快”，前提是双方毫无争议。\n\n1\\. 支付令“不管闲事”：法院给主债务人发的支付令，对担保人不起作用。因为担保人没法在督促程序里提异议，如果强制约束他很不公平。\n\n2\\. 支付令“见光死”（一诉就失效）：只要债权人去法院起诉了（不管起诉债务人还是起诉担保人），说明这事儿有争议了，“快车道”走不通了，支付令直接作废（失效），而不是暂停（中止）。",
-    "zhuxiang": "A ✓ 债权人甲就同一债权债务关系（起诉担保人丙）提起诉讼，说明债权债务存在纠纷，督促程序应当终结，已经发出的支付令自行失效。\n\nB ✗ 债权人起诉导致的后果是支付令“失效”作废，不存在效力“中止”一说。\n\nC ✗ 支付令不能约束担保人，因为担保人不是被申请人，无法行使异议权。\n\nD ✓ 对债务人发出的支付令对担保人没有拘束力，债权人也不能申请向担保人发出支付令。",
-    "guanlian": "法院受理支付令申请后，债权人就同一债权债务关系又提起诉讼的，法院应当裁定终结督促程序，已经发出的支付令失效。督促程序只适用于法律关系简单、债权债务关系明确的案件，不得对于担保人适用支付令。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-13",
-    "chapter": "多选",
-    "question": "梁某被判决向曲某支付借款本金和利息320万元，梁某未及时履行，曲某申请执行法院査封梁某名下的房产，梁某的父亲老梁向执行法院提出异议，称该房产为老梁所有。关于本案，以下说法中正确的是？",
-    "options": "A. 老梁可以直接向法院提起异议之诉\nB. 在法院审査老梁提出的异议期间， 执行法院对该房产可以继续执行\nC. 如果法院经审查裁定老梁的异议成立，则应当终结对该房产的执行\nD. 如果法院经审查裁定驳回了老梁的异议，老梁可以曲某作为被告提起执行异议之诉",
-    "answer": "答案：BD",
-    "analysis": "",
-    "kaodian": "案外人对执行标的的异议及救济程序（关联：异议不停止执行、执行异议之诉的原被告）。",
-    "jiangjie": "案外人（老梁）看到法院查封了“自己的”房子，不能直接去打官司。\n\n1\\. “先提异议再起诉”：必须先向执行法院书面提出异议。法院查一下，异议成立就“暂停（中止）”执行（注意不是彻底结束的“终结”）；不成立就“驳回”。\n\n2\\. “异议期间不刹车”：在审查异议这段时间，法院该执行还是继续执行，不能因为有人喊一嗓子就停下来。\n\n3\\. “救济找准被告”：本案判的是“还钱”，执行的却是“房子”，这属于“执行标的与原生效裁判无关”。老梁异议被驳回后，可以打“执行异议之诉”。因为是债主曲某非要执行这个房子，老梁就得把曲某当被告。",
-    "zhuxiang": "A ✗ 案外人主张实体权利，必须先在执行过程中向法院提出书面异议，对裁定不服才能依法提起诉讼，不能跳过异议程序直接起诉。\n\nB ✓ 执行行为异议和案外人异议的审查期间，原则上不停止执行（除非提供充分有效担保等特定情形）。\n\nC ✗ 法院审查案外人异议成立的，法律后果是裁定“中止”对该标的的执行（暂停），而不是“终结”执行。\n\nD ✓ 原判决是金钱债务，未确定房产权属，属于“与原生效裁判无关”的情形。案外人异议被驳回的，老梁可以作为原告提起案外人执行异议之诉，以申请执行人曲某为被告。",
-    "guanlian": "案外人对执行标的主张权利的，法院应当自收到书面异议之日起15日内审查。异议成立的，裁定中止执行；不成立的，裁定驳回。若案外人认为与原生效判决、裁定无关的，可自裁定送达之日起15日内向执行法院提起执行异议之诉。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-14",
-    "chapter": "多选",
-    "question": "程某诉刘某借款诉讼过程中，程某将对刘某因该借款而形成的债权转让给了谢某。依据相关规定，下列哪些选项是正确的？",
-    "options": "A. 如程某撤诉，法院可以准许其撤诉\nB. 如谢某申请以无独立请求权第三人身份参加诉讼，法院可予以准许\nC. 如谢某申请替代程某诉讼地位的，法院可以根据案件的具体情况决定是否准许\nD. 如法院不予准许谢某申请替代程某诉讼地位的，可以追加谢某为无独立请求权的第三人",
-    "answer": "答案：ABCD",
-    "analysis": "",
-    "kaodian": "诉讼中民事实体权利义务关系转移的处理（关联：当事人恒定主义与诉讼承继主义）。",
-    "jiangjie": "官司打到一半，原告把讨债的权利卖给别人（受让人）了。这官司怎么打？\n\n法律的折中规定是“换老板不影响打官司”：\n\n1\\. 卖方（原告程某）想撤诉？可以，他依然是原告，有权处分自己的诉讼权利。\n\n2\\. 买方（新债主谢某）想进场维护自己利益？可以，作为“无独立请求权第三人”身份加进来。\n\n3\\. 买方想直接“换将上场”顶替原告？可以申请，由法院看情况决定答不答应。\n\n4\\. 如果法院不答应买方顶替原告位置，为了查清案情和保护他的利益，可以依职权把他拽进来当个“无独立请求权第三人”。",
-    "zhuxiang": "A ✓ 实体权利转移不影响程某的诉讼主体资格，程某作为原告依法享有撤回起诉的权利，法院可以准许。\n\nB ✓ 债权受让人谢某与案件处理结果有利害关系，其申请以无独立请求权第三人身份参加诉讼的，法院可予以准许。\n\nC ✓ 受让人申请替代原当事人承担诉讼的，法院可以根据案件的具体情况决定是否准许。\n\nD ✓ 如果法院不予准许受让人替代当事人地位的，可以追加其为无独立请求权的第三人参加诉讼。",
-    "guanlian": "诉讼中，争议的民事权利义务关系转移的，不影响当事人的诉讼主体资格和诉讼地位。法院作出的发生法律效力的判决、裁定对受让人具有拘束力。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-15",
-    "chapter": "多选",
-    "question": "田某拒不履行法院令其迁出钟某房屋的判决，因钟某已与他人签订租房合同，房屋无法交给承租人，使钟某遭受损失，钟某无奈之下向法院申请强制执行。法院受理后，责令田某15日内迁出房屋，但田某仍拒不履行。关于法院对田某可以采取的强制执行措施，下列哪些选项是正确的？",
-    "options": "A. 罚款\nB. 责令田某向钟某赔礼道歉\nC. 责令田某双倍补偿钟某所受到的损失\nD. 责令田某加倍支付以钟某所受损失为基数的同期银行利息",
-    "answer": "答案：AC",
-    "analysis": "",
-    "kaodian": "强制执行措施与妨碍执行的处罚（关联：迟延履行行为债务的责任）。",
-    "jiangjie": "遇到法院判决“死皮赖脸”不走的“老赖”，法院有办法治他：\n\n1\\. “不听话就挨罚”：拒不履行生效判决，法院可以直接罚款甚至拘留。\n\n2\\. “耽误事要双倍赔”：判决要求“腾房”，这属于干个什么事儿的义务（行为债务），如果不腾房导致房东有实际损失了，不仅得赔，还得“双倍补偿损失”。\n\n3\\. （拓展点补充）如果是欠钱不还（金钱给付义务），那就得“加倍支付迟延履行期间的债务利息”。",
-    "zhuxiang": "A ✓ 拒不履行人民法院已经发生法律效力的判决、裁定，构成妨碍执行，法院可以对其采取罚款、拘留等强制措施。\n\nB ✗ 责令赔礼道歉、消除影响等措施是针对侵害人格权、名誉权判决的特定执行措施，不适用于本案腾退房屋的纠纷。\n\nC ✓ 迁出房屋属于“非金钱给付义务（行为债务）”，因迟延履行已造成房主钟某的实际损失，法院应当责令其双倍补偿损失。\n\nD ✗ “加倍支付迟延履行期间债务利息”专门针对的是迟延履行“金钱给付义务”的情况。本案是腾房的行为义务，不适用加倍支付利息的规定。",
-    "guanlian": "被执行人未按判决、裁定及其他法律文书指定的期间履行给付义务的，应当加倍支付迟延履行期间的债务利息（针对金钱给付义务）；被执行人未履行其他义务的，应当支付迟延履行金。针对行为债务，已经造成损失的，应当双倍补偿损失；尚未造成损失的，由法院具体确定迟延履行金。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-16",
-    "chapter": "多选",
-    "question": "孙某诉朱某借款合同纠纷案，朱某得知人民陪审员唐某曾违反规定私下会见孙某的代理律师李某，遂向法院提出回避申请。关于本案的回避，下列表述中正确的有：",
-    "options": "A. 唐某有权就回避决定申请复议\nB. 朱某申请回避时，必须说明理由\nC. 唐某的回避应由法院院长决定\nD. 朱某应向法院院长提出针对唐某的回避申请",
-    "answer": "答案：BC",
-    "analysis": "",
-    "kaodian": "回避制度（关联：回避的理由、回避的提出程序与决定、回避的救济）",
-    "jiangjie": "回避制度就像是给裁判者定下的“避嫌规矩”。法官、陪审员如果跟案件有利益牵扯或者有“瓜田李下”的私下接触（比如私下接受吃请、见律师），就必须避嫌换人。\n\n1\\. **怎么提要求（申请程序）**：你可以口头提，也可以书面提，但千万不能无理取闹，必须得“说明理由”。申请要向“法院”提出，不需要专门跑去找院长本人。\n\n2\\. **谁来拍板（决定权）**：如果是审判长、审判员、人民陪审员要回避，那是法院里的“一把手”（院长）说了算；如果是书记员、翻译等其他人，审判长或独任审判员就能定。\n\n3\\. **不服怎么办（救济）**：如果你申请让某人回避，法院说不行（驳回申请），你可以申请复议一次。但请注意，如果是法院决定让某人回避了，被“赶下台”的那个人（被决定回避的审判人员）是不能申请复议的。",
-    "zhuxiang": "\\- **A ✗** 唐某是被决定回避的人员。根据规定，申请人对驳回申请不服可以复议，但被决定回避的人不能申请复议。\n\n\\- **B ✓** 申请回避时，不论是口头还是书面，都必须说明正当理由。\n\n\\- **C ✓** 唐某是人民陪审员，属于审判人员，审判人员的回避应当由法院院长决定。\n\n\\- **D ✗** 申请回避应当向“法院”提出，法院接收后内部流转交由院长决定，并非直接向法院院长个人提出申请。",
-    "guanlian": "一、适用对象：审判人员（含审判员和人民陪审员）、法官助理、书记员、翻译人员、鉴定人、勘验人。\n\n二、时间：一般在案件开始审理时提出，如果是在开始审理后才知道回避事由的，最迟可以在法庭辩论终结前提出。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-17",
-    "chapter": "多选",
-    "question": "范晓明从事个体运输业务，在行车过程中，因闯红灯将正常过马路的谢丽撞伤并住院治疗。在谢丽住院期间，因范晓明拒不垫付医疗费，谢丽将范晓明诉至法院。关于本案，谢丽可以向法院申请釆取下列哪些措施？",
-    "options": "A. 申请对范某釆取强制措施\nB. 申请公开审理\nC. 申请先予执行\nD. 申请财产保全",
-    "answer": "答案：CD",
-    "analysis": "",
-    "kaodian": "财产保全与先予执行的适用（关联：对妨碍诉讼的强制措施、公开审判制度）",
-    "jiangjie": "打官司是一个漫长的过程，但有时当事人等不及，或者怕对方转移财产跑路，民诉法提供了两个“急救包”：\n\n1\\. **先予执行（提前拿钱救命）**：主要针对“生活费/救命钱”（如追索医疗费、抚养费等）或“血汗钱”（劳动报酬）。比如被撞重伤躺在医院急需钱做手术，等判决下来人可能都危急了，这时候可以申请让被告先掏点医疗费。\n\n2\\. **财产保全（冻结财产防跑路）**：怕被告在官司期间把钱转走、车子卖掉，导致最后就算赢了官司也拿不到钱，就可以申请法院先把被告的财产查封、冻结起来。\n\n3\\. **强制措施和公开审理**：强制措施是用来对付“捣乱法庭、妨碍诉讼、伪造证据”等恶劣行为的人的；公开审理是民事诉讼的默认状态，不需要特意去“申请”公开。",
-    "zhuxiang": "\\- **A ✗** 强制措施（如罚款、拘留）是针对妨碍诉讼或妨碍执行的行为（如伪造证据、打骂法官等）。拒付医疗费属于案件的实体纠纷，不能据此采取妨碍诉讼的强制措施。\n\n\\- **B ✗** 民事案件以公开审理为原则（除法定不公开外），公开审理是默认的，不需要当事人专门去“申请”。\n\n\\- **C ✓** 追索医疗费案件，属于情况紧急法定的先予执行适用情形。\n\n\\- **D ✓** 为了防止范晓明转移财产导致将来判决难以执行，谢丽可以申请诉讼中的财产保全,。",
-    "guanlian": "一、保全的担保：诉前保全必须提供担保；诉讼中保全，法院可以责令提供担保（不是必需的，由法院决定）,。\n\n二、先予执行条件：当事人之间权利义务关系明确、申请人有实现权利的迫切需要、必须由当事人主动申请、被申请人有履行能力。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-18",
-    "chapter": "多选",
-    "question": "薛某雇杨某料理家务。一天，杨某乘电梯去楼下扔垃圾时，袋中的碎玻璃严重划伤电梯中的乔某。乔某诉至法院，要求赔偿其各项损失3万元。关于本案，下列哪些说法是错误的？",
-    "options": "A. 乔某应起诉杨某，并承担杨某主观有过错的证明责任\nB. 乔某应起诉杨某，由杨某承担其主观无过错的证明责任\nC. 乔某应起诉薛某，由薛某承担其主观无过错的证明责任\nD. 乔某应起诉薛某，薛某主观是否有过错不是本案的证明对象",
-    "answer": "答案：ABC",
-    "analysis": "",
-    "kaodian": "适格当事人与证明责任的分配（关联：提供劳务致人损害的侵权责任）",
-    "jiangjie": "这道题讲的是“保姆闯祸，雇主买单”的法律规定，也就是民法上的“提供劳务致人损害”规则。\n\n1\\. **谁当被告（找谁赔）**：保姆（提供劳务方）在干活时把人弄伤了，受害者不能去告保姆，而是要直接告雇主薛某（接受劳务方）,。因为保姆是替雇主干活的。\n\n2\\. **雇主有没有错重要吗（归责原则）**：这种情况下，雇主承担的是“无过错责任”。也就是说，不管雇主当时有没有尽到监督义务、主观上有没有错，只要是保姆干活时闯的祸，雇主就得掏钱赔偿。\n\n3\\. **需要证明雇主有过错吗（证明对象）**：既然雇主有没有错都不影响赔钱，那“雇主是否有过错”就根本与本案无关，它不是案子要查明的“证明对象”，自然也就不需要任何人去举证证明了,。",
-    "zhuxiang": "\\- **A ✗** 被告告错了。应当起诉接受劳务方的雇主薛某，保姆杨某不能作为被告。\n\n\\- **B ✗** 同上，被告告错了。应当起诉薛某。\n\n\\- **C ✗** 起诉薛某是对的，但薛某承担的是无过错责任，“过错”根本不是本案的证明对象，不需要薛某去承担自己无过错的证明责任。\n\n\\- **D ✓** 乔某应起诉雇主薛某；因为适用无过错责任原则，薛某主观是否有过错与案件无关，不是本案的证明对象。\n\n\\- **注意**：本题要求选出“错误”的选项，因此A、B、C项当选。",
-    "guanlian": "证明责任分配的“三步走”逻辑：\n\n1\\. 确定原则：谁主张，谁举证（原告证侵权构成要件，被告证免责事由）。\n\n2\\. 判断归责原则：如果是无过错责任，原告只需证明行为、结果、因果关系三大要件（不需要证明过错）。\n\n3\\. 检查有无倒置：环境污染有因果关系倒置，过错推定有过错倒置。本案提供劳务致害属于无过错责任，不存在倒置问题。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-19",
-    "chapter": "多选",
-    "question": "民诉法规定，可以成为诉讼代理人的是",
-    "options": "A. 律师\nB. 法律服务所所长\nC. 工会推荐的人\nD. 当事人的妻子",
-    "answer": "答案：ABCD",
-    "analysis": "",
-    "kaodian": "委托诉讼代理人的范围",
-    "jiangjie": "打官司时，如果当事人不懂法或者没空出庭，可以请人“代打”，这就叫委托诉讼代理人。但为了防止有人借机敛财生事，不是随便在大街上拉个人就能当代理人的，法律规定了专门的“朋友圈”：\n\n1\\. **专业人士**：律师、基层的法律服务工作者（比如法律服务所的所长、职员）。\n\n2\\. **身边亲属与同事**：当事人的近亲属（比如妻子、父母、子女等）或者同单位的工作人员。\n\n3\\. **组织推荐的人**：当事人所在的社区、单位以及有关社会团体（比如工会、妇联、残联等）推荐的公民。",
-    "zhuxiang": "\\- **A ✓** 律师是法定的、最常见的专业诉讼代理人。\n\n\\- **B ✓** 法律服务所所长属于“基层法律服务工作者”，可以依法担任。\n\n\\- **C ✓** 工会属于法定的“有关社会团体”，由其推荐的公民可以担任代理人。\n\n\\- **D ✓** 当事人的妻子属于“近亲属”，理所当然可以担任委托诉讼代理人。",
-    "guanlian": "委托代理权限分为“一般授权”和“特别授权”。如果是代为承认、放弃、变更诉讼请求，进行和解，提起反诉或者上诉等“伤筋动骨”的大事，必须有当事人的特别授权（明确写出具体权限）。如果授权委托书上只写了“全权代理”，法律只认作是一般授权。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-20",
-    "chapter": "多选",
-    "question": "人民法院审理( )时，法律规定应当不公开进行。",
-    "options": "A. 离婚案件\nB. 涉及国家秘密的民事案件\nC. 涉及商业秘密的民事案件\nD. 涉及个人隐私的民事案件",
-    "answer": "答案：BD",
-    "analysis": "",
-    "kaodian": "公开审判制度及其例外情形",
-    "jiangjie": "法院审理案件讲究“阳光办案”，也就是默认必须向老百姓公开（允许旁听、报道）。但有些案子比较敏感，法律将其分为“绝对不许公开”和“商量着不公开”两类,：\n\n1\\. **法定不公开（绝对不行）**：只要案子涉及到“国家秘密”或“个人隐私”，或者法律另有规定的其他情况，法院直接强制关起门来审，谁求情都没用。\n\n2\\. **申请不公开（可以商量）**：如果是“离婚案件”或者“涉及商业秘密”的案子，当事人觉得家丑不可外扬或者商业机密怕泄露，可以向法院“申请”不公开审理。只要一方提了，法院就会同意。但如果不去主动申请，法院默认就是公开审理的。",
-    "zhuxiang": "\\- **A ✗** 离婚案件属于“经申请可以不公开审理”的范畴，如果不申请，法院是会公开审理的，并非法律规定“应当（必须）”不公开。\n\n\\- **B ✓** 涉及国家秘密的民事案件，属于法定的必须不公开审理的情形。\n\n\\- **C ✗** 涉及商业秘密的民事案件，和离婚一样，属于“经申请可以不公开”，不申请则默认公开。\n\n\\- **D ✓** 涉及个人隐私的民事案件，属于法定的必须不公开审理的情形。",
-    "guanlian": "需要特别注意的是，无论案子的审理过程是否公开，法院最后的“宣判”一律必须公开进行；而法官们关起门来讨论案情的合议庭“评议”过程，则一律不得公开。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-21",
-    "chapter": "多选",
-    "question": "根据《民事诉讼法》相关司法解释，下列哪些案件不适用小额诉讼程序？",
-    "options": "A. 人身关系案件\nB. 涉外民事案件\nC. 海事案件\nD. 发回重审的案件",
-    "answer": "答案：ABD",
-    "analysis": "",
-    "kaodian": "小额诉讼程序的消极条件（负面清单）",
-    "jiangjie": "小额诉讼程序设计的初衷是为了“快刀斩乱麻”，专门用来解决金额极小、极为简单的金钱给付案子。\n\n为了求快，它不仅一审终审，而且容错率极低，因此法律给它拉了一个“黑名单”（负面清单）：\n\n1\\. 离不离婚、争夺抚养权这种事关重大的（人身关系案件），不能用。\n\n2\\. 牵扯到外国人的（涉外案件），因为涉外送达慢、程序复杂，快不起来，不能用。\n\n3\\. 法院曾经判错过，被打回来重新审理的（发回重审的），需要慎重对待，绝不能再图快，不能用。\n\n不过，海事法院也是可以审理简单、标的额小的案子的，所以符合条件的海事案件“可以”用。",
-    "zhuxiang": "- **A ✓**人身关系案件属于法律明文规定不得适用小额诉讼程序的案件。\n\n- **B ✓**涉外案件涉及复杂的送达和管辖规则，被明确排除在小额诉讼程序之外。\n\n- **C ✗**海事法院审理海事、海商案件，符合条件也可以适用小额诉讼程序。\n\n- **D ✓**简易程序不适用于发回重审的案件，而小额诉讼程序属于简易程序的一种，自然也不能适用于发回重审的案件。",
-    "guanlian": "- 小额诉讼程序的适用前提必须是基层法院及其派出法庭审理的简单“金钱给付”民事案件。\n\n- 小额诉讼程序实行**一审终审**（包括实体判决、管辖权异议和驳回起诉裁定），不允许上诉。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-22",
-    "chapter": "多选",
-    "question": "刘某因买卖合同纠纷向法院起诉…… 法院按照普通程序审理该案件，决定由法官张某和人民陪审员乔某、吉某组成合议庭，张某任审判长。刘某得知陪审员乔某是被告的表弟，便要求其回避，但回避申请被张法官当场拒绝。法庭审理后作出判决，原告不服判决，提起上诉。关于本案，下列说法错误的是：",
-    "options": "A. 刘某申请回避理由成立\nB. 乔某作为人民陪审员，其是否应当回避审判长有权决定\nC. 对法院作出的决定不服的，刘某可以提出上诉\nD. 发回重审后，应当组成新的合议庭进行审理，且合议庭组成人员中不得有人民陪审员",
-    "answer": "答案：BCD",
-    "analysis": "",
-    "kaodian": "审判人员的回避决定权、回避救济途径、发回重审的审判组织。",
-    "jiangjie": "回避制度的核心就是“防嫌疑”。\n\n1\\. 陪审员虽然平时是普通群众，但一旦坐上审判台，他行使的就是审判权，视同“法官”。既然是审判人员的回避，那就必须得由法院的“一把手”（院长）说了算，审判长没这个权力去拒绝。\n\n2\\. 法院不让你回避，你不服怎么办？只能在法院内部再想一次（申请复议），回避是个程序问题，不能为了这种事去上面打二审（不能上诉）。\n\n3\\. 案子发回重审，相当于一审推翻重来。既然是“重头来过的一审”，那当然还可以继续拉群众来一起审（可以有人民陪审员）。",
-    "zhuxiang": "- **A ✗**乔某是被告的表弟，属于“与本案有利害关系的近亲属”，申请回避理由完全成立。选项表述正确，不选。\n\n- **B ✓**人民陪审员属于审判人员，审判人员的回避必须由“院长”决定，审判长无权决定。选项表述错误，当选。\n\n- **C ✓**对于驳回回避申请的决定不服，当事人只能申请“复议”一次，而不能上诉。选项表述错误，当选。\n\n- **D ✓**发回重审的案件应当适用一审程序重新审理，合议庭可以由审判员组成，也可以由“审判员与人民陪审员”共同组成。选项表述错误，当选。",
-    "guanlian": "- **回避决定权口诀：**判决书最后落款署名的人（审判长、审判员、陪审员、书记员），他们的回避由院长决定；不落款的人（翻译、鉴定、勘验人员），由审判长或独任审判员决定。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-23",
-    "chapter": "多选",
-    "question": "叶某诉汪某借款纠纷案，叶某向法院提交了一份……借条复印件……汪某以证明责任在原告为由拒不提供，后又称找不到借条原件。证人刘某作证称……汪某还告诉刘某，他在叶某起诉之后把借条原件烧毁，汪某在法院质证中也予以承认。在此情况下，下列哪些选项是正确的？",
-    "options": "A. 法院可根据叶某提交的借条复印件，结合刘某的证言对案涉借款事实进行审查判断\nB. 叶某提交给法院的借条复印件是案涉借款事实的传来证据\nC. 法院可认定汪某向叶某借款3万元的事实\nD. 法院可对汪某进行罚款、拘留",
-    "answer": "答案：ABCD",
-    "analysis": "",
-    "kaodian": "传来证据、文书提出命令的后果、妨碍诉讼的强制措施。",
-    "jiangjie": "1\\. **证据属性：**原件是“一手货”（原始证据），复印件是经过复制的“二手货”，法律上叫“传来证据”。\n\n2\\. **销毁证据的后果：**法院让被告交出原件，被告不但不交，还故意把它烧了。法律对此的逻辑很直接：你烧毁证据就是心里有鬼，既然你故意毁灭证据，法院可以直接认定对方拿出的复印件上记录的事情是真的。\n\n3\\. **惩罚捣乱：**在法院眼皮底下故意烧毁重要证据，属于严重的“捣乱”行为（妨碍诉讼），法院可以直接予以罚款或拘留。",
-    "zhuxiang": "- **A ✓**根据最佳证据规则的例外和自由心证，复印件虽非原件，但结合证人证言（相互印证），法院可以对其进行审查判断来认定事实。\n\n- **B ✓**借条复印件并非直接来源于案件事实，而是经过复制环节产生，属于法理分类上的“传来证据”。\n\n- **C ✓**根据“文书提出命令规则”，控制书证的当事人以妨碍对方使用为目的毁灭书证的，法院可以直接认定申请人主张以该书证证明的事实为真实。\n\n- **D ✓**伪造、毁灭重要证据，妨碍人民法院审理案件的，法院可以追究其妨碍诉讼的责任，予以罚款、拘留。",
-    "guanlian": "- 原始证据与传来证据的区别仅仅在于“来源”，是否经过了复制、转述等中间环节。\n\n- 对于妨碍诉讼的罚款、拘留决定，必须由法院“院长”批准。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-24",
-    "chapter": "多选",
-    "question": "易某依法院对王某支付其5万元损害赔偿金之判决申请执行。执行中，法院扣押了王某的某项财产。案外人谢某提出异议，称该财产是其借与王某使用的……遂裁定中止对该财产的执行。关于本案的表述，下列哪些选项是错误的？",
-    "options": "A. 易某不服该裁定提起异议之诉的，由易某承担对谢某不享有该财产所有权的证明责任\nB. 易某不服该裁定提起异议之诉的，由谢某承担对其享有该财产所有权的证明责任\nC. 王某不服该裁定提起异议之诉的，由王某承担对谢某不享有该财产所有权的证明责任\nD. 王某不服该裁定提起异议之诉的，由王某承担对其享有该财产所有权的证明责任",
-    "answer": "答案：ACD",
-    "analysis": "",
-    "kaodian": "案外人对执行标的异议、执行异议之诉的当事人与证明责任。",
-    "jiangjie": "法院判了被告还钱，但在扣押东西时，突然跳出来一个路人（案外人）大喊：“这东西是我的！”。\n\n此时打起“执行异议之诉”的官司，不论原告是谁（不论是债权人不服起诉，还是路人不服起诉），法官的关注点只有一个：这东西到底是不是路人的？\n\n根据“谁主张、谁举证”的原则，既然是路人跳出来主张权利，那就永远由**路人（案外人）自己**来证明“这东西是我的”。绝不可能是让债权人去证明“东西不是路人的”。",
-    "zhuxiang": "- **A ✗**无论谁提起执行异议之诉，证明责任都在主张实体权利的案外人身上。所以不应由易某（申请执行人）承担证明责任。选项表述错误，当选。\n\n- **B ✓**申请执行人（易某）提起异议之诉，诉讼中仍由案外人（谢某）就其对执行标的享有足以排除执行的权利承担证明责任。选项表述正确，不选。\n\n- **C ✗ \\& D ✗**被执行人（王某）在执行异议之诉中的地位是：如果反对案外人，列为共同被告；如果不反对，列为第三人。王某无权作为原告提起此类执行异议之诉。且即使在诉讼中，证明谢某享有所有权的责任也永远在谢某本人身上。CD选项程序和证明责任均表述错误，当选。",
-    "guanlian": "- 如果是“判钱，执行房，异议房”，说明原判决没问题，只是执行的对象有争议，走的是**执行异议之诉**。\n\n- 执行异议之诉中，案外人始终要对其“享有足以排除强制执行的民事权益”承担举证证明责任。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-25",
-    "chapter": "多选",
-    "question": "郑飞诉万雷侵权纠纷一案，虽不属于事实清楚……但双方当事人约定适用简易程序进行审理，法院同意并以电子邮件的方式向双方当事人通知了开庭时间（双方当事人均未回复）。开庭时被告万雷无正当理由不到庭，法院作出了缺席判决。送达判决书时……采取了公告送达方式送达了判决书。对此，法院下列的哪些行为是合法的？",
-    "options": "A. 同意双方当事人的约定，适用简易程序对案件进行审理\nB. 以电子邮件的方式向双方当事人通知开庭时间\nC. 作出缺席判决\nD. 采取公告方式送达判决书",
-    "answer": "答案：AB",
-    "analysis": "",
-    "kaodian": "简易程序的协议适用、简便送达方式、缺席判决的限制、公告送达的适用限制。",
-    "jiangjie": "简易程序主打一个“灵活和快”。\n\n1\\. **可以商量着来：**案子虽然没那么简单，但只要当事人双方同意“咱们快点审”，且法律没拉黑这个案子，法院是可以同意用简易程序的。\n\n2\\. **送达很随意：**法院可以用发短信、发邮件等简便方式喊你来开庭。\n\n3\\. **缺席判决有底线：**虽然发了邮件，但如果当事人一直没回复，法院又没有其他证据证明对方真看到了，这种情况下法院绝对**不敢**直接缺席判决，怕冤枉人。\n\n4\\. **不能用公告送达：**简易程序要快，而公告送达一挂就是几十天，实在太慢了，所以简易程序中绝对不允许使用“公告送达”。",
-    "zhuxiang": "- **A ✓**基层法院审理的普通民事案件，当事人双方可以约定（协议）适用简易程序，且不得违反简易程序的禁止性规定。此行为合法。\n\n- **B ✓**适用简易程序审理案件，法院可以采取捎口信、电话、短信、电子邮件等简便方式传唤当事人和送达诉讼文书。此行为合法。\n\n- **C ✗**以简便方式送达的开庭通知，**未经当事人确认**或者没有其他证据证明当事人已经收到的，不得缺席判决。双方均未回复，法院直接缺席判决违法。此行为不合法。\n\n- **D ✗**简易程序的目的是快速审结案件，而公告送达周期长（国内需30日），因此明文规定简易程序**不能**公告送达。此行为不合法。",
-    "guanlian": "- 简易程序的审限是3个月，特殊情况经院长批准只能延长1个月（3+1）。\n\n- 已经按照普通程序审理的案件，在开庭后**不得**转为简易程序审理。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-26",
-    "chapter": "多选",
-    "question": "王某诉赵某借款纠纷一案，法院一审判决赵某偿还王某债务，赵某不服，提出上诉。二审期间，案外人李某表示，愿以自己的轿车为赵某偿还债务提供担保。三人就此达成书面和解协议后，赵某撤回上诉，法院准许。一个月后，赵某反悔并不履行和解协议。关于王某实现债权，下列哪些选项是错误的？",
-    "options": "A. 依和解协议对赵某向法院申请强制执行\nB. 依和解协议对赵某、李某向法院申请强制执行\nC. 依一审判决对赵某向法院申请强制执行\nD. 依一审判决与和解协议对赵某、李某向法院申请强制执行",
-    "answer": "答案：ABD",
-    "analysis": "",
-    "kaodian": "二审撤回上诉的法律后果与执行和解协议的效力（关联：二审撤诉、执行根据、执行担保）",
-    "jiangjie": "- **撤回上诉等于“认怂”：二审时撤回上诉，一旦法院准许，就相当于接受了一审的判决结果，**一审判决就正式生效了**。\n\n- **和解协议只是“君子协定”**：在诉讼外（或二审期间）达成的和解协议，本质上是一份普通的民事合同，它本身**不具备强制执行力**。要想让法院强制执行，手里必须要有生效的法律文书（比如判决书、法院出具的调解书）。\n\n- **别人的债不能随便扣在担保人头上**：和解协议里的担保只是普通的民事担保，法院不能直接拿一审判决或者和解协议去强制执行担保人的财产。",
-    "zhuxiang": "- **A ✗ 错误（符合题意）**。和解协议仅仅是一份普通合同，不属于法定的“执行根据”，不能直接依据它向法院申请强制执行。\n\n- **B ✗ 错误（符合题意）**。同理，和解协议没有强制执行力，更不能依据它去强制执行担保人李某的财产。\n\n- **C ✓ 正确（不符合题意）**。赵某撤回上诉被法院准许后，一审判决即发生法律效力。王某作为债权人，完全可以**依据生效的一审判决**向法院申请强制执行赵某的财产。\n\n- **D ✗ 错误（符合题意）**。一审判决的效力只约束本案当事人赵某，不约束案外人李某。而和解协议又不能作为执行根据，因此不能直接申请强制执行李某的财产。",
-    "guanlian": "1\\. **二审撤回上诉**：二审判决宣告前，当事人可以申请撤回上诉。自二审法院裁定准许撤回上诉之日起，一审判决生效。\n\n2\\. **执行根据**：申请强制执行必须要有生效的法律文书（如判决书、裁定书等），和解协议不具有强制执行力。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-27",
-    "chapter": "多选",
-    "question": "元丰公司依据供货合同要求神木公司履行货款，法院经审理一审二审神木公司均败诉，神木公司向法院申请再审，上级法院认为事实不清，指定下级法院再审，再审期间元丰公司要求增加违约金，神木公司以货物质量不合格为由主张解除合同，法院下列处理错误的是？",
-    "options": "A. 对于增加违约金，法院应调解处理\nB. 对于解除合同法院应调解处理\nC. 对于增加违约金的要求，法院告知另诉\nD. 对于解除合同请求，法院告知另诉",
-    "answer": "答案：AB",
-    "analysis": "",
-    "kaodian": "再审的审理范围（关联：再审范围有限原则、发回重审的例外）",
-    "jiangjie": "- **再审审理是个“保守派”：再审程序主要是为了纠正原生效判决的错误，不负责解决当事人新提出的纠纷。所以，在再审中，当事人想“加戏”（增加、变更诉讼请求或者提出反诉），法院一般是不理的，直接遵循**“再审范围有限原则”**——不予审理、不予调解，直接告知你们去**另行起诉**。\n\n- **特例：“发回重审”才能加戏**：只有当再审法院裁定**“撤销原判，发回重审”**时，案子回到了起点（重新打一审），这时候当事人才可以增加请求或提出反诉。而本题中，上级法院只是“指定下级法院再审”，并没有“发回重审”，所以绝不能加戏。",
-    "zhuxiang": "- **A ✗ 错误（符合题意）**。元丰公司增加违约金请求，超出了原审范围。由于没有出现“发回重审”的情形，法院不应调解，而应告知其另行起诉。\n\n- **B ✗ 错误（符合题意）**。神木公司主张解除合同属于提出反诉，超出了原审范围，法院同样不予审理也不予调解，应告知另诉。\n\n- **C ✓ 正确（不符合题意）**。对于增加的违约金请求，法院不予审理，告知另行起诉是标准且正确的处理方式。\n\n- **D ✓ 正确（不符合题意）**。对于解除合同的反诉请求，法院告知另行起诉是正确的处理方式。",
-    "guanlian": "1\\. **再审范围有限原则**：法院审理再审案件应当围绕再审请求进行。当事人超出原审范围增加、变更诉讼请求或提出反诉的，不属于再审范围，法院不予审理，告知当事人另行起诉。\n\n2\\. **例外情况**：如果再审裁定“撤销原判，发回重审”，一审法院适用一审程序重新审理，允许当事人增加、变更诉讼请求或提出反诉。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-28",
-    "chapter": "多选",
-    "question": "甲公司生产的“晴天牌”空气清新器销量占据市场第一，乙公司见状，将自己生产的同类型产品注册成“清天牌”，并全面仿照甲公司产品，使消费者难以区分。为此，甲公司欲起诉乙公司侵权，同时拟申请诉前禁令，禁止乙公司销售该产品。关于诉前保全，下列哪些选项是正确的？",
-    "options": "A. 甲公司可向有管辖权的法院申请采取保全措施，并应当提供担保\nB. 甲公司可向被申请人住所地法院申请采取保全措施，法院受理后，须在48小时内作出裁定\nC. 甲公司可向有管辖权的法院申请采取保全措施，并应当在30天内起诉\nD. 甲公司如未在规定期限内起诉，保全措施自动解除",
-    "answer": "答案：ABC",
-    "analysis": "",
-    "kaodian": "诉前保全的适用条件与程序（关联：诉前保全的管辖、担保、期限、解除）",
-    "jiangjie": "- **诉前保全是“急救包”：起诉前情况十万火急，不赶紧把对方财产冻结或者禁止对方干某事，自己的损失就无法挽回了，这时可以申请诉前保全。\n\n- **申请诉前保全的三大硬性要求**：\n\n 1. **必须交押金（提供担保）**，不交法院绝对不管。\n\n 2. 法院必须火速行动，接受申请后**48小时内就要下裁定**。\n\n 3. 保全后不能干拖着，**30天内必须正式起诉**或申请仲裁。如果不告，法院会解除保全，但这不是自动解除的，**必须由法院下达裁定**。",
-    "zhuxiang": "- **A ✓ 正确**。申请诉前保全必须提供担保，不提供的法院会裁定驳回申请。且可以向有管辖权的法院申请。\n\n- **B ✓ 正确**。诉前保全的管辖法院包括被保全财产所在地、被申请人住所地或者对案件有管辖权的法院。法院受理后，因情况紧急，须在48小时内作出裁定。\n\n- **C ✓ 正确**。法律规定申请人应当在法院采取保全措施后30日内起诉或申请仲裁。\n\n- **D ✗ 错误**。申请人未在30日内起诉的，法院应当**“裁定解除”**保全措施，而不是“自动解除”。司法程序中解除强制措施需要有正式的法律文书。",
-    "guanlian": "1\\. **担保必不可少**：诉前保全应当责令申请人提供担保，申请人不提供的，裁定驳回申请。\n\n2\\. **管辖与程序**：管辖法院是被保全财产所在地、被申请人住所地、对案件有管辖权的法院。法院必须在48小时内作出裁定。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-29",
-    "chapter": "多选",
-    "question": "章俊诉李泳借款纠纷案在某县法院适用简易程序审理。县法院判决后，章俊上诉，二审法院以事实不清为由发回重审。县法院征得当事人同意后，适用简易程序重审此案。在答辩期间，李泳提出管辖权异议，县法院不予审查。案件开庭前，章俊增加了诉讼请求，李泳提出反诉，县法院受理了章俊提出的增加诉讼请求，但以重审不可提出反诉为由拒绝受理李泳的反诉。关于本案，该县法院的下列哪些做法是错误的？",
-    "options": "A. 征得当事人同意后，适用简易程序重审此案\nB. 对李泳提出的管辖权异议不予审查\nC. 受理章俊提出的增加诉讼请求\nD. 拒绝受理李泳的反诉",
-    "answer": "答案：AD",
-    "analysis": "",
-    "kaodian": "发回重审的程序限制、管辖权异议审查及重审中的诉讼请求（关联：简易程序的消极条件、管辖异议不予审查、发回重审当事人权利）",
-    "jiangjie": "- **发回重审必须“隆重对待”：案子被二审法院打回重审，说明一审出了问题。为了慎重起见，**发回重审的案子绝对不能用简易程序**（哪怕双方当事人同意也绝对不行），必须老老实实用普通程序打。\n\n- **管辖权不容“反复横跳”**：案子都已经发回重审或者按一审程序再审了，说明之前早就确定过管辖了，这时候被告再提管辖权异议，纯属捣乱，法院是**不予审查**的。\n\n- **重审等于重新洗牌**：发回重审虽然是普通程序，但性质上就是重新打一次一审。既然是打一审，**原告可以加诉讼请求，被告当然也可以提反诉**。",
-    "zhuxiang": "- **A ✗ 错误（符合题意，是错误做法）**。《民事诉讼法》明确规定发回重审的案件不适用简易程序。这是一个禁止性规定，即便当事人同意也不能突破。\n\n- **B ✓ 正确（不符合题意，是正确做法）**。对于发回重审或者按照一审程序再审的案件，当事人提出管辖异议的，人民法院依法不予审查。该县法院不审查是正确的。\n\n- **C ✓ 正确（不符合题意，是正确做法）**。发回重审适用一审程序重新审理。在重新审理过程中，当事人可以增加、变更诉讼请求。法院受理增加诉讼请求的做法正确。\n\n- **D ✗ 错误（符合题意，是错误做法）**。发回重审适用一审程序重新审理，被告依法是可以提出反诉的。法院以“重审不可提出反诉”为由拒绝受理完全违法。",
-    "guanlian": "1\\. **简易程序的消极条件**：起诉时被告下落不明的、**发回重审的**、适用审判监督程序的等案件，绝不适用简易程序。\n\n2\\. **发回重审的权利与限制**：发回重审的案件适用一审程序重新审理，当事人可以增加、变更诉讼请求，可以提出反诉。但当事人提出管辖异议，法院不予审查。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-30",
-    "chapter": "多选",
-    "question": "甲公司财务室被盗，遗失金额为80万元的汇票一张。甲公司向法院申请公示催告，法院受理后即通知支付人A银行停止支付，并发出公告，催促利害关系人申报权利。在公示催告期间，甲公司按原计划与材料供应商乙企业签订购货合同，将该汇票权利转让给乙企业作为付款。公告期满，无人申报，法院即组成合议庭作出判决，宣告该汇票无效。关于本案，下列哪些说法是正确的？",
-    "options": "A. A银行应当停止支付，直至公示催告程序终结\nB. 甲公司将该汇票权利转让给乙企业的行为有效\nC. 甲公司若未提出申请，法院可以作出宣告该汇票无效的判决\nD. 法院若判决宣告汇票无效，应当组成合议庭",
-    "answer": "答案：AD",
-    "analysis": "",
-    "kaodian": "公示催告程序的规则与除权判决（关联：止付通知的效力、除权判决的条件与程序）",
-    "jiangjie": "- **公示催告就是“法院版挂失寻物启事”：票据被盗或丢了，找法院发个公告说“这票作废了，谁捡到了赶紧来法院说清楚”。\n\n- **挂失期间不能乱动**：法院一旦受理并向银行发了“止付通知”，银行就得乖乖冻结支付，直到这个寻物程序结束。同时，这段时间这张票据相当于被“冻结”了，**任何人拿去转让都是无效的**。\n\n- **除权判决必须“不告不理”且“合议”**：公告期满了要是没人来认领，法院不能自己主动发话作废票据，**必须得丢票人自己来申请**。而且宣告票据作废（也就是除权判决）是件剥夺权利的大事，不能一个法官单独定，**必须组成合议庭**来审。",
-    "zhuxiang": "- **A ✓ 正确**。法院决定受理申请后，应当同时通知支付人停止支付。支付人收到通知后应停止支付，直到公示催告程序终结。\n\n- **B ✗ 错误**。法律规定，在公示催告期间，转让票据的行为是无效的。这期间票据权利处于依法被冻结的状态。\n\n- **C ✗ 错误**。除权判决必须根据申请人的申请才能作出，属于“不告不理”。法院绝对不能依职权主动判决宣告汇票无效。\n\n- **D ✓ 正确**。公示催告程序分为两个阶段。前面的“公示催告阶段”可以由审判员一人独任审查，但后面的**“判决宣告票据无效”**（即除权判决阶段），必须组成合议庭审理。",
-    "guanlian": "1\\. **止付通知的效力**：支付人收到通知后应停止支付；公示催告期间，转让票据行为无效。\n\n2\\. **除权判决的条件与审判组织**：在公示催告期间无人申报，或者申报被驳回，法院必须**根据申请人申请**，判决宣告票据无效。判决宣告票据无效的，应当**组成合议庭**审理。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-31",
-    "chapter": "多选",
-    "question": "甲、乙、丙三人共同致丁身体损害，丁起诉三人要求赔偿3万元。一审法院经审理判决甲、乙、丙分别赔偿2万元、8000元和2000元，三人承担连带责任。甲认为丙赔偿2000元的数额过低，提起上诉。关于本案二审当事人诉讼地位的确定，下列哪些选项是错误的？",
-    "options": "A. 甲为上诉人，丙为被上诉人，乙为原审被告，丁为原审原告\nB. 甲为上诉人，丙、丁为被上诉人，乙为原审被告\nC. 甲、乙为上诉人，丙为被上诉人，丁为原审原告\nD. 甲、乙、丙为上诉人，丁为被上诉人",
-    "answer": "答案：BCD",
-    "analysis": "",
-    "kaodian": "二审中当事人诉讼地位的确定（关联：必要共同诉讼的二审地位划分）。",
-    "jiangjie": "确定二审地位有个“三步走”的傻瓜办法：\n\n1\\. **抓上诉人**：谁不服一审判决，主动告状（提起上诉），谁就是上诉人。\n\n2\\. **抓被上诉人（看谁利益受损）**：假设二审法官完全听了上诉人的话改了判决，那么相较于一审，**谁的利益会受到损失**（比如要多赔钱），谁就是被上诉人。\n\n3\\. **剩下的人**：利益完全不受影响的人，一审叫什么，二审还叫什么（原审原告/原审被告）。",
-    "zhuxiang": "本题中，甲主动上诉，**甲是上诉人**。甲上诉的理由是嫌丙赔的2000元太少，意思是想让丙多赔点。假设二审法官同意了甲的请求让丙多赔钱，**丙的利益就会受损，所以丙是被上诉人**。\n\n在这个改判假设中，乙赔的钱没变，受害者丁总共能拿到手的钱（3万）也没变，所以乙和丁的利益都不受损。他们就按原审的叫法：**乙是原审被告，丁是原审原告**。\n\n因此，正确的地位排列是A选项。因为题目问的是“错误的”选项，所以选B、C、D。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-32",
-    "chapter": "多选",
-    "question": "日本人金某起诉日本A公司（该公司股东为中国人伊某）,日本法院作出判决后,金某向中国某区人民法院起诉伊某,并向法院提供了日本法院的判决书作为证据（该判决书未经中国法院承认、执行）。关于该判决书的说法错误的是？",
-    "options": "A. 该判决书是书证\nB. 该判决书是鉴定意见\nC. 该判决书所认定的事实属于免证事实\nD. 该判决书不符合法定形式,不能作为证据使用",
-    "answer": "答案：ABC",
-    "analysis": "",
-    "kaodian": "域外证据的认证规则（关联：公文书证、证据的种类、免证事实范围）。",
-    "jiangjie": "1\\. **书证：这份外国判决书拿来中国，是想用上面白纸黑字写的内容来证明案情，所以在证据分类里，它属于书证（公文书证）。\n\n2\\. **“出国”要办签证（认证）**：在中国境外形成的公文书证（比如外国的判决书），不能直接拿来中国法庭用，必须经过所在国公证机关证明，或者履行相关的国际条约证明手续（俗称“公证+认证”）。没走这套法定程序的，就是一张废纸，不能当证据用。\n\n3\\. **免证事实不包括“洋判决”**：只有**中国人民法院**生效裁判确认的事实，才是免证事实（不用再找证据证明）。外国法院判认定的事实，中国法官不直接认账。",
-    "zhuxiang": "D ✓ 判决书在境外形成，未经法定的认证手续，不符合法定形式，不能作为证据使用，表述正确。\n\nA ✗ 虽然该判决书的性质应当是书证，但在本题语境下，因为它未经认证、不符合法定形式，连作为证据使用的资格都没有，不能被法庭接纳为书证，故A表述错误。\n\nB ✗ 判决书是法院出具的，鉴定意见是专家（鉴定人）出具的，性质完全不同，表述错误。\n\nC ✗ 只有我国法院判决认定的事实才是免证事实，日本法院认定的不是，表述错误。\n\n题目要求选出“错误的是”，故选ABC。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-33",
-    "chapter": "多选",
-    "question": "张老太在某银行购买理财产品后出现了大额亏损。张老太起诉银行,主张自己购买的产品是保本型,银行工作人员提供合同原件上有张老太亲笔书写“本人已经知悉该产品存在本金损失风险”,并有张老太亲笔签名,张老太主张银行工作人员明确告知其产品是保本产品,这句话是银行工作人员教她写的。关于本案表述错误的是？",
-    "options": "A. 银行提供的合同原件是间接证据\nB. 银行提供合同原件后,行为意义上的举证责任转移给张老太\nC. 张老太应当将其主张的事实证明到排除合理怀疑的证明标准\nD. 张老太应当将其主张的事实证明到高度可能性标准",
-    "answer": "答案：AD",
-    "analysis": "",
-    "kaodian": "私文书证的真实性推定与举证责任转移，证明标准（关联：直接证据与间接证据的区别）。",
-    "jiangjie": "1\\. **直接证据就是“一步到位”：能完整证明争议事实的证据叫直接证据。合同原件写明了双方的权利义务，拿出来就能完整证明约定内容，所以是直接证据。\n\n2\\. **白纸黑字签名，举证责任“甩锅”**：银行拿出了有张老太亲自签名的合同（私文书证具备形式真实性），法律就推定合同内容是张老太的真实意思。如果张老太说“我被骗了”，那举证的“接力棒”就交给了张老太，她必须自己找证据证明银行存在欺诈行为。\n\n3\\. **抓骗子要“铁证如山”**：民事打官司，一般的证据只要达到“高度可能性”（看着像真的，大概率是真的）就行。但涉及到“欺诈、胁迫、恶意串通、口头遗嘱、赠与”这5件不寻常的大事，要求特别严，必须达到最高级别的“**排除合理怀疑**”（铁证如山，几乎排除了其他可能）才算数。",
-    "zhuxiang": "B ✓ 银行提供原件后推定真实，张老太主张被欺诈，证明自己被欺诈的（行为意义上的）举证责任转移给了张老太。\n\nC ✓ 张老太主张的是被银行“欺诈”，属于5种特殊情况，必须适用最严格的“排除合理怀疑”证明标准。\n\nA ✗ 银行提供的合同原件能够完整证明双方关于合同的约定，是直接证据，A表述错误。\n\nD ✗ 欺诈事实不能适用一般的“高度可能性”标准，D表述错误。\n\n题目要求选出“错误的是”，故选AD。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-34",
-    "chapter": "多选",
-    "question": "对张男诉刘女离婚案（两人无子女，刘父已去世），因刘女为无行为能力人，法院准许其母李某以法定代理人身份代其诉讼。2017年7月3日，法院判决二人离婚，并对双方共有财产进行了分割。该判决同日送达双方当事人，李某对解除其女儿与张男的婚姻关系无异议，但对共有财产分割有意见，拟提起上诉。2017年7月10日，刘女身亡。在此情况下，本案将产生哪些法律后果？",
-    "options": "A. 本案诉讼中止，视李某是否就一审判决提起上诉而确定案件是否终结\nB. 本案诉讼终结\nC. 一审判决生效，二人的夫妻关系根据判决解除，李某继承判决分配给刘女的财产\nD. 一审判决未生效，二人的共有财产应依法分割，张男与李某对刘女的遗产均有继承权",
-    "answer": "答案：BD",
-    "analysis": "",
-    "kaodian": "诉讼终结的情形，一审判决生效的时间点（关联：实体法上婚姻关系的存续与继承权）。",
-    "jiangjie": "1\\. **“人死案结”：离婚官司打的就是“婚姻关系”这四个字。现在其中一个人去世了，婚姻关系自然就消灭了，官司的“标的”都没了，法院只能拉闸关门，直接裁定**诉讼终结**。这种涉及身份关系的，绝不能中止等待继承人来接着打离婚官司。\n\n2\\. **上诉期内的判决等于“未生效”**：一审判决送达后有15天的上诉期。7月3日送达到7月10日，才过了7天，判决还没生效。没生效的判决就改变不了现实，所以刘女死的时候，她和张男在法律上依然是合法夫妻。\n\n3\\. **配偶的继承权**：既然刘女死时婚姻没解除，张男作为丈夫，就和刘女的母亲李某一样，拥有合法的遗产继承权。",
-    "zhuxiang": "B ✓ 离婚案件一方当事人死亡，诉讼标的不复存在，法院必须裁定诉讼终结。\n\nD ✓ 刘女在上诉期内死亡，一审离婚判决尚未生效，婚姻关系未解除。张男仍是合法配偶，张男和母亲李某均有继承权。\n\nA ✗ 离婚案件一方死亡不能中止诉讼，必须终结诉讼，表述错误。\n\nC ✗ 一审判决还在上诉期内并未生效，夫妻关系没有根据判决解除，表述错误。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-35",
-    "chapter": "多选",
-    "question": "张某因为侵权纠纷起诉李某,要求被告李某赔偿损失2万元,并赔礼道歉,一审法院判决李某向张某赔偿1.2万元,对赔礼道歉的诉讼请求未做判决。张某不服一审判决,提起上诉,请求法院改判李某向张某赔偿损失2万元。二审法院维持1.2万的判项,同时判决李某向张某赔礼道歉。关于本案表述正确的是？",
-    "options": "A. 二审法院只能对上诉请求进行审理并作出判决\nB. 二审法院超出上诉请求作出判决的做法错误\nC. 二审法院应当对上诉请求作出判决,对一审遗漏的诉讼请求进行调解,调解不成撤销原判发回重审\nD. 因为一审法院遗漏诉讼请求,故二审法院应当直接撤销原判,发回重审",
-    "answer": "答案：ABC",
-    "analysis": "",
-    "kaodian": "二审的审理范围（处分原则），一审漏判诉讼请求在二审的法定处理程序。",
-    "jiangjie": "1\\. **二审法院“不告不理”：当事人上诉提了什么要求，二审法院就只能审理和判决什么要求。张某二审只提了要钱（改判2万），没提赔礼道歉，二审法院如果主动把赔礼道歉给判了，就是狗拿耗子多管闲事，违反了处分原则。\n\n2\\. **一审漏判，二审绝不能直接替他判**：一审法官粗心漏判了一个请求（赔礼道歉）。二审法官发现了，绝不能直接下判决。如果二审直接判了，当事人对这个结果不服，连个上诉的机会都没有了，等于被剥夺了权利（违反两审终审制）。\n\n3\\. **补救标准流程：“先调解，后发回”**：二审发现一审漏判，只能先把双方叫来**调解**。调解成功最好；如果商量不通，只能把案子打回一审，让一审重新走一遍流程来判（**发回重审**）。",
-    "zhuxiang": "A ✓ 基于处分原则和两审终审制，二审法院原则上只能针对上诉人提出的“上诉请求”进行审理并作出“判决”。\n\nB ✓ 张某上诉并未请求赔礼道歉，二审法院主动判决赔礼道歉，超出了上诉请求范围，做法错误。\n\nC ✓ 面对一审遗漏的诉讼请求，二审法院的法定处理路径是：对上诉的请求正常判决；对漏判的请求，根据自愿原则进行调解；调解不成的，发回一审重审。\n\nD ✗ 遇到一审漏判，二审法院必须“先调解”，不能跳过调解环节“直接”裁定撤销原判发回重审，D选项缺少了法定的调解前置程序，表述错误。",
-    "guanlian": "",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-36",
-    "chapter": "多选",
-    "question": "单某将八成新手机以4000元的价格卖给卢某，双方约定：手机交付卢某，卢某先付款1000元，待试用一周没有问题后再付3000元。但试用期满卢某并未按约定支付余款，多次催款无果后单某向M法院申请支付令。M法院经审查后向卢某发出支付令，但卢某拒绝签收，法院采取了留置送达。20天后，卢某向N法院起诉，以手机有质量问题要求解除与单某的买卖合同，并要求单某退还1000元付款。根据本案，下列哪些选项是错误的？",
-    "options": "A. 卢某拒绝签收支付令，M法院采取留置送达是正确的\nB. 单某可以依支付令向法院申请强制执行\nC. 因卢某向N法院提起了诉讼，支付令当然失效\nD. 因卢某向N法院提起了诉讼，M法院应当裁定终结督促程序",
-    "answer": "答案：CD",
-    "analysis": "",
-    "kaodian": "督促程序的适用条件与异议效力（关联：支付令送达、异议的提出及效力）",
-    "jiangjie": "1\\. **送达方式：**支付令可以留给“不在家”或“拒收”的人（留置送达），但不能对着空气喊（不能公告送达）。\n\n2\\. **生效条件：**只要支付令发出后15天内，欠钱的人没有向发出支付令的法院提交书面反驳（提出书面异议），支付令就生效了，债权人可以直接拿去法院申请强制执行。\n\n3\\. **异议规则：**如果债务人不向发支付令的法院提书面异议，而是拖延时间，或者跑到别的法院去起诉，对不起，这不影响原支付令的生效。",
-    "zhuxiang": "\\- **A ✓** 支付令必须能够送达给债务人，债务人拒绝签收时，法院可以采取留置送达，但不能公告送达。M法院采取留置送达是正确的。\n\n\\- **B ✓** 债务人应当在收到支付令之日起15日内提出书面异议。本案卢某20天后才起诉，已经超过了15天的异议期，此时支付令已经生效并取得强制执行力，单某可以依支付令申请执行。\n\n\\- **C ✗** 债务人收到支付令后，如果不在法定期间（15日内）提出书面异议，而是向其他法院（N法院）起诉的，不影响支付令的效力。\n\n\\- **D ✗** 只有当债务人向**发出支付令的法院**起诉，才视为提出书面异议，督促程序才会终结。卢某向N法院起诉，不构成有效异议，支付令继续有效，M法院不应裁定终结督促程序。",
-    "guanlian": "督促程序是一种为了快速追债的非讼程序，前提是双方对这笔钱没有争议。如果有争议，债务人必须在15天内向发出支付令的法院提出书面异议，一旦异议成立，支付令失效，大家再去打官司解决纠纷。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-37",
-    "chapter": "多选",
-    "question": "根据最高法院的规定，C省中院审理标的额在3000万人民币以上的案件，某基层法院审理一个标的额在2900万的诉讼，诉讼中，原告又增加290万诉讼请求。关于本案表述错误的是？",
-    "options": "A. 基层法院已经取得应诉管辖，应当继续审理\nB. 基层法院应当将案件移送中院审理\nC. 被告有权对本案提出管辖权异议\nD. 基于管辖权恒定原则，基层法院应当继续审理",
-    "answer": "答案：AD",
-    "analysis": "",
-    "kaodian": "级别管辖的调整、管辖权恒定原则的例外（关联：应诉管辖）",
-    "jiangjie": "管辖权恒定原则，俗称“买定离手”。只要一开始法院的管辖权是对的，后面怎么变一般都不影响。但是有两条硬性红线不能碰：**级别管辖**（标的额暴增，小法院没资格审了）和**专属管辖**。\n\n只要突破了级别管辖的门槛，管辖权恒定原则和应诉管辖统统失效，案子必须移交给够资格的上级法院审理，且被告有权对此提出异议。",
-    "zhuxiang": "\\- **A ✗** 被告在答辩期间不提异议并应诉的，法院可以取得应诉管辖权，但前提是**不能违反级别管辖和专属管辖**的规定。本案标的额增加导致违反了级别管辖，基层法院不能取得应诉管辖权。\n\n\\- **B ✓** 原告增加诉讼请求后，案件总标的额达到了3190万，超过了基层法院管辖范围（达到了中院3000万以上的标准），所以基层法院应当将案件移送至有管辖权的中院。\n\n\\- **C ✓** 在诉讼中，原告增加、变更诉讼请求使得案件标的额不符合受诉法院级别管辖标准的，被告有权提出管辖权异议。\n\n\\- **D ✗** 法院对管辖权确定后，不因当事人增加诉讼请求而改变，这叫“管辖权恒定”，**但违反级别管辖规定的除外**。本案属于例外情况，不能继续审理。",
-    "guanlian": "在民事诉讼中，为了防止当事人故意少写标的额规避级别管辖，一旦当事人中途增加诉讼请求导致标的额跨越了级别门槛，法院必须进行管辖权移送。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-38",
-    "chapter": "多选",
-    "question": "丙公司因法院对甲公司诉乙公司工程施工合同案的一审判决（未提起上诉）损害其合法权益，向A市B县法院提起撤销诉讼。案件审理中，检察院提起抗诉，A市中级法院对该案进行再审，B县法院裁定将撤销诉讼并入再审程序。关于中级法院对丙公司提出的撤销诉讼请求的处理，下列哪些表述是错误的？",
-    "options": "A. 将丙公司提出的诉讼请求一并审理，作出判决\nB. 根据自愿原则进行调解，调解不成的，告知丙公司另行起诉\nC. 根据自愿原则进行调解，调解不成的，裁定撤销原判发回重审\nD. 根据自愿原则进行调解，调解不成的，恢复第三人撤销诉讼程序",
-    "answer": "答案：ABD",
-    "analysis": "",
-    "kaodian": "第三人撤销之诉与再审程序的关系（关联：再审的审理程序）",
-    "jiangjie": "第三人撤销之诉和再审程序，都是为了推翻错误的判决，所以“一山不容二虎”。当两个程序撞车时，法院会把第三人的诉求“打包”并入再审里面一起解决。\n\n合并以后怎么审？如果再审是按“一审程序”审的，那一并判决没问题，因为还能上诉；但如果再审是上级法院提审，按“二审程序”审的，那判决就是终局的。为了不剥夺第三人的上诉权，法院只能先试着调解；如果调解不成，就必须把原判决撤销，打回原一审法院重新审理。",
-    "zhuxiang": "\\- **A ✗** 原一审判决由A市B县法院作出（未上诉即生效）。检察院抗诉后由A市中级法院再审，属于上级法院提审，**应当按照第二审程序审理**。按照二审程序审理时，不能直接对第三人的请求作出一并判决，否则会剥夺第三人的上诉权。\n\n\\- **B ✗** 按照二审程序审理时，并入第三人撤销之诉后，调解不成的，处理结果是“发回重审”，而不是“告知另行起诉”。\n\n\\- **C ✓** 法律明确规定：将第三人诉讼请求并入再审程序审理时，若按照第二审程序审理，法院可以调解，调解不成的，裁定撤销原判决、发回一审法院重审，重审时应列明第三人。\n\n\\- **D ✗** 第三人诉求并入再审后，将随着再审程序一并解决（或发回重审），不能再单独恢复第三人撤销诉讼程序。",
-    "guanlian": "在民事诉讼中，第三人撤销之诉与再审的目的重合，原则上“有三撤没再审，有再审没三撤”。当二者冲突时，通常“再审优先”，除非有证据证明原审当事人恶意串通坑害第三人，此时才中止再审先审三撤。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-39",
-    "chapter": "多选",
-    "question": "李某诉谭某返还借款一案，M市N区法院按照小额诉讼案件进行审理，判决谭某返还借款。判决生效后，谭某认为借款数额远高于法律规定的小额案件的数额，不应按小额案件审理，遂向法院申请再审。法院经审查，裁定予以再审。关于该案再审程序适用，下列哪些选项是错误的？",
-    "options": "A. 谭某应当向M市中级法院申请再审\nB. 法院应当组成合议庭审理\nC. 对作出的再审判决当事人可以上诉\nD. 作出的再审判决仍实行一审终审",
-    "answer": "答案：AD",
-    "analysis": "",
-    "kaodian": "小额诉讼程序的再审（关联：再审法院的确定、小额诉讼程序转化为普通程序的救济）",
-    "jiangjie": "小额诉讼本身是“一审终审”，打完就不能上诉。但如果当事人觉得“我这案子根本不该用小额诉讼，钱太多了”，以此为理由申请再审，那么：\n\n1\\. 申请再审得找**原来审案子的那个基层法院**，不能找上级法院。\n\n2\\. 再审时必须大家商量着来审（组成合议庭），法官不能一个人说了算。\n\n3\\. 既然是因为“不该用小额诉讼”而启动的再审，那再审出来的判决就不再是“一审终审”了，如果当事人不服，是可以上诉的！",
-    "zhuxiang": "\\- **A ✗** 对小额诉讼案件的判决、裁定申请再审的，应当向**原审法院**（M市N区法院）提出，而不是向中级法院申请。\n\n\\- **B ✓** 法院裁定再审的，必须组成合议庭进行审理，不能适用独任制。\n\n\\- **C ✓** 当事人以“不应按小额诉讼案件审理”为由申请再审，法院裁定再审后所作出的再审判决、裁定，当事人是可以上诉的。\n\n\\- **D ✗** 只有在当事人对适用小额程序无异议，仅对判决结果申请再审时，再审判决才实行一审终审。本案谭某以不应适用小额诉讼为由申请再审，再审判决不再实行一审终审。",
-    "guanlian": "小额诉讼程序是简易程序的一种特殊形式，追求极致的效率，因此其再审管辖具有特殊性（向原审法院申请）。同时，是否继续剥夺当事人的上诉权，取决于其申请再审的理由是否与小额程序的适用条件有关。",
-    "flagMemory": false
-  },
-  {
-    "id": "duo-40",
-    "chapter": "多选",
-    "question": "李某因债务人刘某下落不明申请宣告刘某失踪。法院经审理宣告刘某为失踪人，并指定刘妻为其财产代管人。判决生效后，刘父认为由刘妻代管财产会损害儿子的利益，要求变更刘某的财产代管人。关于本案程序，下列哪些说法是错误的？",
-    "options": "A. 李某无权申请刘某失踪\nB. 刘父应提起诉讼变更财产代管人，法院适用普通程序审理\nC. 刘父应向法院申请变更刘妻的财产代管权，法院适用特别程序审理\nD. 刘父应向法院申请再审变更财产代管权，法院适用再审程序审理",
-    "answer": "答案：ACD",
-    "analysis": "",
-    "kaodian": "宣告失踪案件及财产代管人的变更（关联：特别程序的适用）",
-    "jiangjie": "申请宣告一个人失踪，只要是有关联的“利益相关人”（比如债权人、老婆、老爸）都能提。\n\n宣告失踪后，如果本来被指定的“管钱人”（比如老婆）自己不想管了，法院可以走“特别程序”（不打官司，直接换人）。\n\n但如果是其他人（比如老爸）觉得这个“管钱人”管得不好，想把她换掉，这就变成了“家庭财产争夺战”，有实体纠纷了！只要有纠纷，就不能用“特别程序”或“再审”，必须正儿八经地打一场官司（适用普通程序的诉讼），让老爸做原告，老婆做被告。",
-    "zhuxiang": "\\- **A ✗** 李某是债务人刘某的债权人，属于“利害关系人”，依法有权申请法院宣告刘某失踪。\n\n\\- **B ✓** 失踪人的其他利害关系人（刘父）申请变更代管人，实际上是就代管权与现任代管人发生了争议，应当以原指定的代管人（刘妻）为被告提起诉讼，法院适用普通程序审理。\n\n\\- **C ✗** 只有**原指定的代管人自己**申请变更代管时，才适用没有争议的特别程序。其他利害关系人申请变更，存在权利争议，不能适用特别程序。\n\n\\- **D ✗** 宣告失踪属于特别程序，特别程序一审终审，**不适用审判监督程序（不能再审）**。因此刘父不能申请再审。",
-    "guanlian": "特别程序的底层逻辑是“不解决民事权利义务纠纷”。一旦在非讼程序中冒出了实质性的权利争议，程序就必须转换轨道，要求当事人去走普通的诉讼程序打官司。",
-    "flagMemory": false
-  }
-]/*BANK_END*/;
+const TOPICS = [
+  { key: "全部", label: "全部" },
+  { key: "中国式现代化", label: "①现代化" },
+  { key: "新型国际关系", label: "②国际关系" },
+  { key: "新发展理念", label: "③发展理念" },
+  { key: "两个结合", label: "④两个结合" },
+  { key: "中国特色社会主义", label: "⑤中国特色" },
+  { key: "百年未有之大变局", label: "⑥大变局" },
+  { key: "长期执政党建", label: "⑦执政党建" },
+  { key: "习近平思想内涵", label: "⑧思想内涵" },
+  { key: "两个确立", label: "⑨两个确立" },
+  { key: "法治中国", label: "⑩法治中国" },
+];
 
-/* ---------- STORAGE & STATE ---------- */
-const K_PROG = 'minsu_srs_progress', K_SET = 'minsu_srs_settings';
-function uid(){ try{ if(crypto&&crypto.randomUUID) return crypto.randomUUID(); }catch(e){} return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
-function load(key,fallback){ try{ const v=localStorage.getItem(key); return v==null?fallback:JSON.parse(v);}catch(e){return fallback;} }
+const allCards = [
+  // ── 专题① 中国式现代化 ──
+  { id:1, topic:"中国式现代化", tNum:1, type:"列举",
+    front:"中国式现代化有哪五大中国特色？",
+    back:"① 人口规模巨大的现代化\n② 全体人民共同富裕的现代化\n③ 物质文明和精神文明相协调的现代化\n④ 人与自然和谐共生的现代化\n⑤ 走和平发展道路的现代化",
+    hint:"记忆：人·共·协·生·和" },
+  { id:2, topic:"中国式现代化", tNum:1, type:"框架",
+    front:"中国式现代化创造人类文明新形态，体现在哪四个方面？",
+    back:"① 概念：深植传统文化、体现社会主义本质的全新文明形态\n② 模式：打破「现代化＝西方化」的迷思\n③ 超越：对西方式现代化理论和实践的重大超越\n④ 影响：为发展中国家提供独立自主迈向现代化的全新选择",
+    hint:"框架：概→模→超→影" },
+  { id:3, topic:"中国式现代化", tNum:1, type:"填空",
+    front:"中国式现代化打破了「______」的迷思，\n展现了不同于西方现代化的新图景。",
+    back:"现代化 ＝ 西方化",
+    hint:"" },
 
-// 初始化核心逻辑：读取分离的进度，合并入静态题库
-let state;
-{
-  let progress = load(K_PROG, null);
-  // 向下兼容：如果还没有分离的进度数据，尝试从旧版 minsu_srs_cards 中提取记忆进度
-  if (!progress) {
-      progress = {};
-      let oldCards = load('minsu_srs_cards', null) || load('minsu_srs_cards_v3', null);
-      if (Array.isArray(oldCards)) {
-          oldCards.forEach(c => {
-              if (c.question) progress[(c.question||'').trim()] = { level: c.level||0, seen: c.seen||0, flagMemory: !!c.flagMemory };
-          });
-      }
-      try { localStorage.setItem(K_PROG, JSON.stringify(progress)); } catch(e) {}
+  // ── 专题② 新型国际关系 ──
+  { id:4, topic:"新型国际关系", tNum:2, type:"列举",
+    front:"新型国际关系的三大核心原则？",
+    back:"相互尊重  ·  公平正义  ·  合作共赢",
+    hint:"简记：相·公·赢" },
+  { id:5, topic:"新型国际关系", tNum:2, type:"填空",
+    front:"新型国际关系是一条「______，______」\n的国与国交往新路。",
+    back:"对话而不对抗\n结伴而不结盟",
+    hint:"" },
+  { id:6, topic:"新型国际关系", tNum:2, type:"框架",
+    front:"新型国际关系六大维度（原则/道路/关系/内容/方针/观念）？",
+    back:"① 原则：相互尊重、公平正义、合作共赢\n② 道路：对话不对抗、结伴不结盟\n③ 关系：在和平共处五项原则基础上建全球伙伴关系\n④ 内容：推进大国协调合作、构建大国关系格局\n⑤ 方针：亲诚惠容，与邻为善、以邻为伴（周边）\n⑥ 观念：真实亲诚理念和正确义利观（发展中国家）",
+    hint:"框架：原·道·关·内·方·观" },
+
+  // ── 专题③ 新发展理念 ──
+  { id:7, topic:"新发展理念", tNum:3, type:"列举",
+    front:"新发展理念五大内容是什么？",
+    back:"创新  ·  协调  ·  绿色  ·  开放  ·  共享\n\n记忆口诀：「创协绿开共」",
+    hint:"创协绿开共" },
+  { id:8, topic:"新发展理念", tNum:3, type:"匹配",
+    front:"五大理念各自解决什么问题？（一一对应）",
+    back:"创新  →  发展动力问题\n协调  →  发展不平衡问题\n绿色  →  人与自然共生问题\n开放  →  内外联动问题\n共享  →  公平正义问题（→迈向共同富裕）",
+    hint:"" },
+  { id:9, topic:"新发展理念", tNum:3, type:"框架",
+    front:"完整、准确、全面贯彻新发展理念的三大要求？",
+    back:"① 根本宗旨：坚持以人民为中心，把满足美好生活需求作为发展出发点\n② 问题导向：针对发展不平衡、民生突出问题发力，实现高质量发展\n③ 忧患意识：主动预判风险、掌握发展主动权，守住安全发展底线",
+    hint:"框架：宗旨·问题·忧患" },
+
+  // ── 专题④ 两个结合 ──
+  { id:10, topic:"两个结合", tNum:4, type:"解释",
+    front:"「两个结合」的具体内容是什么？",
+    back:"第一个结合：\n  马克思主义基本原理 ＋ 中国具体实际\n\n第二个结合：\n  马克思主义基本原理 ＋ 中华优秀传统文化",
+    hint:"" },
+  { id:11, topic:"两个结合", tNum:4, type:"列举",
+    front:"第二个结合挖掘了哪五类传统文化精华？",
+    back:"天下为公、民为邦本、革故鼎新、天人合一、自强不息",
+    hint:"简记：天·民·革·天·自" },
+  { id:12, topic:"两个结合", tNum:4, type:"框架",
+    front:"「两个结合」的三大重大意义？",
+    back:"① 开辟和发展中国特色社会主义的必由之路\n② 持续推进马克思主义中国化时代化的根本途径\n③ 习近平新时代中国特色社会主义思想是最新科学理论结晶",
+    hint:"必由之路·根本途径·理论结晶" },
+
+  // ── 专题⑤ 中国特色社会主义是社会主义 ──
+  { id:13, topic:"中国特色社会主义", tNum:5, type:"框架",
+    front:"从哪四个角度论证「中国特色社会主义是社会主义而不是其他什么主义」？",
+    back:"① 坚守科学社会主义基本原则（党的领导、公有制主体、人民当家作主、共同富裕）\n② 根本区别于资本主义（不搞资本主导，杜绝两极分化，成果服务全体人民）\n③ 区别于民主社会主义/修正主义（不弱化党的领导，不放弃马克思主义）\n④ 发展手段创新不改根本性质（市场经济是方式，社会主义是方向）",
+    hint:"守·异资·异民·新不改" },
+  { id:14, topic:"中国特色社会主义", tNum:5, type:"解释",
+    front:"「中国特色」与「社会主义」是什么关系？",
+    back:"「中国特色」是路径，是方式的创新\n「社会主义」是方向，是本质的坚守\n\n→ 路径服务方向，手段不改性质\n→ 二者统一于中国特色社会主义实践",
+    hint:"" },
+
+  // ── 专题⑥ 百年未有之大变局 ──
+  { id:15, topic:"百年未有之大变局", tNum:6, type:"列举",
+    front:"当今世界百年未有之大变局加速演进，有哪五大具体表现？",
+    back:"① 国际力量对比深刻重塑（「东升西降」，走向多极化）\n② 新一轮科技革命和产业变革深入推进（AI/新能源/生物技术）\n③ 国际体系和全球秩序深度调整（旧治理机制失灵）\n④ 传统安全与非传统安全风险交织（地缘冲突+恐怖主义/网络/气候等）\n⑤ 世界发展不确定性显著上升（四大赤字持续扩大）",
+    hint:"力·科·秩·安·不" },
+  { id:16, topic:"百年未有之大变局", tNum:6, type:"填空",
+    front:"持续扩大的「四大赤字」是指？",
+    back:"和平赤字  ·  发展赤字\n安全赤字  ·  治理赤字",
+    hint:"和·发·安·治" },
+  { id:17, topic:"百年未有之大变局", tNum:6, type:"解释",
+    front:"「东升西降」的含义是什么？",
+    back:"新兴市场和发展中国家群体性崛起\n西方发达国家实力相对下降\n→ 全球加速走向多极化",
+    hint:"" },
+
+  // ── 专题⑦ 建设长期执政的马克思主义政党 ──
+  { id:18, topic:"长期执政党建", tNum:7, type:"列举",
+    front:"党面临的「四大考验」是什么？",
+    back:"执政考验\n改革开放考验\n市场经济考验\n外部环境考验",
+    hint:"执·改·市·外" },
+  { id:19, topic:"长期执政党建", tNum:7, type:"列举",
+    front:"党面临的「四种危险」是什么？",
+    back:"精神懈怠危险\n能力不足危险\n脱离群众危险\n消极腐败危险",
+    hint:"精·能·脱·消" },
+  { id:20, topic:"长期执政党建", tNum:7, type:"框架",
+    front:"建设长期执政的马克思主义政党的六大根本要求？",
+    back:"① 坚持加强党的全面领导（两个确立、两个维护）\n② 马克思主义科学理论武装全党\n③ 坚守为民谋幸福、为民族谋复兴的初心使命\n④ 坚持自我革命，持之以恒全面从严治党\n⑤ 完善党的自我革命制度规范体系\n⑥ 建设高素质干部队伍，筑牢基层党组织战斗堡垒",
+    hint:"领·论·心·革·制·人" },
+  { id:21, topic:"长期执政党建", tNum:7, type:"填空",
+    front:"跳出历史周期率的「第二个答案」是什么？\n（第一个是让人民监督政府）",
+    back:"勇于自我革命\n\n→ 以伟大自我革命引领伟大社会革命",
+    hint:"" },
+
+  // ── 专题⑧ 习近平新时代中国特色社会主义思想内涵 ──
+  { id:22, topic:"习近平思想内涵", tNum:8, type:"列举",
+    front:"习近平新时代中国特色社会主义思想的「四大核心支撑」？",
+    back:"① 十个明确（思想核心内涵）\n② 十四个坚持（基本方略/行动纲领）\n③ 十三个方面成就（实践成果）\n④ 六个必须坚持（世界观和方法论）",
+    hint:"10·14·13·6" },
+  { id:23, topic:"习近平思想内涵", tNum:8, type:"列举",
+    front:"习近平新时代中国特色社会主义思想回答了哪三大时代课题？",
+    back:"① 坚持和发展什么样的中国特色社会主义、怎样坚持和发展\n② 建设什么样的社会主义现代化强国、怎样建设\n③ 建设什么样的长期执政的马克思主义政党、怎样建设党",
+    hint:"特色·强国·执政党" },
+  { id:24, topic:"习近平思想内涵", tNum:8, type:"填空",
+    front:"习近平新时代中国特色社会主义思想的理论定位（三句话）？",
+    back:"当代中国马克思主义\n二十一世纪马克思主义\n中华文化和中国精神的时代精华",
+    hint:"" },
+
+  // ── 专题⑨ 两个确立 ──
+  { id:25, topic:"两个确立", tNum:9, type:"解释",
+    front:"「两个确立」的具体内容是什么？",
+    back:"① 确立习近平同志党中央的核心、全党的核心地位\n② 确立习近平新时代中国特色社会主义思想的指导地位",
+    hint:"核心地位 ＋ 指导地位" },
+  { id:26, topic:"两个确立", tNum:9, type:"框架",
+    front:"「两个确立」的决定性意义（四个维度）？",
+    back:"① 对党：统一思想意志行动，凝聚磅礴力量，化解执政风险\n② 对国家发展：科学理论指引，统筹发展和安全，破解深层矛盾\n③ 对民族复兴：抵御风险挑战，稳定发展大局，凝聚各族人民合力\n④ 对世界：为发展中国家提供全新道路选择，贡献中国智慧、中国方案",
+    hint:"党·国·民族复兴·世界" },
+  { id:27, topic:"两个确立", tNum:9, type:"填空",
+    front:"「两个确立」是新时代______的根本保证，\n是新征程上______的根本政治保证。",
+    back:"党和国家取得一切成就\n战胜一切艰难险阻、应对一切不确定性",
+    hint:"" },
+
+  // ── 专题⑩ 加快建设法治中国 ──
+  { id:28, topic:"法治中国", tNum:10, type:"填空",
+    front:"加快建设法治中国的总目标是什么？",
+    back:"建设中国特色社会主义法治体系\n建设社会主义法治国家",
+    hint:"两句话，两个「建设」" },
+  { id:29, topic:"法治中国", tNum:10, type:"列举",
+    front:"法治中国建设的三大根本原则？",
+    back:"① 坚持党的领导\n② 坚持以人民为中心\n③ 坚持中国特色社会主义法治道路",
+    hint:"党·民·道" },
+  { id:30, topic:"法治中国", tNum:10, type:"列举",
+    front:"法治中国建设的「五大体系」（五大重点任务）？",
+    back:"① 法律规范体系（以宪法为核心，科学立法）\n② 法治实施体系（严格执法、公正司法）\n③ 法治监督体系（约束规范公权力运行）\n④ 法治保障体系（高素质专业化法治队伍）\n⑤ 党内法规制度体系（依规治党与依法治国统一）",
+    hint:"规·实·监·保·党规" },
+  { id:31, topic:"法治中国", tNum:10, type:"框架",
+    front:"法治中国建设的三大实践要求？",
+    back:"① 依法治国、依法执政、依法行政共同推进\n② 法治国家、法治政府、法治社会一体建设\n③ 自觉运用法治思维、法治方式深化改革、推动发展、化解矛盾、维护稳定",
+    hint:"三个「依法」· 三个「法治」·法治思维" },
+  { id:32, topic:"法治中国", tNum:10, type:"解释",
+    front:"「依法治国、依法执政、依法行政」分别对应哪个主体？",
+    back:"依法治国  →  党领导人民治理国家\n依法执政  →  党依法执掌国家政权\n依法行政  →  政府依法施政管理",
+    hint:"" },
+];
+
+// State
+let selectedTopic = "全部";
+let currentIndex = 0;
+let isFlipped = false;
+let results = {}; // id -> "know" | "review"
+let showingStats = false;
+
+function getFiltered() {
+  if (selectedTopic === "全部") return allCards;
+  return allCards.filter(c => c.topic === selectedTopic);
+}
+
+function getCard() {
+  const f = getFiltered();
+  return f[currentIndex] || f[0];
+}
+
+function renderTopicChips() {
+  const el = document.getElementById("topicChips");
+  el.innerHTML = TOPICS.map(t => {
+    const active = t.key === selectedTopic;
+    return `<button class="chip ${active ? "chip-active" : "chip-inactive"}" onclick="selectTopic('${t.key}')">${t.label}</button>`;
+  }).join("");
+}
+
+function selectTopic(key) {
+  selectedTopic = key;
+  currentIndex = 0;
+  isFlipped = false;
+  renderTopicChips();
+  renderCard();
+}
+
+function renderCard() {
+  const filtered = getFiltered();
+  const card = getCard();
+  if (!card) return;
+
+  const tc = TYPE_CONFIG[card.type] || TYPE_CONFIG["列举"];
+
+  // Update counter
+  document.getElementById("counterEl").textContent = `${currentIndex + 1} / ${filtered.length}`;
+
+  // Update progress
+  const marked = Object.keys(results).filter(id => filtered.some(c => c.id === parseInt(id))).length;
+  const pct = filtered.length > 0 ? Math.round((marked / filtered.length) * 100) : 0;
+  document.getElementById("progressFill").style.width = pct + "%";
+
+  // Card styling
+  const cardEl = document.getElementById("cardEl");
+  cardEl.style.borderLeftColor = tc.border;
+  cardEl.style.background = isFlipped ? "#F7F6FF" : "white";
+
+  // Type badge
+  const icons = { "列举":"📋", "填空":"✏️", "框架":"🏗️", "解释":"💡", "匹配":"🔗" };
+  const badge = document.getElementById("typeBadge");
+  badge.textContent = `${icons[card.type] || ""} ${card.type}`;
+  badge.style.background = tc.bg;
+  badge.style.color = tc.color;
+
+  // Flip hint
+  document.getElementById("flipHint").textContent = isFlipped ? `专题${card.tNum}` : "点击卡片翻转";
+
+  // Card body
+  const body = document.getElementById("cardBody");
+  if (isFlipped) {
+    body.innerHTML = `<div class="answer">${card.back}</div>`;
+  } else {
+    body.innerHTML = `<div class="question">${card.front}</div>`;
   }
 
-  // 组装最终在内存中运行的 state.cards
-  state = {
-      cards: QUESTION_BANK.map(q => {
-          // 匹配进度：优先用 ID 匹配，旧版本过渡期用题干文本兜底匹配
-          let p = progress[q.id] || progress[(q.question||'').trim()] || {level:0, seen:0, flagMemory:false};
-          return makeCard({ ...q, level: p.level, seen: p.seen, flagMemory: p.flagMemory });
-      })
-  };
-}
-
-let settings=load(K_SET,{theme:'light', examTime:null, lastFullReview:0});
-if(settings.examTime===undefined) settings.examTime=null;
-if(settings.lastFullReview===undefined) settings.lastFullReview=0;
-
-function saveSettings(){ try{ localStorage.setItem(K_SET,JSON.stringify(settings)); }catch(e){} }
-// 现在的 save 只存用户的进度，题库内容绝不污染 localStorage
-function save(){ 
-    let progress = {};
-    state.cards.forEach(c => {
-        // 只存发生过互动的题，节省本地存储空间
-        if (c.seen > 0 || c.level > 0 || c.flagMemory) {
-            progress[c.id] = { level: c.level, seen: c.seen, flagMemory: c.flagMemory };
-        }
-    });
-    try { localStorage.setItem(K_PROG, JSON.stringify(progress)); } catch(e) {}
-}
-
-function makeCard(o){ o=o||{}; return {
-  id: o.id || uid(), chapter:o.chapter||'', question:o.question||'', options:o.options||'',
-  answer:o.answer||'', analysis:o.analysis||'', flagMemory:!!o.flagMemory,
-  kaodian:o.kaodian||'', jiangjie:o.jiangjie||'', zhuxiang:o.zhuxiang||'', guanlian:o.guanlian||'',
-  level:o.level||0, seen:o.seen||0
-}; }
-
-/* ---------- THEME & SESSION SETUP ---------- */
-function applyTheme(){ document.documentElement.setAttribute('data-theme', settings.theme); const tBtn = document.getElementById('themeBtn'); if(tBtn) tBtn.textContent = settings.theme==='dark'?'\u2600':'\u263e'; }
-function toggleTheme() { settings.theme = settings.theme === 'dark' ? 'light' : 'dark'; saveSettings(); applyTheme(); if (view !== 'review' && view !== 'skim') render(); }
-document.getElementById('themeBtn').addEventListener('click', toggleTheme);
-document.getElementById('navManage').addEventListener('click', ()=>{ currentPass=null; view='manage'; render(); });
-applyTheme();
-
-const SESS={ SEED:{key:'SEED',name:'熟悉',chapterOrder:true}, REVIEW:{key:'REVIEW',name:'整体过一遍'}, DRILL:{key:'DRILL',name:'巩固弱项'}, EXAM:{key:'EXAM',name:'考前过一遍',skimAfter:true} };
-const FULL_GAP_MS = 6*3600*1000; const EXAM_WINDOW_MS = 12*3600*1000;
-const PROFILES={ fast:{key:'fast',name:'快速刷题',grad:1,base:3,growth:2,drop:1,missGap:2,cleanToStable:false}, slow:{key:'slow',name:'重复刷题',grad:4,base:5,growth:2,drop:2,missGap:3,cleanToStable:true} };
-function gapFor(prof, s){ return Math.max(1, Math.round(prof.base * Math.pow(prof.growth, s-1))); }
-function byChapter(a,b){ const ca=a.chapter||'', cb=b.chapter||''; if(ca<cb) return -1; if(ca>cb) return 1; return state.cards.indexOf(a)-state.cards.indexOf(b); }
-function examInfo(){ const t=settings.examTime; if(!t) return {set:false}; const ms=t-Date.now(); return {set:true, t, ms, passed:ms<=0, window: ms>0 && ms<=EXAM_WINDOW_MS}; }
-
-function chooseSession(){
-  if(state.cards.length===0) return null;
-  const ex=examInfo();
-  const unseen=state.cards.filter(c=>c.seen===0).length;
-  const weak=state.cards.filter(c=>c.level<2).length;
-  const total=state.cards.length;
-  if(ex.set && ex.window) return {type:SESS.EXAM};
-  if(unseen>0) return {type:SESS.SEED, n:unseen};
-  if(weak>0){ if(Date.now()-(settings.lastFullReview||0) > FULL_GAP_MS) return {type:SESS.REVIEW, n:total}; return {type:SESS.DRILL, n:weak}; }
-  return {type:SESS.REVIEW, n:total, allStable:true};
-}
-
-function sessionHint(s){
-  if(!s) return '';
-  switch(s.type.key){
-    case 'SEED':   return '先过还没看过的 '+s.n+' 题（按章节）';
-    case 'REVIEW': return s.allStable ? ('都挺稳了 \u00b7 整体检验一遍全部 '+s.n+' 题') : ('整体过一遍全部 '+s.n+' 题');
-    case 'DRILL':  return '巩固还没记牢的 '+s.n+' 题';
-    case 'EXAM':   return '考前过一遍：先攻重点题，再扫一遍全部题干';
-  } return '';
-}
-
-/* ---------- FORMATTING HELPERS ---------- */
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-function cardById(id){ return state.cards.find(c=>c.id===id); }
-const LVL=['生','虚','稳'];
-
-function extractAnswer(ansStr) {
-    if(!ansStr) return '';
-    const match = ansStr.match(/[A-Ea-e\u221a\u00d7\u5bf9\u9519]+/g);
-    return match ? match.join('').toUpperCase() : ansStr.replace('答案：', '').trim();
-}
-
-const ICON_KAODIAN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>';
-const ICON_JIANGJIE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2 1 4 2.5 5.5A2.5 2.5 0 0 1 9 16.5v.5h6v-.5c0-1 .5-2 1.5-3.5A7 7 0 0 0 12 2Z"/></svg>';
-const ICON_ZHUXIANG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
-const ICON_GUANLIAN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
-
-function parseMD(str) { if(!str) return ''; let s = esc(str); s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); s = s.replace(/\n/g, '<br>'); return s; }
-
-function formatKaodian(text) {
-    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title" style="color:var(--primary);">'+ICON_KAODIAN+' 考点</div>';
-    let mainTitle = text; let tagsStr = ''; let m = text.match(/^(.*?)[\(（](?:关联：)?(.*?)[)）]$/);
-    if (m) { mainTitle = m[1].trim(); tagsStr = m[2].trim(); } else { let parts = text.split(/[\s、，,]+/); if(parts.length > 1) { mainTitle = parts[0]; tagsStr = parts.slice(1).join('、'); } }
-    html += `<div class="kd-main-title">${esc(mainTitle)}</div>`;
-    if (tagsStr) { html += `<div class="kd-tags">`; tagsStr.split(/[,，、\s]+/).filter(t=>t.trim()).forEach(t => { html += `<span class="kd-tag">${esc(t)}</span>`; }); html += `</div>`; } return html + '</div>';
-}
-
-function formatJiangjie(text) {
-    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title" style="color:#B7791F;">'+ICON_JIANGJIE+' 通俗讲解</div>';
-    const lines = text.split('\n'); let leadText = ''; let cardsHtml = ''; let currentCard = null;
-    lines.forEach(l => {
-        let m = l.match(/^(\d+)(?:\\[\.\uff0e]|[\.\uff0e、]|\s)\s*(.*)/);
-        if (m) { if (currentCard) cardsHtml += `<div class="jj-card"><div class="jj-num">${currentCard.num}</div><div class="jj-text">${parseMD(currentCard.text)}</div></div>`; currentCard = { num: m[1], text: m[2] }; } 
-        else if (currentCard) { currentCard.text += '\n' + l; } else { if (l.trim()) leadText += parseMD(l) + '<br>'; }
-    });
-    if (currentCard) cardsHtml += `<div class="jj-card"><div class="jj-num">${currentCard.num}</div><div class="jj-text">${parseMD(currentCard.text)}</div></div>`;
-    if (leadText) html += `<div class="jj-desc">${leadText}</div>`; return html + cardsHtml + '</div>';
-}
-
-function formatZhuxiang(text) {
-    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title">'+ICON_ZHUXIANG+' 逐项分析</div>';
-    const lines = text.split('\n'); let currentOpt = null; let out = '';
-    lines.forEach(l => {
-        let m = l.match(/^\\?-\s*\*\*([A-E])\s*([✗✓xX\u2713\u2717])\*\*[\s。，]?(.*)/i) || l.match(/^([A-E])\s*([✗✓xX\u2713\u2717])[\s。，]?(.*)/i) || l.match(/^\\?-\s*\*\*([A-E])\s*(.*)/i);
-        if (m) {
-            if(currentOpt) out += `<div class="zx-block ${currentOpt.isCorrect?'correct':'wrong'}"><div class="zx-letter">${currentOpt.letter}</div><div class="zx-text">${parseMD(currentOpt.text)}</div></div>`;
-            let isCorr = m[2] ? (m[2]==='✓'||m[2]==='\u2713') : false; if(!m[2]) { isCorr = l.includes('正确') || l.includes('✓') || l.includes('\u2713'); m[3] = m[2]; }
-            currentOpt = { letter: m[1].toUpperCase(), isCorrect: isCorr, text: (m[3]||'').trim() };
-        } else if (currentOpt) { currentOpt.text += '\n' + l; } else { if(l.trim()) out += `<div class="zx-text" style="margin-bottom:8px;">${parseMD(l)}</div>`; }
-    });
-    if(currentOpt) out += `<div class="zx-block ${currentOpt.isCorrect?'correct':'wrong'}"><div class="zx-letter">${currentOpt.letter}</div><div class="zx-text">${parseMD(currentOpt.text)}</div></div>`;
-    return html + out + '</div>';
-}
-
-function extractZhuxiangMap(text) {
-    const map = {}; if(!text) return map; const lines = text.split('\n'); let currentOpt = null;
-    lines.forEach(l => {
-        let m = l.match(/^\\?-\s*\*\*([A-E])\s*([✗✓xX\u2713\u2717])\*\*[\s。，]?(.*)/i) || l.match(/^([A-E])\s*([✗✓xX\u2713\u2717])[\s。，]?(.*)/i) || l.match(/^\\?-\s*\*\*([A-E])\s*(.*)/i);
-        if (m) { currentOpt = m[1].toUpperCase(); let rest = m[3] !== undefined ? m[3] : m[2]; map[currentOpt] = rest ? rest.trim() : ''; } 
-        else if (currentOpt) { map[currentOpt] += '\n' + l; }
-    });
-    for (let k in map) { map[k] = parseMD(map[k]); } return map;
-}
-
-function formatGuanlian(text) {
-    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title" style="color:#2E7D32;">'+ICON_GUANLIAN+' 关联知识</div>';
-    const lines = text.split('\n'); let out = '';
-    lines.forEach(l => {
-        let t = l.trim(); if(!t || t === '---') return;
-        let isHeader = /^(\*\*|)[一二三四五六七八九十]+[、\.\uff0e]/.test(t); let isItem = /^(\d+)(?:\\[\.\uff0e]|[\.\uff0e、]|\s)\s*/.test(t);
-        if (isHeader) { let cleanT = t.replace(/\*\*/g, ''); out += `<div class="gl-header"><div class="gl-bar"></div><div class="gl-title">${parseMD(cleanT)}</div></div>`; } 
-        else if (isItem) { let cleanT = t.replace(/^(\d+)(?:\\[\.\uff0e]|[\.\uff0e、]|\s)\s*/, ''); out += `<div class="gl-bullet"><span class="gl-circle"></span><div class="gl-text">${parseMD(cleanT)}</div></div>`; } 
-        else { out += `<div class="gl-text-norm">${parseMD(t)}</div>`; }
-    }); return html + out + '</div>';
-}
-
-/* ---------- VIEW ROUTER ---------- */
-let view='home'; let currentPass=null; let skim=null; let isAnimatingOut = false;
-const app=document.getElementById('app');
-function activeIdx(p){ let mi=0; for(let i=1;i<p.pool.length;i++){ if(p.pool[i].due < p.pool[mi].due) mi=i; } return mi; }
-function render(){
-  isAnimatingOut = false; document.body.classList.remove('is-revealed');
-  if(view === 'review' || view === 'skim') { document.body.classList.add('in-review'); } else { document.body.classList.remove('in-review'); }
-  if(view==='home') renderHome(); else if(view==='review') renderReview(); else if(view==='skim') renderSkim(); else if(view==='summary') renderSummary(); else if(view==='manage') renderManage();
-}
-
-/* ---------- HOME ---------- */
-function renderHome(){
-  const total=state.cards.length;
-  if(total===0){
-    app.innerHTML='<div class="wrap"><div class="empty"><h2>题库当前为空</h2><p>点击下方进入管理页，手动添加或导入题目。</p><button class="add" id="emptyAdd">进入题库管理</button></div></div>';
-    document.getElementById('emptyAdd').onclick=()=>{ view='manage'; render(); }; return;
-  }
-  const c0=state.cards.filter(c=>c.level===0).length, c1=state.cards.filter(c=>c.level===1).length, c2=state.cards.filter(c=>c.level===2).length;
-  const seenTotal=state.cards.reduce((s,c)=>s+c.seen,0);
-  const s=chooseSession(); const ex=examInfo();
-  let examHTML;
-  if(!ex.set){ examHTML='<button class="ex-set" id="examSet">\uff0b 设置考试时间（临近自动切到考前模式）</button>'; } 
-  else if(ex.passed){ examHTML='<span class="ex-count">考试时间已过</span><button class="ex-edit" id="examSet">改</button>'; } 
-  else {
-    const d=Math.floor(ex.ms/86400000), h=Math.floor((ex.ms%86400000)/3600000), mn=Math.floor((ex.ms%3600000)/60000);
-    let txt = d>0 ? ('距考试还有 '+d+' 天 '+h+' 小时') : (h>0 ? ('考试就在今天 \u00b7 还有 '+h+' 小时') : ('考试将近 \u00b7 还有 '+mn+' 分钟'));
-    examHTML='<span class="ex-count">'+esc(txt)+'</span><button class="ex-edit" id="examSet">改</button>';
+  // Hint
+  const hintEl = document.getElementById("hintEl");
+  if (!isFlipped && card.hint) {
+    hintEl.innerHTML = `💡 记忆提示：<strong>${card.hint}</strong>`;
+    hintEl.style.display = "block";
+  } else {
+    hintEl.style.display = "none";
   }
 
-  app.innerHTML=
-    '<div class="wrap">'
-    +'<section class="hero">'
-      +'<p class="lead">距离"全部掌握"</p>'
-      +'<div class="bignum"><span class="tag">'+c2+'</span> <span class="of">/ '+total+' 已达「稳」</span></div>'
-      +'<div class="mbar">'
-        +'<div class="mseg s0" style="flex-grow:'+(total?c0/total*100:0)+'"></div>'
-        +'<div class="mseg s1" style="flex-grow:'+(total?c1/total*100:0)+'"></div>'
-        +'<div class="mseg s2" style="flex-grow:'+(total?c2/total*100:0)+'"></div>'
-      +'</div>'
-      +'<div class="mleg"><span><span class="sw s0"></span>生 <b>'+c0+'</b></span><span><span class="sw s1"></span>虚 <b>'+c1+'</b></span><span><span class="sw s2"></span>稳 <b>'+c2+'</b></span></div>'
-      +'<div class="subnote">累计回忆 '+seenTotal+' 次</div>'
-    +'</section>'
-    +'<div class="start-card">'
-      +'<div class="start-hint">这次 \u00b7 '+esc(sessionHint(s))+'</div>'
-      +'<div class="mode-row">'
-        +'<button class="mode-btn fast" data-prof="fast"><span class="mt">快速刷题</span><span class="mode-sub">轻快 \u00b7 答对 1 次即踢出，选错重刷</span></button>'
-        +'<button class="mode-btn slow" data-prof="slow"><span class="mt">重复刷题</span><span class="mode-sub">扎实 \u00b7 分散答对 4 次，一轮到稳</span></button>'
-      +'</div>'
-    +'</div>'
-    +'<div class="exam-row">'+examHTML+'</div>'
-    +'<div class="home-foot" style="margin-top:28px">'
-      +'<button class="ghost" id="toManage">管理题库 (包含导出功能)</button>'
-    +'</div>'
-    +'<p class="foot-note">学习进度安全保存在当前浏览器。更新题库请进入管理页面使用「导出最新 HTML」功能。</p>'
-    +'</div>';
+  // Sticker
+  const st = results[card.id];
+  document.getElementById("stickerEl").textContent = st === "know" ? "✅" : st === "review" ? "🔄" : "";
 
-  app.querySelectorAll('[data-prof]').forEach(b=> b.onclick=()=> startSession(b.dataset.prof) );
-  document.getElementById('examSet').onclick=openExamTime;
-  document.getElementById('toManage').onclick=()=>{ view='manage'; render(); };
-}
-
-function openExamTime(){
-  let cur=''; if(settings.examTime){ const d=new Date(settings.examTime), p=n=>String(n).padStart(2,'0'); cur=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes()); }
-  const m=modalShell('<h3>考试时间</h3><div class="help">临近考试时入口会自动切换到"考前过一遍"模式。</div><div class="field"><label>日期与时间</label><input type="datetime-local" id="ex_in" value="'+cur+'"></div><div class="sheet-foot"><button class="ghost" id="ex_clear">清除</button><button class="ghost" id="ex_cancel">取消</button><button class="add" id="ex_save">保存</button></div>');
-  m.querySelector('#ex_cancel').onclick=()=>m.remove();
-  m.querySelector('#ex_clear').onclick=()=>{ settings.examTime=null; saveSettings(); m.remove(); render(); };
-  m.querySelector('#ex_save').onclick=()=>{ const v=m.querySelector('#ex_in').value; if(!v){ notify('请选择时间'); return; } const t=new Date(v).getTime(); if(isNaN(t)){ notify('时间无效'); return; } settings.examTime=t; saveSettings(); m.remove(); render(); };
-}
-
-/* ---------- SESSION ENGINE ---------- */
-function startSession(profKey){
-  const s=chooseSession(); if(!s){ notify('当前没有需要复习的题目。'); return; }
-  const prof=PROFILES[profKey]||PROFILES.fast; const type=s.type, skimAfter=!!type.skimAfter; let scope;
-  if(type.key==='SEED'){ scope=state.cards.filter(c=>c.seen===0).slice().sort(byChapter); } 
-  else if(type.key==='DRILL'){ scope=shuffle(state.cards.filter(c=>c.level<2)); } 
-  else if(type.key==='REVIEW'){ scope=shuffle(state.cards.slice()); settings.lastFullReview=Date.now(); saveSettings(); } 
-  else { scope=shuffle(state.cards.filter(c=>c.flagMemory||c.level<2)); }
-
-  if(scope.length===0){
-    if(skimAfter){ currentPass={type, prof, pool:[], clock:0, total:0, skimAfter:true, skimDone:true, history:[]}; startSkim(); return; }
-    notify('太棒了！所有题目都已记牢。'); return;
+  // Buttons
+  const btnRow = document.getElementById("btnRow");
+  const mainBtn = document.getElementById("mainBtn");
+  if (isFlipped) {
+    btnRow.innerHTML = `
+      <button class="btn btn-nav" onclick="navigate(-1)">←</button>
+      <button class="btn btn-review" onclick="markCard('review')">🔄 再复习</button>
+      <button class="btn btn-know" onclick="markCard('know')">✅ 已掌握</button>
+      <button class="btn btn-nav" onclick="navigate(1)">→</button>
+    `;
+  } else {
+    btnRow.innerHTML = `
+      <button class="btn btn-nav" onclick="navigate(-1)">←</button>
+      <button class="btn btn-flip" onclick="flipCard()">翻转查看答案 →</button>
+      <button class="btn btn-nav" onclick="navigate(1)">→</button>
+    `;
   }
-  const pool=scope.map((c,idx)=>({ id:c.id, s:0, due:idx, mark:false }));
-  currentPass={ type, prof, pool, clock:0, total:scope.length, skimAfter, skimDone:false, history:[] };
-  view='review'; render();
-}
 
-function grade(g){
-  const p=currentPass, prof=p.prof, i=activeIdx(p), a=p.pool[i], card=cardById(a.id);
-  p.history = p.history || []; p.history.push({ pool: JSON.parse(JSON.stringify(p.pool)), clock: p.clock, cardId: a.id, level: card.level, seen: card.seen });
-  card.seen++;
-  if(g==='again'){ a.mark=true; a.s=Math.max(0, a.s-prof.drop); if(card.level>1) card.level=1; a.due=p.clock+prof.missGap; } 
-  else { a.s+=1; if(a.s>=prof.grad){ if(!a.mark) card.level = prof.cleanToStable ? 2 : Math.min(2, card.level+1); p.pool.splice(i,1); } else { a.due=p.clock + gapFor(prof, a.s); } }
-  p.clock++; save();
-  if(p.pool.length===0) finishPass(); else render();
-}
-function finishPass(){ const p=currentPass; if(p.skimAfter && !p.skimDone){ p.skimDone=true; startSkim(); return; } view='summary'; render(); }
-
-/* ========== CARD EVENTS ========== */
-document.addEventListener('click', (e) => {
-  if(view !== 'review' && view !== 'skim') return;
-  const optBlock = e.target.closest('.opt-block');
-  if (optBlock) { 
-      const card = optBlock.closest('.card'); 
-      if (card) { 
-          if (card.classList.contains('revealed')) { 
-              optBlock.classList.toggle('active'); 
-          } else {
-              // 答题前交互：选对变绿，选错变红
-              if (optBlock.classList.contains('correct-opt')) {
-                  optBlock.classList.add('guessed-correct');
-              } else {
-                  optBlock.classList.add('guessed-wrong');
-              }
-              
-              // 【新增功能】快速模式全对自动划卡逻辑
-              if (currentPass && currentPass.prof.key === 'fast') {
-                  const wrongCount = card.querySelectorAll('.guessed-wrong').length;
-                  const correctTotal = card.querySelectorAll('.correct-opt').length;
-                  const correctGuessed = card.querySelectorAll('.guessed-correct').length;
-                  
-                  // 当没有任何错误选项被点击，且所有的正确选项都已经点击完毕时触发
-                  if (wrongCount === 0 && correctTotal > 0 && correctGuessed === correctTotal) {
-                      // 稍微延迟，让用户能看清最后一个选项变绿的反馈效果
-                      setTimeout(() => {
-                          if (!card.classList.contains('revealed') && !isAnimatingOut) {
-                              triggerSwipe(card, 'right', false);
-                          }
-                      }, 350); 
-                  }
-              }
-          }
-      } 
-      return; 
+  // Marked status
+  const ms = document.getElementById("markedStatus");
+  if (st) {
+    ms.style.color = st === "know" ? "#276749" : "#975A16";
+    ms.textContent = st === "know" ? "✅ 已标记为掌握" : "🔄 已标记为待复习";
+  } else {
+    ms.textContent = "";
   }
-  const btn = e.target.closest('button'); if(!btn) return;
-  if (btn.classList.contains('memtog')) { const c = cardById(btn.dataset.id); if (c) { c.flagMemory = !c.flagMemory; save(); render(); } } 
-  else if (btn.classList.contains('reveal-btn')) { const card = btn.closest('.card'); if (card) { card.classList.add('revealed'); document.body.classList.add('is-revealed'); } } 
-  else if (btn.classList.contains('undo-btn')) {
-      const p = currentPass; if (p && p.history && p.history.length > 0) {
-          const last = p.history.pop(); p.pool = last.pool; p.clock = last.clock; const card = cardById(last.cardId);
-          if (card) { card.level = last.level; card.seen = last.seen; } save(); render();
-      }
-  } else if (btn.classList.contains('action-btn')) { const card = btn.closest('.card'); if (card) triggerSwipe(card, btn.dataset.act, view === 'skim'); }
-});
+}
 
-/* ========== HTML BUILDING ========== */
-function buildCardHtml(cardObj, index, stateData) {
-  const scale = 1 - index * 0.04; const translateY = index * 12; const zIndex = 10 - index;
-  const style = 'transform: scale('+scale+') translateY('+translateY+'px); z-index: '+zIndex+'; pointer-events: '+(index===0?'auto':'none')+';';
-  const shortAns = extractAnswer(cardObj.answer);
-  const chapterHtml = cardObj.chapter ? '<span class="chapchip">'+esc(cardObj.chapter)+'</span>' : '';
-  const starHtml = cardObj.flagMemory ? '<span class="star">\u2605</span>' : '';
-  
-  let optsHtml = '';
-  if (cardObj.options) {
-      const zxMap = extractZhuxiangMap(cardObj.zhuxiang);
-      const lines = cardObj.options.split('\n');
-      const processedLines = lines.map(line => {
-          const match = line.trim().match(/^([A-E])[\.\u3001\uff0e\s]\s*(.*)/i);
-          if (match) {
-              const letter = match[1].toUpperCase(); const isCorrect = shortAns.includes(letter);
-              const optClass = isCorrect ? 'correct-opt' : ''; const mobileAn = zxMap[letter] ? `<div class="opt-mobile-analysis">${zxMap[letter]}</div>` : '';
-              return `<div class="opt-block ${optClass}" data-letter="${letter}"><div class="opt-main"><div class="zx-letter">${letter}</div><div class="zx-text">${esc(match[2])}</div></div>${mobileAn}</div>`;
-          } else { return `<div class="opt-block"><div class="opt-main"><div class="zx-text">${esc(line)}</div></div></div>`; }
-      });
-      optsHtml = '<div class="opts">' + processedLines.join('') + '</div>';
+function flipCard() {
+  isFlipped = !isFlipped;
+  renderCard();
+}
+
+function navigate(dir) {
+  const filtered = getFiltered();
+  isFlipped = false;
+  currentIndex = (currentIndex + dir + filtered.length) % filtered.length;
+  renderCard();
+}
+
+function markCard(result) {
+  const card = getCard();
+  results[card.id] = result;
+  navigate(1);
+}
+
+function toggleStats() {
+  showingStats = !showingStats;
+  document.getElementById("mainView").style.display = showingStats ? "none" : "block";
+  document.getElementById("statsView").style.display = showingStats ? "block" : "none";
+  if (showingStats) renderStats();
+}
+
+function renderStats() {
+  const filtered = getFiltered();
+  const markedIds = Object.keys(results).map(Number);
+  const filteredMarked = markedIds.filter(id => filtered.some(c => c.id === id));
+  const know = filteredMarked.filter(id => results[id] === "know").length;
+  const review = filteredMarked.filter(id => results[id] === "review").length;
+
+  document.getElementById("statTotal").textContent = filteredMarked.length;
+  document.getElementById("statKnow").textContent = know;
+  document.getElementById("statReview").textContent = review;
+
+  const pct = filtered.length > 0 ? Math.round((filteredMarked.length / filtered.length) * 100) : 0;
+  document.getElementById("statsDetail").textContent = 
+    `当前筛选：${selectedTopic} · 进度 ${pct}% · 全库共 ${allCards.length} 张`;
+}
+
+function resetAll() {
+  if (confirm("确认重置所有标记？")) {
+    results = {};
+    currentIndex = 0;
+    isFlipped = false;
+    toggleStats();
+    renderCard();
   }
-  const hasHistory = currentPass && currentPass.history && currentPass.history.length > 0;
-  const hasSplit = cardObj.kaodian || cardObj.jiangjie || cardObj.zhuxiang || cardObj.guanlian;
-  let allSections, pcSections, zhuxiangHtml;
-  if (hasSplit) {
-    const kd = formatKaodian(cardObj.kaodian); const jj = formatJiangjie(cardObj.jiangjie); const zx = formatZhuxiang(cardObj.zhuxiang); const gl = formatGuanlian(cardObj.guanlian);
-    allSections = kd + jj + `<div class="pc-zhuxiang-container">${zx}</div>` + gl; pcSections = kd + jj + gl; zhuxiangHtml = `<div class="pc-zhuxiang-container">${zx}</div>`;
-  } else if (cardObj.analysis) {
-    allSections = '<div class="divider"><span>解析</span></div><div class="analysis">'+esc(cardObj.analysis)+'</div>'; pcSections = allSections; zhuxiangHtml = '';
-  } else { allSections = ''; pcSections = ''; zhuxiangHtml = ''; }
-
-  const cfootHtml = '<div class="cfoot"><span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span><button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button></div>';
-
-  return '<div class="card" data-index="'+index+'" style="'+style+'"><div class="card-main-surface"><div class="card-overlay"></div><div class="card-scroll-area">'
-    +'<div class="ctop"><div class="ctop-left">'+chapterHtml+'<span class="badge lvl'+cardObj.level+'">'+LVL[cardObj.level]+'</span>'+starHtml+'</div><div class="inline-answer">答案：'+esc(shortAns)+'</div></div>'
-    +'<div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'
-    +optsHtml+'<div class="revealed-only">'+zhuxiangHtml+'</div>'
-    +'<div class="unrevealed-only"><button class="undo-btn" '+(hasHistory?'':'disabled')+' title="撤回上题">撤</button><button class="reveal-btn">查看解析 (空格)</button></div>'
-    +'<div class="card-back mobile-back">'+(allSections || '<div class="analysis" style="opacity:0.6">暂无解析</div>')+cfootHtml+'</div>'
-    +'</div><div class="swipe-hints"><button class="action-btn" data-act="left" style="color:var(--again);">\u2190 答错</button><span class="pc-hint">电脑可按 \u2190/1, \u2192/2</span><button class="action-btn" data-act="right" style="color:var(--success);">答对 \u2192</button></div>'
-    +'</div><div class="card-back pc-back"><div class="card-scroll-area">'+(pcSections || '<div class="analysis" style="opacity:0.6;margin-top:8px;">暂无解析</div>')+'<div class="cfoot" style="margin-top: auto;"><span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span><button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button></div></div></div></div>';
 }
 
-function renderReview(){
-  const p = currentPass; const activeI = activeIdx(p); const topCardData = cardById(p.pool[activeI].id); const remaining = p.pool.length;
-  let stackHtml = ''; 
-  if (p.pool.length > 1) { 
-      // 预先寻找排在当前题目后面的"真实下一张"
-      let nextI = -1; let minDue = Infinity;
-      for(let i=0; i<p.pool.length; i++) {
-          if (i !== activeI && p.pool[i].due < minDue) { minDue = p.pool[i].due; nextI = i; }
-      }
-      if(nextI === -1) nextI = (activeI + 1) % p.pool.length; // 兜底
-      stackHtml += buildCardHtml(cardById(p.pool[nextI].id), 1, p.pool[nextI]); 
-  }
-  stackHtml += buildCardHtml(topCardData, 0, p.pool[activeI]);
-  
-  app.innerHTML = '<div class="rev-layout"><div class="rev-head"><div class="rh-left"><button class="linkbtn" id="endPass">\u2039 结束本轮（剩 '+remaining+'/'+p.total+'）</button></div><div class="rh-right"><button class="ico sq glass" id="revThemeBtn">'+(settings.theme==='dark'?'\u2600':'\u263e')+'</button><button class="ico glass" id="revManageBtn">题库</button></div></div><div class="rev-play-area"><div id="card-container">'+stackHtml+'</div></div></div>';
-  document.getElementById('endPass').onclick = () => { currentPass=null; view='home'; render(); };
-  const rtBtn = document.getElementById('revThemeBtn'); if(rtBtn) rtBtn.onclick = toggleTheme; const rmBtn = document.getElementById('revManageBtn'); if(rmBtn) rmBtn.onclick = () => { view='manage'; render(); };
-  const topCard = app.querySelector('.card[data-index="0"]'); if(topCard) addDragEvents(topCard, false);
-}
-
-// 优化：修改了滑动判定逻辑，优先将垂直滚动意图交由浏览器默认处理
-function addDragEvents(card, isSkimMode) {
-  let isDragging = false; let isScrolling = false; let isSwiping = false; let startX, startY; const threshold = 50; const opacitySensitivity = 30; const overlay = card.querySelector('.card-overlay'); let rafId = null;
-  const startDrag = (e) => { if (isAnimatingOut) return; if(e.target.closest('button')) return; isDragging = true; isScrolling = false; isSwiping = false; startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; startY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY; card.style.transition = 'none'; };
-  const doDrag = (e) => {
-      if (!isDragging) return; const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; const currentY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY; const pullDeltaX = currentX - startX; const pullDeltaY = currentY - startY;
-      
-      // 优化后的逻辑：直接比较 X 与 Y 偏移绝对值，瞬间识别是否在上下滚动
-      if (!isScrolling && !isSwiping) { 
-          if (Math.abs(pullDeltaY) > Math.abs(pullDeltaX)) isScrolling = true; 
-          else if (Math.abs(pullDeltaX) > 5) isSwiping = true; 
-      }
-      
-      if (isScrolling) return; // 触发原生滚动，放行给浏览器处理
-      
-      if (isSwiping) {
-          if(e.cancelable) e.preventDefault(); if(rafId) cancelAnimationFrame(rafId);
-          rafId = requestAnimationFrame(() => {
-              const rotateDeg = pullDeltaX * 0.08; const arcY = Math.abs(pullDeltaX) * 0.06; const scale = Math.max(0.95, 1 - Math.abs(pullDeltaX) * 0.00015); card.style.transform = 'translate('+pullDeltaX+'px, '+arcY+'px) rotate('+rotateDeg+'deg) scale('+scale+')';
-              if (pullDeltaX > 0) overlay.style.background = 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(7,193,96,0.3) 100%)'; else if (pullDeltaX < 0) overlay.style.background = 'linear-gradient(270deg, rgba(255,255,255,0) 0%, rgba(220,53,69,0.3) 100%)'; overlay.style.opacity = Math.min(Math.abs(pullDeltaX) / opacitySensitivity, 1);
-          });
-      }
-  };
-  const endDrag = (e) => {
-      if (!isDragging) return; isDragging = false; if(rafId) cancelAnimationFrame(rafId); if (!isSwiping || isScrolling) { resetCard(); return; }
-      const currentX = e.type.includes('mouseup') ? e.pageX : e.changedTouches[0].clientX; const pullDeltaX = currentX - startX;
-      if (Math.abs(pullDeltaX) > threshold) { triggerSwipe(card, pullDeltaX > 0 ? 'right' : 'left', isSkimMode); } else { resetCard(); }
-  };
-  const resetCard = () => { card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)'; card.style.transform = 'translate(0, 0) rotate(0deg) scale(1)'; overlay.style.opacity = 0; }
-  card.addEventListener('mousedown', startDrag); card.addEventListener('touchstart', startDrag, {passive: true}); document.addEventListener('mousemove', doDrag, {passive: false}); document.addEventListener('touchmove', doDrag, {passive: false}); document.addEventListener('mouseup', endDrag); document.addEventListener('touchend', endDrag);
-  card.cleaner = () => { document.removeEventListener('mousemove', doDrag); document.removeEventListener('touchmove', doDrag); document.removeEventListener('mouseup', endDrag); document.removeEventListener('touchend', endDrag); }
-}
-
-function particleDissolve(card) {
-    const backs = card.querySelectorAll('.pc-back, .mobile-back'); const theme = document.documentElement.getAttribute('data-theme'); const cardZ = parseInt(card.style.zIndex) || 10;
-    backs.forEach(back => {
-        if(window.getComputedStyle(back).display === 'none') return;
-        const rect = back.getBoundingClientRect(); const container = document.createElement('div'); container.style.position = 'fixed'; container.style.left = rect.left + 'px'; container.style.top = rect.top + 'px'; container.style.width = rect.width + 'px'; container.style.height = rect.height + 'px'; container.style.zIndex = cardZ - 1; container.style.pointerEvents = 'none'; document.body.appendChild(container); back.style.visibility = 'hidden';
-        const pCount = Math.min(Math.max(Math.floor((rect.width * rect.height) / 4000), 30), 80);
-        for(let i=0; i<pCount; i++) {
-            const p = document.createElement('div'); let bg = 'var(--surface)'; const rand = Math.random(); if (rand > 0.7) bg = 'var(--ink-faint)'; else if (rand > 0.85) bg = 'var(--primary)'; else bg = theme === 'dark' ? '#262A34' : '#FFFFFF'; const size = Math.random() * 10 + 4;
-            p.style.cssText = 'position: absolute; left: '+(Math.random()*rect.width)+'px; top: '+(Math.random()*rect.height)+'px; width: '+size+'px; height: '+size+'px; background: '+bg+'; border-radius: '+(Math.random()>0.5?'50%':'3px')+'; box-shadow: 0 2px 8px rgba(0,0,0,0.15); opacity: 1;'; container.appendChild(p);
-            const tx = (Math.random() - 0.5) * 200; const ty = -(Math.random() * 300 + 100); const rot = (Math.random() - 0.5) * 720; const dur = 0.4 + Math.random() * 0.4; p.style.transition = 'transform '+dur+'s cubic-bezier(0.2, 0.8, 0.2, 1), opacity '+dur+'s ease-out';
-            requestAnimationFrame(() => { requestAnimationFrame(() => { p.style.transform = 'translate('+tx+'px, '+ty+'px) rotate('+rot+'deg) scale(0)'; p.style.opacity = '0'; }); });
-        }
-        setTimeout(() => container.remove(), 1000);
-    });
-}
-
-function triggerSwipe(card, direction, isSkimMode) {
-  if (isAnimatingOut) return; isAnimatingOut = true; if(card.cleaner) card.cleaner();
-  const finish = () => { if (isSkimMode) { if (skim.idx >= skim.list.length - 1) finishSkim(); else { skim.idx++; render(); } } else { grade(direction === 'right' ? 'good' : 'again'); } };
-  if (card.classList.contains('revealed')) { particleDissolve(card); } 
-  card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease-in';
-  const flyX = direction === 'right' ? window.innerWidth + 50 : -window.innerWidth - 50; const rotate = direction === 'right' ? 25 : -25;
-  card.style.transform = 'translate('+flyX+'px, 50px) rotate('+rotate+'deg)'; card.style.opacity = '0'; setTimeout(finish, 250); 
-}
-
-document.addEventListener('keydown', e => {
-  if(document.querySelector('.modal')) return; const tag = (e.target.tagName||'').toLowerCase(); if(tag==='input'||tag==='textarea') return;
-  if (view === 'review' || view === 'skim') {
-    const topCard = document.querySelector('.card[data-index="0"]'); if(!topCard || isAnimatingOut) return; const isSkim = (view === 'skim');
-    if(e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if(isSkim) { triggerSwipe(topCard, 'right', true); } else { topCard.classList.add('revealed'); document.body.classList.add('is-revealed'); } } 
-    else if (e.key === 'ArrowLeft' || e.key === '1') { e.preventDefault(); triggerSwipe(topCard, 'left', isSkim); } 
-    else if (e.key === 'ArrowRight' || e.key === '2') { e.preventDefault(); triggerSwipe(topCard, 'right', isSkim); }
-  }
-});
-
-/* ---------- SKIM & SUMMARY ---------- */
-function startSkim(){ skim={ list:shuffle(state.cards.map(c=>c.id)), idx:0 }; view='skim'; render(); }
-function renderSkim(){
-  const cardObj = cardById(skim.list[skim.idx]);
-  app.innerHTML = '<div class="rev-layout"><div class="rev-head"><div class="rh-left"><button class="linkbtn" id="endSkim">\u2039 结束扫题（'+(skim.idx+1)+'/'+skim.list.length+'）</button></div><div class="rh-right"><button class="ico sq glass" id="revThemeBtnSkim">'+(settings.theme==='dark'?'\u2600':'\u263e')+'</button><button class="ico glass" id="revManageBtnSkim">题库</button></div></div><div class="rev-play-area"><div id="card-container"><div class="card" data-index="0" style="z-index: 10;"><div class="card-main-surface"><div class="card-overlay"></div><div class="card-scroll-area"><div class="ctop"><div class="ctop-left">'+(cardObj.chapter?'<span class="chapchip">'+esc(cardObj.chapter)+'</span>':'')+(cardObj.flagMemory?' <span class="star">\u2605</span>':'')+'</div></div><div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'+(cardObj.options ? '<div class="opts">'+esc(cardObj.options)+'</div>' : '')+'</div><div class="swipe-hints" style="display:flex; justify-content:center;"><span style="color:var(--ink-faint); font-size:13px; cursor:pointer;" onclick="triggerSwipe(this.closest(\'.card\'), \'right\', true)">心里默答，划动或点击本栏翻下一张</span></div></div></div></div></div></div>';
-  document.getElementById('endSkim').onclick = () => { skim=null; view='home'; render(); }; document.getElementById('revThemeBtnSkim').onclick = toggleTheme; document.getElementById('revManageBtnSkim').onclick = () => { view='manage'; render(); }; const topCard = app.querySelector('.card[data-index="0"]'); if(topCard) addDragEvents(topCard, true);
-}
-function finishSkim(){ skim=null; view='summary'; render(); }
-
-function renderSummary(){
-  const c2=state.cards.filter(c=>c.level===2).length; const c1=state.cards.filter(c=>c.level===1).length; const c0=state.cards.filter(c=>c.level===0).length; const name=currentPass?currentPass.type.name:'本轮';
-  app.innerHTML='<div class="wrap"><div class="summary"><div class="big">\u2713</div><h2>'+esc(name)+'完成</h2><p>这一轮过完了。休息一下，或接着下一轮。</p><div class="stat-row"><div class="stat"><div class="n" style="color:var(--primary)">'+c2+'</div><div class="l">稳</div></div><div class="stat"><div class="n" style="color:var(--hard)">'+c1+'</div><div class="l">虚</div></div><div class="stat"><div class="n" style="color:var(--again)">'+c0+'</div><div class="l">生</div></div></div><button class="go" id="backHome">回到首页</button></div></div>';
-  document.getElementById('backHome').onclick=()=>{ currentPass=null; view='home'; render(); };
-}
-
-/* ---------- MANAGE & EXPORTS/IMPORTS ---------- */
-function renderManage(){
-  const total=state.cards.length; let rows='';
-  if(total===0){ rows='<div class="empty" style="padding:40px 0"><p>题库是空的。点"添加题目"逐条录入，或"批量导入"一次粘贴多题。</p></div>'; } 
-  else {
-    state.cards.forEach((c,i)=>{
-      rows+='<div class="qrow"><span class="badge lvl'+c.level+' qbadge">'+LVL[c.level]+'</span><div class="qtext"><div class="qstem">'+esc(c.question||'（空题干）')+'</div><div class="qmeta">'+(c.chapter?esc(c.chapter)+' \u00b7 ':'')+'第 '+(i+1)+' 题'+(c.flagMemory?' \u00b7 \u2605记忆类':'')+' \u00b7 见 '+c.seen+' 次</div></div><div class="qact"><button class="tiny" data-edit="'+c.id+'">编辑</button><button class="tiny del" data-del="'+c.id+'">删除</button></div></div>';
-    });
-  }
-  app.innerHTML=
-    '<div class="wrap">'
-      +'<div class="mg-head"><button class="linkbtn" id="mgBack">\u2039 首页</button><h2>题库管理</h2><button class="add" id="mgAdd">\uff0b 添加题目</button><span class="mg-count">共 '+total+' 题 \u00b7 编辑/导入后，须导出 HTML 才能永久生效</span></div>'
-      +'<div class="home-foot" style="margin-top:0; padding-bottom:14px; border-bottom:1px solid var(--border);">'
-        +'<button class="ghost" id="mgExportHtml" style="color:var(--primary); border-color:var(--primary); font-weight:600;">\u2b07 导出最新 HTML (包含题库)</button>'
-        +'<button class="ghost" id="mgBulk">批量导入(文本)</button>'
-        +'<button class="ghost" id="mgImportCards">导入题库(JSON)</button>'
-        +'<button class="ghost" id="mgExportCards">导出题库(JSON)</button>'
-      +'</div>'
-      +'<div class="home-foot" style="margin-top:14px">'
-        +'<button class="ghost" id="mgImportProg">导入进度(JSON)</button>'
-        +'<button class="ghost" id="mgExportProg">导出进度(JSON)</button>'
-        +'<button class="ghost" id="mgClear" style="margin-left:auto; color:var(--again)">清空学习进度</button>'
-      +'</div>'
-      +'<div style="margin-top:16px">'+rows+'</div>'
-    +'</div>';
-  document.getElementById('mgBack').onclick=()=>{ view='home'; render(); };
-  document.getElementById('mgAdd').onclick=()=> openEditor(null);
-  document.getElementById('mgBulk').onclick=openBulk;
-  
-  document.getElementById('mgExportHtml').onclick=exportHTML;
-  document.getElementById('mgImportCards').onclick=openImportCards;
-  document.getElementById('mgExportCards').onclick=exportCardsJSON;
-  
-  document.getElementById('mgExportProg').onclick=exportProgress;
-  document.getElementById('mgImportProg').onclick=openImportProgress;
-  document.getElementById('mgClear').onclick=clearProgress;
-  
-  app.querySelectorAll('[data-edit]').forEach(b=> { b.onclick = () => { openEditor(b.dataset.edit); }; });
-  app.querySelectorAll('[data-del]').forEach(b=> { 
-      b.onclick = () => { 
-          confirmModal('从当前列表中删除这道题？', ()=>{ state.cards=state.cards.filter(c=>c.id!==b.dataset.del); save(); render(); }, {confirmText:'删除', danger:true}); 
-      }; 
-  });
-}
-
-function clearProgress(){
-  confirmModal('清空所有学习进度？\n仅仅是进度清零，题目不会被删除。', ()=>{
-    state.cards.forEach(c => { c.level = 0; c.seen = 0; c.flagMemory = false; }); save(); render();
-  }, {confirmText:'清空进度', danger:true});
-}
-
-// 核心功能：作者专用的 HTML 导出
-function exportHTML() {
-    const app = document.getElementById('app'); app.innerHTML = ''; document.body.className = '';
-    let html = "<!doctype html>\n" + document.documentElement.outerHTML;
-    const cleanBank = state.cards.map(c => {
-        return {
-            id: c.id, chapter: c.chapter, question: c.question, options: c.options,
-            answer: c.answer, analysis: c.analysis, kaodian: c.kaodian, jiangjie: c.jiangjie, zhuxiang: c.zhuxiang, guanlian: c.guanlian, flagMemory: !!c.flagMemory
-        };
-    });
-    const regex = /\/\*BANK_START\*\/[\s\S]*?\/\*BANK_END\*\//;
-    if(!regex.test(html)) { render(); notify("未找到替换标记，导出失败。请确保代码中的 /*BANK_START*/ 标记未被意外删除。"); return; }
-    const newHtml = html.replace(regex, `/*BANK_START*/${JSON.stringify(cleanBank, null, 2)}/*BANK_END*/`);
-    render();
-    const blob = new Blob([newHtml], {type: 'text/html;charset=utf-8'}); const a = document.createElement('a'); 
-    a.href = URL.createObjectURL(blob); a.download = 'index.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
-    notify("🎉 HTML 文件已成功导出！\n\n新下载的文件已包含你刚才增/删/改的全部最新题库。\n直接用它覆盖掉 Github 或本地的旧文件，就可以对所有人永久生效了！");
-}
-
-/* ---------- EXPORT/IMPORT QUESTIONS (JSON) ---------- */
-function exportCardsJSON(){
-  const cleanBank = state.cards.map(c => {
-        return {
-            id: c.id, chapter: c.chapter, question: c.question, options: c.options,
-            answer: c.answer, analysis: c.analysis, kaodian: c.kaodian, jiangjie: c.jiangjie, zhuxiang: c.zhuxiang, guanlian: c.guanlian, flagMemory: !!c.flagMemory
-        };
-  });
-  const blob=new Blob([JSON.stringify(cleanBank,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob); const a=document.createElement('a');
-  const d=new Date(), pad=n=>String(n).padStart(2,'0'); a.href=url; a.download='minsu-cards-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-}
-
-function openImportCards(){
-  const m=modalShell('<h3>导入题库 (JSON)</h3><div class="help">导入之前导出的题库备份文件，读取后暂存于内存。</div><div class="field"><label>选择文件</label><input type="file" id="imp_cards_file" accept="application/json,.json"></div><div class="field"><label>或粘贴 JSON</label><textarea id="imp_cards_text" rows="5" placeholder="[ ... ]"></textarea></div><div class="sheet-foot"><button class="ghost" id="imp_c_cancel">取消</button><button class="add" id="imp_c_append">追加题目</button><button class="danger-btn" id="imp_c_replace">清空并覆盖</button></div>');
-  m.querySelector('#imp_c_cancel').onclick=()=> m.remove();
-  m.querySelector('#imp_cards_file').onchange=e=>{ const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=()=>{ m.querySelector('#imp_cards_text').value=r.result; }; r.readAsText(file); };
-
-  const doImport = (isAppend) => {
-    const raw=m.querySelector('#imp_cards_text').value.trim(); if(!raw){ notify('没有内容可导入。'); return; }
-    let arr; try{ arr=JSON.parse(raw); }catch(err){ notify('JSON 解析失败：'+err.message); return; }
-    if(!Array.isArray(arr)){ notify('格式应是一个数组（[ ... ]）。'); return; }
-    const newCards = arr.map(o=>makeCard(o));
-    if(isAppend) { state.cards = state.cards.concat(newCards); } else { state.cards = newCards; }
-    save(); m.remove(); render();
-    notify(`✅ 已${isAppend?'追加':'覆盖'} ${arr.length} 道题到内存。\n\n⚠️ 请务必点击【导出最新 HTML】并覆盖源文件，否则刷新后将丢失！\n(注：如果你导入的是包含旧进度的 JSON，进度也会被恢复)`);
-  };
-
-  m.querySelector('#imp_c_append').onclick=()=> doImport(true);
-  m.querySelector('#imp_c_replace').onclick=()=>{
-      confirmModal('这将清空当前内存中的所有题目，替换为导入的内容。确定吗？', ()=>doImport(false), {confirmText:'覆盖', danger:true});
-  };
-}
-
-/* ---------- modal system ---------- */
-function modalShell(inner){ const m=document.createElement('div'); m.className='modal'; m.innerHTML='<div class="sheet">'+inner+'</div>'; m.addEventListener('mousedown',e=>{ if(e.target===m) m.remove(); }); document.body.appendChild(m); return m; }
-function notify(msg){ const m=modalShell('<div class="notice">'+esc(msg)+'</div><div class="sheet-foot"><button class="add" id="nt_ok">知道了</button></div>'); m.querySelector('#nt_ok').onclick=()=>m.remove(); }
-function confirmModal(msg, onYes, opts){ opts=opts||{}; const m=modalShell('<div class="notice">'+esc(msg)+'</div><div class="sheet-foot"><button class="ghost" id="cf_no">取消</button><button class="'+(opts.danger?'danger-btn':'add')+'" id="cf_yes">'+esc(opts.confirmText||'确定')+'</button></div>'); m.querySelector('#cf_no').onclick=()=>m.remove(); m.querySelector('#cf_yes').onclick=()=>{ m.remove(); if(onYes) onYes(); }; }
-
-function openEditor(id){
-  const c = id? cardById(id) : null;
-  const m=modalShell(
-    '<h3>'+(c?'编辑题目':'新增题目')+'</h3>'
-    +'<div class="field"><label>章节（可选）</label><input type="text" id="f_chapter" value="'+esc(c?c.chapter:'')+'" placeholder="如：管辖 / 证据"></div>'
-    +'<div class="field"><label>题干</label><textarea id="f_question" rows="3" placeholder="题目正文">'+esc(c?c.question:'')+'</textarea></div>'
-    +'<div class="field"><label>选项（可选）</label><textarea id="f_options" rows="4" placeholder="A. \u2026\u2026&#10;B. \u2026\u2026&#10;C. \u2026\u2026&#10;D. \u2026\u2026">'+esc(c?c.options:'')+'</textarea></div>'
-    +'<div class="field"><label>答案</label><textarea id="f_answer" rows="2" placeholder="如：答案 B">'+esc(c?c.answer:'')+'</textarea></div>'
-    +'<div class="field"><label>解析</label><textarea id="f_analysis" rows="4" placeholder="解析 / 考点">'+esc(c?c.analysis:'')+'</textarea></div>'
-    +'<div class="field"><label class="cbline"><input type="checkbox" id="f_mem"'+(c&&c.flagMemory?' checked':'')+'> 记忆类（期限 / 天数等，考前重点过）</label></div>'
-    +'<div class="sheet-foot"><button class="ghost" id="f_cancel">取消</button><button class="add" id="f_save">保存到内存</button></div>'
-  );
-  m.querySelector('#f_cancel').onclick=()=> m.remove();
-  m.querySelector('#f_save').onclick=()=>{
-    const data={ chapter:m.querySelector('#f_chapter').value.trim(), question:m.querySelector('#f_question').value.trim(), options:m.querySelector('#f_options').value.trim(), answer:m.querySelector('#f_answer').value.trim(), analysis:m.querySelector('#f_analysis').value.trim(), flagMemory:m.querySelector('#f_mem').checked };
-    if(!data.question){ notify('题干不能为空。'); return; }
-    if(c){ Object.assign(c,data); } else { state.cards.push(makeCard(data)); } save(); m.remove(); render();
-    if (!id) notify("✅ 已存入当前网页临时内存。\n\n⚠️ 如果想永久保存此题，稍后请务必点击【导出最新 HTML】并覆盖源文件，否则刷新后将丢失！");
-  };
-}
-
-/* ---------- bulk import ---------- */
-function openBulk(){
-  const help='每题用一行 --- 分隔。支持字段：\n章: 题: 选: 答: 解: 记: (1)'; const example='章: 管辖\n题: 题干\u2026\u2026\n选: A. \u2026\u2026\nB. \u2026\u2026\n答: 答案 C\n解: 解析\u2026\u2026\n---\n题: 第二题';
-  const m=modalShell('<h3>批量导入</h3><div class="help">'+esc(help)+'</div><div class="field"><label>粘贴题目</label><textarea id="bulk_in" rows="12" placeholder="'+esc(example)+'"></textarea></div><div class="sheet-foot"><button class="ghost" id="bulk_cancel">取消</button><button class="add" id="bulk_go">导入到内存</button></div>');
-  m.querySelector('#bulk_cancel').onclick=()=> m.remove();
-  m.querySelector('#bulk_go').onclick=()=>{
-    const cards=parseBulk(m.querySelector('#bulk_in').value); if(cards.length===0){ notify('没有解析出题目，检查格式。'); return; }
-    state.cards=state.cards.concat(cards); save(); m.remove(); render();
-    notify(`✅ 已成功追加 ${cards.length} 道题到内存。\n\n⚠️ 请务必点击【导出最新 HTML】并覆盖源文件，否则刷新页面后将丢失！`);
-  };
-}
-function parseBulk(text){
-  const map={'章':'C','题':'Q','选':'O','答':'A','解':'E','记':'M','C':'C','Q':'Q','O':'O','A':'A','E':'E','M':'M'}; const blocks=text.split(/^\s*-{3,}\s*$/m); const out=[];
-  for(const b of blocks){
-    const f={C:'',Q:'',O:'',A:'',E:'',M:''}; let cur=null;
-    for(const line of b.split(/\r?\n/)){ const mt=line.match(/^\s*(章|题|选|答|解|记|[CQOAEM])\s*[:：]\s?(.*)$/); if(mt){ cur=map[mt[1]]; f[cur]=(f[cur]?f[cur]+'\n':'')+mt[2]; } else if(cur!==null){ f[cur]+='\n'+line; } }
-    for(const k in f) f[k]=f[k].replace(/\n+$/,'').trim(); if(f.Q) out.push(makeCard({ chapter:f.C, question:f.Q, options:f.O, answer:f.A, analysis:f.E, flagMemory:/^(1|y|yes|是|true|\u2713)/i.test(f.M) }));
-  } return out;
-}
-
-/* ---------- USER PROGRESS EXPORT / IMPORT ---------- */
-function exportProgress(){
-  const progress = load(K_PROG, {});
-  const blob=new Blob([JSON.stringify(progress,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');
-  const d=new Date(), pad=n=>String(n).padStart(2,'0'); a.href=url; a.download='minsu-progress-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-}
-
-function openImportProgress(){
-  const m=modalShell('<h3>导入学习进度</h3><div class="help">选择你之前导出的 .json 进度备份文件。导入将覆盖当前的所有学习状态。</div><div class="field"><label>选择文件</label><input type="file" id="imp_file" accept="application/json,.json"></div><div class="sheet-foot"><button class="ghost" id="imp_cancel">取消</button><button class="add" id="imp_go">导入（覆盖）</button></div>');
-  let loadedRaw = '';
-  m.querySelector('#imp_cancel').onclick=()=> m.remove();
-  m.querySelector('#imp_file').onchange=e=>{ const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=()=>{ loadedRaw = r.result; }; r.readAsText(file); };
-  m.querySelector('#imp_go').onclick=()=>{
-    if(!loadedRaw){ notify('请先选择文件。'); return; }
-    let arr; try{ arr=JSON.parse(loadedRaw); }catch(err){ notify('JSON 解析失败：'+err.message); return; }
-    confirmModal('覆盖当前设备的学习进度？', ()=>{
-      let newProg = typeof arr === 'object' && !Array.isArray(arr) ? arr : {};
-      if (Array.isArray(arr)) { arr.forEach(c => { if(c.id) newProg[c.id] = {level:c.level||0, seen:c.seen||0, flagMemory:!!c.flagMemory}; }); }
-      try { localStorage.setItem(K_PROG, JSON.stringify(newProg)); } catch(e) {}
-      state.cards.forEach(c => { let p = newProg[c.id] || newProg[(c.question||'').trim()] || {level:0, seen:0, flagMemory:false}; c.level = p.level; c.seen = p.seen; c.flagMemory = p.flagMemory; });
-      save(); m.remove(); render(); notify('✅ 进度导入成功！');
-    }, {confirmText:'覆盖导入', danger:true});
-  };
-}
-
-/* ---------- go ---------- */
-render();
+// Init
+renderTopicChips();
+renderCard();
 </script>
-
-</body></html>
+</body>
+</html>
