@@ -1,528 +1,2030 @@
-
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!doctype html>
+<html lang="zh-CN" data-theme="light"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>国际法 · 滑动复习</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-    background: #EEF2F7;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px;
-  }
+:root{
+  --bg:#FBFAF7; --surface:#FFFFFF; --surface-2:#F3F1EC; --border:#E5E1D8;
+  --ink:#1C1E22; --ink-soft:#5A5C61; --ink-faint:#8C8E93;
+  --primary:#2F6F62; --primary-soft:#E2EFEB;
+  --again:#B5483C; --again-soft:#F6E4E1;
+  --hard:#BE8537; --hard-soft:#F6ECDB;
+  --gold:#C99A2E;
+  --success:#07C160; --success-soft:#E6F9F0;
+  --shadow:0 10px 30px rgba(28,30,34,.08), 0 2px 10px rgba(28,30,34,.04);
+  --radius:24px;
+  --font-sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+[data-theme="dark"]{
+  --bg:#14161B; --surface:#1E212A; --surface-2:#262A34; --border:#333845;
+  --ink:#E9E7E1; --ink-soft:#AEB2BB; --ink-faint:#7C818C;
+  --primary:#5BA493; --primary-soft:#21302C;
+  --again:#D9695C; --again-soft:#34201E;
+  --hard:#D69A4F; --hard-soft:#322A1C;
+  --gold:#E0B84A;
+  --success:#28C76F; --success-soft:#1B3B2B;
+  --shadow:0 10px 30px rgba(0,0,0,.4), 0 2px 10px rgba(0,0,0,.2);
+}
+* { box-sizing: border-box; }
+html,body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-sans);
+  line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh;
+}
+button { font-family: inherit; cursor: pointer; color: inherit; }
+.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
 
-  .app { width: 100%; max-width: 560px; }
+/* body scroll lock for review */
+body.in-review { position: fixed; inset: 0; overflow: hidden; touch-action: pan-x pan-y; }
+body.in-review header { display: none; }
 
-  /* Header */
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .header h1 { font-size: 17px; font-weight: 800; color: #1A202C; letter-spacing: -0.3px; }
-  .counter { font-size: 13px; color: #718096; font-weight: 600; }
+/* header */
+header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: saturate(140%) blur(8px); border-bottom: 1px solid var(--border); transition: 0.2s; }
+.hbar { max-width: 760px; margin: 0 auto; padding: 13px 20px; display: flex; align-items: center; gap: 12px; }
+.brand { font-weight: 650; letter-spacing: .01em; font-size: 15px; }
+.brand .dot { color: var(--primary); }
+.hsp { flex: 1; }
+.ico { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 7px 12px; font-size: 13px; font-weight: 550; transition: .15s; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;}
+.ico:hover { border-color: var(--ink-faint); }
+.ico.sq { padding: 7px 10px; }
+.ico.glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(8px); border: 1px solid rgba(0,0,0,0.05); }
+[data-theme="dark"] .ico.glass { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: var(--ink); }
 
-  /* Progress */
-  .progress-bar { height: 5px; background: #E2E8F0; border-radius: 3px; margin-bottom: 14px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #4F46E5, #7C3AED); transition: width 0.4s ease; }
+/* home UI */
+.hero{padding:34px 0 8px}
+.hero .lead{font-size:13px; color:var(--ink-soft); margin:0 0 6px}
+.bignum{font-family:var(--font-mono); font-size:clamp(40px,11vw,64px); font-weight:600; line-height:1; letter-spacing:-.02em}
+.bignum .of{color:var(--ink-faint); font-size:.42em; font-weight:500; letter-spacing:0}
+.bignum .tag{color:var(--primary)}
+.subnote{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint); margin-top:10px; letter-spacing:.02em}
+.mbar{display:flex; height:14px; border-radius:7px; overflow:hidden; margin:18px 0 8px; background:var(--surface-2); border:1px solid var(--border)}
+.mseg{height:100%; transition:flex-grow .5s ease}
+.mseg.s0{background:var(--again)} .mseg.s1{background:var(--hard)} .mseg.s2{background:var(--primary)}
+.mleg{display:flex; gap:18px; font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); flex-wrap:wrap}
+.mleg b{font-weight:600; color:var(--ink)}
+.mleg .sw{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px; vertical-align:middle}
+.sw.s0{background:var(--again)} .sw.s1{background:var(--hard)} .sw.s2{background:var(--primary)}
+.start-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:22px; margin:30px 0 14px}
+.start-hint{font-size:14.5px; color:var(--ink-soft); margin-bottom:18px; line-height:1.65}
+.mode-row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.mode-btn{display:flex; flex-direction:column; gap:4px; align-items:flex-start; text-align:left; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 15px; transition:.15s}
+.mode-btn:hover{border-color:var(--primary); transform:translateY(-1px)}
+.mode-btn .mt{font-weight:650; font-size:15.5px}
+.mode-btn.fast .mt{color:var(--primary)}
+.mode-sub{font-size:11.5px; color:var(--ink-faint); line-height:1.45}
+@media (max-width:520px){ .mode-row{grid-template-columns:1fr} }
 
-  /* Topic chips */
-  .topics { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-  .chip {
-    padding: 4px 11px; border-radius: 20px; border: none; cursor: pointer;
-    font-size: 11.5px; font-weight: 600; transition: all 0.15s; line-height: 1.4;
-  }
-  .chip-inactive { background: #E2E8F0; color: #4A5568; }
-  .chip-inactive:hover { background: #CBD5E0; }
-  .chip-active { background: #1A202C; color: white; }
+/* exam row */
+.exam-row{display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--ink-faint); margin:8px 0 0; flex-wrap:wrap; min-height:24px}
+.ex-set{background:none; border:none; color:var(--ink-soft); font-size:12.5px; padding:4px 0; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+.ex-set:hover{color:var(--ink)}
+.ex-count{font-family:var(--font-mono); color:var(--primary)}
+.ex-edit{background:none; border:none; color:var(--ink-faint); font-size:12px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+.ex-edit:hover{color:var(--ink)}
 
-  /* Card container */
-  .card-area { position: relative; margin-bottom: 12px; cursor: pointer; }
+/* home foot */
+.home-foot{margin:26px 0 50px; display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.ghost{background:none; border:1px solid var(--border); border-radius:9px; padding:7px 13px; font-size:12.5px; color:var(--ink-soft); transition:.15s}
+.ghost:hover{border-color:var(--ink-faint); color:var(--ink)}
+.foot-note{font-size:11.5px; color:var(--ink-faint); margin-top:14px; line-height:1.7}
+.go{background:var(--primary); color:#fff; border:none; border-radius:10px; padding:9px 20px; font-weight:600; font-size:14px; box-shadow:0 1px 0 rgba(0,0,0,.04); cursor:pointer;}
+[data-theme="dark"] .go{color:#0c130f}
 
-  /* The card itself */
-  .card {
-    background: white;
-    border-radius: 18px;
-    padding: 26px 24px 22px;
-    min-height: 250px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.09), 0 1px 3px rgba(0,0,0,0.06);
-    border-left: 5px solid #4F46E5;
-    display: flex;
-    flex-direction: column;
-    transition: background 0.25s, border-color 0.25s;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .card.flipped { background: #F7F6FF; }
+.empty{text-align:center; padding:60px 20px}
+.empty h2{font-size:19px; margin:0 0 8px}
+.empty p{color:var(--ink-soft); font-size:14px; margin:0 0 20px}
 
-  /* Card top row */
-  .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-  .type-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
-    letter-spacing: 0.3px;
-  }
-  .flip-hint { font-size: 11px; color: #A0AEC0; }
+/* sliding review card area */
+.rev-layout { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: var(--surface-2); }
+.rev-head { position: absolute; top: 0; left: 0; width: 100%; z-index: 50; padding: 12px 16px; pointer-events: none; display: flex; align-items: center; justify-content: space-between; }
+.rh-left { display: flex; align-items: center; pointer-events: auto; }
+.rh-right { display: flex; align-items: center; gap: 8px; pointer-events: auto; }
+.linkbtn { background: rgba(0,0,0,0.05); border: none; font-size: 13px; font-weight: 500; color: var(--ink); padding: 6px 14px; border-radius: 20px; pointer-events: auto; backdrop-filter: blur(4px); cursor: pointer; transition: 0.2s;}
+.linkbtn:active { opacity: 0.7; }
+[data-theme="dark"] .linkbtn { background: rgba(255,255,255,0.1); }
+.rev-play-area { flex: 1; display: flex; justify-content: center; align-items: center; padding: 66px 16px 24px; min-height: 0; }
+#card-container { position: relative; width: 100%; max-width: 480px; height: 100%; perspective: 1200px; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
-  /* Card body */
-  .card-body {
-    flex: 1; display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-  }
-  .question {
-    font-size: 17px; font-weight: 700; color: #1A202C;
-    text-align: center; line-height: 1.65; white-space: pre-line;
-  }
-  .answer {
-    font-size: 15px; font-weight: 400; color: #2D3748;
-    text-align: left; line-height: 1.85; white-space: pre-line;
-    width: 100%;
-  }
+/* 优化1：在此处增加了 touch-action: pan-y，让垂直滚动始终交给浏览器原生处理 */
+.card { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; transform-origin: 50% 100%; will-change: transform; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+.card:active { cursor: grabbing; }
+.card-main-surface { position: absolute; inset: 0; display: flex; flex-direction: column; background-color: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; z-index: 2; }
+.card-overlay { position: absolute; inset: 0; z-index: 20; pointer-events: none; opacity: 0; border-radius: var(--radius); }
+.card-scroll-area { flex: 1; overflow-y: auto; padding: 24px 20px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; min-height: 0; display: flex; flex-direction: column; }
 
-  /* Hint */
-  .hint { margin-top: 16px; font-size: 12px; color: #A0AEC0; text-align: center; }
-  .hint strong { color: #7C3AED; }
+/* card content typography */
+.ctop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-shrink: 0;}
+.ctop-left { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.chapchip{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); background:var(--surface-2); padding:3px 9px; border-radius:6px}
+.badge { font-family: var(--font-mono); font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; letter-spacing: .02em; }
+.badge.lvl0 { color: var(--again); background: var(--again-soft); }
+.badge.lvl1 { color: var(--hard); background: var(--hard-soft); }
+.badge.lvl2 { color: var(--primary); background: var(--primary-soft); }
+.star { font-size: 13px; color: var(--gold); }
+.inline-answer { display: none; color: var(--success); font-weight: 650; font-size: 14.5px; margin-left: 10px; }
+.card.revealed .inline-answer { display: block; animation: fadeIn 0.3s ease; }
+.stem { font-size: 17px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; user-select: text; flex-shrink: 0;}
+.stem-tag { color: var(--primary); font-weight: 700; margin-right: 4px; } 
 
-  /* Topic label on back */
-  .topic-label { margin-top: 14px; font-size: 11px; color: #A0AEC0; text-align: center; font-weight: 600; }
+/* 选项统一区块样式 & 点选样式逻辑 */
+.opts { margin-top: 14px; font-size: 15px; line-height: 1.9; color: var(--ink); flex-shrink: 0;}
+/* 优化2：收紧 transition 过渡范围，防止全属性变动导致的大规模重排 */
+.opt-block {
+    background: var(--surface); border: 1px solid var(--surface-2);
+    margin-bottom: 10px; display: flex; flex-direction: column; position: relative;
+    border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: transform 0.1s, box-shadow 0.1s, background-color 0.3s, border-color 0.3s; user-select: text; line-height: normal;
+}
+.opt-block::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; transition: background-color 0.3s; }
+.opt-main { padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.opt-main .zx-letter { font-size: 17px; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; margin-top: -2px; }
+.opt-main .zx-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; }
 
-  /* Buttons */
-  .btn-row { display: flex; gap: 8px; }
-  .btn {
-    border: none; border-radius: 12px; cursor: pointer;
-    font-size: 14px; font-weight: 700; padding: 13px 16px;
-    transition: all 0.15s; flex: 1;
-    font-family: inherit;
-  }
-  .btn-nav { flex: 0; background: #E2E8F0; color: #4A5568; padding: 13px 18px; font-size: 16px; }
-  .btn-nav:hover { background: #CBD5E0; }
-  .btn-flip { background: #1A202C; color: white; }
-  .btn-flip:hover { background: #2D3748; transform: translateY(-1px); }
-  .btn-know { background: #C6F6D5; color: #22543D; }
-  .btn-know:hover { background: #9AE6B4; }
-  .btn-review { background: #FEFCBF; color: #744210; }
-  .btn-review:hover { background: #FAF089; }
+/* 答题前交互样式 */
+.card:not(.revealed) .opt-block { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s, background-color 0.3s; }
+.card:not(.revealed) .opt-block:active { transform: scale(0.98); }
 
-  /* Marked status */
-  .marked-status { text-align: center; margin-top: 9px; font-size: 12.5px; font-weight: 600; }
+.opt-block.guessed-wrong { background-color: var(--again-soft); border-color: color-mix(in srgb, var(--again) 30%, transparent); }
+.opt-block.guessed-wrong::before { background: #E57373; }
+.opt-block.guessed-wrong .zx-letter { color: #D32F2F; }
+.opt-block.guessed-wrong .zx-text { color: #D32F2F; font-weight: 650; }
 
-  /* Stats panel */
-  .stats { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.09); }
-  .stats h2 { font-size: 15px; font-weight: 800; color: #1A202C; margin-bottom: 18px; }
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .stat-box { text-align: center; border-radius: 12px; padding: 14px 8px; }
-  .stat-val { font-size: 28px; font-weight: 800; }
-  .stat-lbl { font-size: 11px; color: #718096; margin-top: 3px; }
-  .reset-btn { background: #FED7D7; color: #9B2C2C; border: none; border-radius: 10px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 700; font-family: inherit; }
-  .reset-btn:hover { background: #FEB2B2; }
+.opt-block.guessed-correct { background-color: var(--success-soft); border-color: color-mix(in srgb, var(--success) 30%, transparent); }
+.opt-block.guessed-correct::before { background: #66BB6A; }
+.opt-block.guessed-correct .zx-letter { color: #2E7D32; }
+.opt-block.guessed-correct .zx-text { color: #2E7D32; font-weight: 650; }
 
-  /* Sticker (showing result) */
-  .sticker { position: absolute; top: 12px; right: 14px; font-size: 20px; }
+[data-theme="dark"] .opt-block.guessed-wrong::before { background: #C62828; }
+[data-theme="dark"] .opt-block.guessed-wrong .zx-letter, [data-theme="dark"] .opt-block.guessed-wrong .zx-text { color: #EF5350; }
+[data-theme="dark"] .opt-block.guessed-correct::before { background: #2E7D32; }
+[data-theme="dark"] .opt-block.guessed-correct .zx-letter, [data-theme="dark"] .opt-block.guessed-correct .zx-text { color: #81C784; }
+
+/* 翻牌后的正确选项揭示 */
+.card.revealed .opt-block.correct-opt { background-color: var(--success-soft); border-color: color-mix(in srgb, var(--success) 20%, transparent); }
+.card.revealed .opt-block.correct-opt::before { background: #66BB6A; }
+.card.revealed .opt-block.correct-opt .zx-letter { color: #2E7D32; }
+.card.revealed .opt-block.correct-opt .zx-text { color: #2E7D32; font-weight: 650; }
+[data-theme="dark"] .card.revealed .opt-block.correct-opt::before { background: #2E7D32; }
+[data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-letter { color: #81C784; }
+[data-theme="dark"] .card.revealed .opt-block.correct-opt .zx-text { color: #81C784; }
+
+/* 优化3：使用 max-height 折叠方案替代原有的 display:none/block，使手机端点击选项的动画更流畅 */
+.opt-mobile-analysis { 
+    max-height: 0; overflow: hidden; opacity: 0;
+    padding: 0 16px 0 16px; font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; 
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+@media (max-width: 767px) {
+    .pc-zhuxiang-container { display: none !important; }
+    .card.revealed .opt-block { cursor: pointer; }
+    .card.revealed .opt-block.active .opt-mobile-analysis { max-height: 800px; opacity: 1; padding: 0 16px 14px 16px; }
+    .card.revealed .opt-block.active .opt-main { padding: 10px 16px 4px 16px; gap: 8px; }
+    .card.revealed .opt-block.active .opt-main .zx-letter { font-size: 13px; color: var(--ink-faint); margin-top: 0;}
+    .card.revealed .opt-block.active .opt-main .zx-text { font-size: 13px; color: var(--ink-faint); line-height: 1.5; font-weight: normal; }
+    .card.revealed .opt-block.active.correct-opt .opt-main .zx-letter,
+    .card.revealed .opt-block.active.correct-opt .opt-main .zx-text { color: var(--success); opacity: 0.8; }
+}
+@media (min-width: 768px) {
+    .opt-mobile-analysis { display: none !important; }
+    .pc-zhuxiang-container { display: block; }
+}
+
+.divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 12px; color: var(--ink-faint); flex-shrink: 0;}
+.divider::before, .divider::after { content: ""; height: 1px; background: var(--border); flex: 1; }
+.divider span { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+
+/* card bottom area */
+.unrevealed-only { margin-top: auto; padding-top: 20px; flex-shrink: 0; display: flex; gap: 10px; align-items: center; width: 100%; }
+.reveal-btn { flex: 1; background: var(--surface-2); color: var(--ink); border: none; border-radius: 12px; padding: 15px; font-size: 15px; font-weight: 600; transition: .15s; cursor: pointer; }
+.reveal-btn:active { background: var(--border); }
+.undo-btn { width: 50px; height: 50px; border-radius: 12px; background: var(--surface-2); border: none; font-size: 15.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: .15s; flex-shrink: 0; color: var(--ink-soft); }
+.undo-btn:active { background: var(--border); }
+.undo-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+.cfoot { display: flex; align-items: center; gap: 14px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); flex-shrink: 0;}
+.seen { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-faint); }
+.memtog { margin-left: auto; background: none; border: 1px solid var(--border); border-radius: 8px; padding: 5px 11px; font-size: 12px; color: var(--ink-soft); transition: .15s; display: inline-flex; align-items: center; cursor: pointer;}
+.memtog.on { color: var(--gold); border-color: var(--gold); }
+.analysis { font-size: 14.5px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; color: var(--ink-soft); margin-top: 4px; user-select: text;}
+.swipe-hints { display: none; justify-content: space-between; align-items: center; padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+.card.revealed .swipe-hints { display: flex; }
+.action-btn { background: none; border: none; font-size: 15px; font-weight: bold; padding: 8px 12px; margin: -4px -8px; cursor: pointer; transition: 0.15s; }
+.action-btn:active { opacity: 0.5; }
+.pc-hint { display: none; font-size:12px; color:var(--ink-faint); font-weight:normal; font-family:var(--font-mono); }
+
+/* analysis panel slide-out */
+.pc-back { display: none !important; }
+.mobile-back { display: none; flex-shrink: 0; padding-bottom: 20px;}
+.card.revealed .unrevealed-only { display: none; }
+.revealed-only { display: none; }
+.card.revealed .revealed-only { display: block; animation: fadeIn 0.3s ease; }
+
+/* 解析界面专用样式 */
+.analysis-section { margin-bottom: 24px; }
+.analysis-section:last-child { margin-bottom: 0; }
+.sec-title { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 650; margin-bottom: 12px; }
+.sec-title svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.kd-main-title { font-size: 15px; font-weight: 650; color: var(--ink); margin-bottom: 10px; line-height: 1.5; }
+.kd-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+.kd-tag { background: #E8F0FE; color: #1A73E8; padding: 4px 12px; border-radius: 12px; font-size: 12.5px; font-weight: 500; }
+[data-theme="dark"] .kd-tag { background: rgba(26,115,232,0.2); color: #8AB4F8; }
+
+.jj-desc { font-size: 14.5px; color: var(--ink-soft); margin-bottom: 12px; line-height: 1.6; }
+.jj-card { background: #FFF9EB; border: 1px solid #FDE4A9; border-radius: 8px; padding: 14px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
+.jj-num { background: #F6AD3C; color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; margin-top: 1px;}
+.jj-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; }
+.jj-text strong { color: var(--ink); font-weight: 650; }
+[data-theme="dark"] .jj-card { background: #2A2518; border-color: #4A3C1F; }
+[data-theme="dark"] .jj-num { background: #C58A2E; color: #111; }
+
+.zx-block { background: var(--surface); border: 1px solid var(--surface-2); padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 12px; position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+.zx-block::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+.zx-block.wrong::before { background: #E57373; }
+.zx-block.correct::before { background: #66BB6A; }
+.zx-letter { font-size: 17px; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; margin-top: -2px;}
+.zx-block.wrong .zx-letter { color: #D32F2F; }
+.zx-block.correct .zx-letter { color: #2E7D32; }
+.zx-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; }
+.zx-text strong { color: var(--ink); font-weight: 650; }
+[data-theme="dark"] .zx-block.wrong::before { background: #C62828; }
+[data-theme="dark"] .zx-block.correct::before { background: #2E7D32; }
+[data-theme="dark"] .zx-block.wrong .zx-letter { color: #EF5350; }
+[data-theme="dark"] .zx-block.correct .zx-letter { color: #81C784; }
+
+.gl-header { display: flex; gap: 10px; align-items: flex-start; margin: 18px 0 10px 0; }
+.gl-header:first-child { margin-top: 0; }
+.gl-bar { width: 4px; height: 18px; background: #1A73E8; border-radius: 2px; flex-shrink: 0; margin-top: 2px;}
+.gl-title { font-size: 15px; font-weight: 650; color: var(--ink); line-height: 1.5; }
+.gl-bullet { display: flex; gap: 10px; margin-bottom: 8px; padding-left: 14px; align-items: flex-start;}
+.gl-circle { width: 5px; height: 5px; border: 1px solid var(--ink-faint); border-radius: 50%; flex-shrink: 0; margin-top: 8px; }
+.gl-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; word-break: break-word; }
+.gl-text strong { color: var(--ink); font-weight: 650; }
+.gl-text-norm { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 8px; word-break: break-word; }
+[data-theme="dark"] .gl-bar { background: #8AB4F8; }
+
+.card.revealed .mobile-back { display: block; animation: drawFromDeckMobile 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes drawFromDeckMobile { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (min-width: 768px) {
+    .pc-hint { display: inline; }
+    .mobile-back { display: none !important; }
+    .pc-back { 
+        display: flex !important; flex-direction: column; position: absolute; top: 0; width: 100%; height: 100%; 
+        margin-left: 20px; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+        left: 0; z-index: -1; opacity: 0; transform: scale(0.95) translateY(10px); pointer-events: none; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .card.revealed .pc-back { left: 100%; opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    body.is-revealed #card-container { transform: translateX(-250px); }
+}
+@keyframes fadeIn { from{ opacity:0; transform:translateY(5px) } to{ opacity:1; transform:translateY(0) } }
+
+/* summary & manage */
+.summary{text-align:center; padding:50px 0}
+.summary .big{font-size:46px; margin:0 0 6px; color:var(--success)}
+.summary h2{font-size:22px; margin:0 0 6px}
+.summary p{color:var(--ink-soft); font-size:14px; margin:0 0 26px}
+.stat-row{display:flex; justify-content:center; gap:26px; margin:24px 0 30px; flex-wrap:wrap}
+.stat{text-align:center}
+.stat .n{font-family:var(--font-mono); font-size:30px; font-weight:600}
+.stat .l{font-size:12px; color:var(--ink-faint)}
+.mg-head{display:flex; align-items:center; gap:10px; margin:26px 0 18px; flex-wrap:wrap}
+.mg-head h2{font-size:20px; margin:0; flex:1}
+.add{background:var(--primary); color:#fff; border:none; border-radius:9px; padding:8px 16px; font-weight:600; font-size:13.5px; cursor:pointer;}
+[data-theme="dark"] .add{color:#0c130f}
+.mg-count{font-family:var(--font-mono); font-size:12px; color:var(--ink-faint); width:100%}
+.qrow{background:var(--surface); border:1px solid var(--border); border-radius:11px; padding:12px 14px; margin-bottom:9px; display:flex; align-items:flex-start; gap:11px}
+.qrow .qbadge{margin-top:2px}
+.qrow .qtext{flex:1; min-width:0}
+.qrow .qstem{font-size:14px; line-height:1.5; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
+.qrow .qmeta{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); margin-top:3px}
+.qact{display:flex; gap:4px; flex:none}
+.tiny{background:none; border:1px solid var(--border); border-radius:7px; padding:4px 9px; font-size:12px; color:var(--ink-soft); cursor:pointer}
+.tiny:hover{border-color:var(--ink-faint); color:var(--ink)}
+.tiny.del:hover{color:var(--again); border-color:var(--again)}
+.modal{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-start; justify-content:center; padding:30px 16px; z-index:100; overflow-y:auto}
+.sheet{background:var(--surface); border-radius:16px; width:100%; max-width:620px; padding:22px; box-shadow:var(--shadow); margin:auto 0}
+.sheet h3{margin:0 0 16px; font-size:17px}
+.field{margin-bottom:14px}
+.field label{display:block; font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px}
+.field input[type=text],.field input[type=datetime-local],.field textarea{width:100%; background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:10px 12px; font-family:inherit; font-size:14px; color:var(--ink); resize:vertical; line-height:1.6}
+.field textarea:focus,.field input:focus{outline:none; border-color:var(--primary)}
+.cbline{display:flex; align-items:center; gap:9px; font-size:14px; color:var(--ink-soft)}
+.cbline input{width:18px; height:18px; accent-color:var(--gold)}
+.sheet-foot{display:flex; gap:10px; justify-content:flex-end; margin-top:8px}
+.help{background:var(--surface-2); border-radius:9px; padding:11px 13px; font-family:var(--font-mono); font-size:11.5px; line-height:1.85; color:var(--ink-soft); white-space:pre-wrap; margin-bottom:14px}
+.notice{font-size:14.5px; line-height:1.65; color:var(--ink); margin-bottom:18px; white-space:pre-wrap}
+.danger-btn{background:var(--again); color:#fff; border:none; border-radius:9px; padding:8px 16px; font-weight:600; font-size:13.5px; cursor:pointer}
+[data-theme="dark"] .danger-btn{color:#1a0f0e}
+
+/* ================= 新增：首页题型 / 章节 ================= */
+.sec-head{ display:flex; align-items:center; gap:10px; margin:24px 0 12px; }
+.sec-head>span{ font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; }
+.scope-all{ margin-left:auto; background:none; border:1px solid var(--border); border-radius:20px; padding:4px 13px; font-size:12px; color:var(--ink-soft); transition:.15s; }
+.scope-all.on{ border-color:var(--primary); color:var(--primary); background:var(--primary-soft); }
+.scope-all:hover{ border-color:var(--primary); color:var(--primary); }
+
+.type-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(98px,1fr)); gap:10px; }
+.type-card{ display:flex; flex-direction:column; gap:3px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 13px; transition:transform .15s, border-color .15s, background-color .15s; text-align:left; }
+.type-card .tc-name{ font-weight:650; font-size:14.5px; }
+.type-card .tc-sub{ font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); }
+.type-card.active{ border-color:var(--primary); background:var(--primary-soft); }
+.type-card.active .tc-name, .type-card.active .tc-sub{ color:var(--primary); }
+.type-card.soon{ opacity:.6; }
+.type-card.soon .tc-name{ color:var(--ink-soft); }
+.type-card:hover{ transform:translateY(-1px); border-color:var(--ink-faint); }
+.type-card.active:hover{ border-color:var(--primary); }
+
+.chap-list{ display:flex; flex-direction:column; gap:7px; }
+.chap-row{ display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:11px 14px; transition:transform .15s, border-color .15s, background-color .15s; text-align:left; width:100%; }
+.chap-row:hover{ border-color:var(--primary); transform:translateX(2px); }
+.chap-row.active{ border-color:var(--primary); background:var(--primary-soft); }
+.chap-idx{ font-family:var(--font-mono); font-size:13px; font-weight:600; color:var(--ink-faint); flex:none; width:22px; }
+.chap-row.active .chap-idx{ color:var(--primary); }
+.chap-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+.chap-name{ font-size:14.5px; font-weight:550; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chap-bar{ height:4px; border-radius:2px; background:var(--surface-2); overflow:hidden; }
+.chap-fill{ display:block; height:100%; background:var(--primary); border-radius:2px; transition:width .5s ease; }
+.chap-meta{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint); flex:none; }
+.chap-row.active .chap-meta{ color:var(--primary); }
+
+/* ================= 新增：关联知识点子项排版 ================= */
+.gl-sub{ display:flex; gap:9px; align-items:flex-start; margin:10px 0 4px; }
+.gl-sub-num{ flex:none; width:19px; height:19px; border-radius:50%; background:#1A73E8; color:#fff; font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:2px; }
+[data-theme="dark"] .gl-sub-num{ background:#4d7fd6; color:#0b1220; }
+.gl-sub .gl-text{ font-weight:650; color:var(--ink); }
+.gl-detail{ font-size:13.5px; color:var(--ink-soft); line-height:1.66; margin:2px 0 9px 28px; padding-left:11px; border-left:2px solid var(--border); word-break:break-word; }
+
+/* ================= 新增：电脑端卡片拖拽小白条 + 位置记忆 ================= */
+#card-stage{ position:relative; width:100%; max-width:480px; height:100%; display:flex; }
+#card-stage>#card-container{ max-width:none; }
+.card-handle{ display:none; }
+body.dragging-card{ cursor:grabbing; user-select:none; -webkit-user-select:none; }
+body.dragging-card #card-stage{ transition:none !important; }
+@media (min-width:768px){
+  #card-stage{ transition: transform .28s cubic-bezier(.2,.8,.2,1); will-change: transform; }
+  .card-handle{ display:block; position:absolute; top:9px; left:50%; transform:translateX(-50%); width:46px; height:6px; border-radius:3px; background:rgba(255,255,255,.92); box-shadow:0 1px 5px rgba(0,0,0,.18); border:1px solid rgba(0,0,0,.06); cursor:grab; z-index:40; transition:background .15s, width .15s; }
+  .card-handle:hover{ width:62px; background:#fff; }
+  [data-theme="dark"] .card-handle{ background:rgba(255,255,255,.5); border-color:rgba(255,255,255,.12); }
+  [data-theme="dark"] .card-handle:hover{ background:rgba(255,255,255,.78); }
+  body.dragging-card .card-handle{ cursor:grabbing; width:62px; }
+}
+
+/* ================= 新增：动画 / 流畅度优化 ================= */
+.card-scroll-area{ contain: layout paint; }
+#card-container{ will-change: transform; }
+.opt-block{ will-change: transform; }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.1s !important; scroll-behavior:auto !important; }
+}
 </style>
 </head>
-<body>
-<div class="app">
-
-<div class="header">
-  <h1>习概闪卡 · 32张</h1>
-  <div style="display:flex;gap:10px;align-items:center">
-    <span class="counter" id="counterEl">1 / 32</span>
-    <button class="btn" style="flex:0;padding:5px 12px;font-size:12px;background:#E2E8F0;color:#4A5568;border-radius:8px" onclick="toggleStats()">统计</button>
+<body class="">
+<header>
+  <div class="hbar">
+    <span class="brand">国际法 <span class="dot">·</span> 滑动复习</span>
+    <span class="hsp"></span>
+    <button class="ico sq" id="themeBtn" title="切换深浅色">☾</button>
+    <button class="ico" id="navManage">题库</button>
   </div>
-</div>
-
-<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-
-<div class="topics" id="topicChips"></div>
-
-<!-- Main Card View -->
-<div id="mainView">
-  <div class="card-area" id="cardArea" onclick="flipCard()">
-    <div class="card" id="cardEl">
-      <div class="card-meta">
-        <span class="type-badge" id="typeBadge"></span>
-        <span class="flip-hint" id="flipHint">点击翻转</span>
-      </div>
-      <div class="card-body" id="cardBody"></div>
-      <div class="hint" id="hintEl"></div>
-    </div>
-    <div class="sticker" id="stickerEl"></div>
-  </div>
-
-  <div class="btn-row" id="btnRow">
-    <button class="btn btn-nav" onclick="navigate(-1)">←</button>
-    <button class="btn btn-flip" id="mainBtn" onclick="handleMainBtn()">翻转查看答案 →</button>
-    <button class="btn btn-nav" onclick="navigate(1)">→</button>
-  </div>
-
-  <div class="marked-status" id="markedStatus"></div>
-</div>
-
-<!-- Stats View -->
-<div id="statsView" style="display:none">
-  <div class="stats">
-    <h2>学习进度统计</h2>
-    <div class="stat-grid">
-      <div class="stat-box" style="background:#EBF8FF">
-        <div class="stat-val" style="color:#2B6CB0" id="statTotal">0</div>
-        <div class="stat-lbl">已翻看</div>
-      </div>
-      <div class="stat-box" style="background:#F0FFF4">
-        <div class="stat-val" style="color:#276749" id="statKnow">0</div>
-        <div class="stat-lbl">✅ 已掌握</div>
-      </div>
-      <div class="stat-box" style="background:#FFFFF0">
-        <div class="stat-val" style="color:#975A16" id="statReview">0</div>
-        <div class="stat-lbl">🔄 需复习</div>
-      </div>
-    </div>
-    <div style="font-size:13px;color:#718096;margin-bottom:14px" id="statsDetail"></div>
-    <button class="reset-btn" onclick="resetAll()">🔁 重置全部进度</button>
-  </div>
-</div>
-
-</div>
+</header>
+<main id="app"></main>
 
 <script>
-const TYPE_CONFIG = {
-  "列举": { color: "#2B6CB0", bg: "#BEE3F8", border: "#3182CE" },
-  "填空": { color: "#6B21A8", bg: "#E9D8FD", border: "#805AD5" },
-  "框架": { color: "#276749", bg: "#C6F6D5", border: "#38A169" },
-  "解释": { color: "#92400E", bg: "#FEFCBF", border: "#D69E2E" },
-  "匹配": { color: "#9B2C2C", bg: "#FED7D7", border: "#E53E3E" },
-};
+"use strict";
 
-const TOPICS = [
-  { key: "全部", label: "全部" },
-  { key: "中国式现代化", label: "①现代化" },
-  { key: "新型国际关系", label: "②国际关系" },
-  { key: "新发展理念", label: "③发展理念" },
-  { key: "两个结合", label: "④两个结合" },
-  { key: "中国特色社会主义", label: "⑤中国特色" },
-  { key: "百年未有之大变局", label: "⑥大变局" },
-  { key: "长期执政党建", label: "⑦执政党建" },
-  { key: "习近平思想内涵", label: "⑧思想内涵" },
-  { key: "两个确立", label: "⑨两个确立" },
-  { key: "法治中国", label: "⑩法治中国" },
-];
+/* ---------- STATIC QUESTION BANK ---------- */
+/* 题库已与本地进度完全剥离。导出 HTML 时会自动替换。 */
+const QUESTION_BANK = /*BANK_START*/[
+  {
+    "id": "xz-1-1",
+    "type": "选择题",
+    "chapterOrder": 1,
+    "chapter": "国际法的性质与发展",
+    "question": "以下关于国际法效力根据的表述中正确的是",
+    "options": "A.国际法效力的根据是社会连带关系的事实，并由统治阶级把这种连带关系的事实制定成条约或法律的形式\nB.国际法效力的根据是现实的国家意志\nC.国际法效力的根据是体现各国的协调意志的协议\nD.国际法效力的根据是自然人和国家意志的合一",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "国际法效力的根据（意志协调说）",
+    "jiangjie": "国际法效力的根据探讨的问题是：国际法没有像国内法那样的政府、警察和法院来强制执行，那它凭什么对各个主权国家具有法律约束力？\n国际社会虽没有超国家政府，但国际法能生效，既不靠单一国家强加（国家主权自限说），也不靠抽象的人类理性或普遍正义（纯自然法），而是主权国家通过谈判妥协达成的共同明示/默示的协议。这种各方达成一致的“协调意志”，正是国际法具有法律约束力的真正根基。",
+    "zhuxiang": "- **A ✗** （社会连带说）：前半句的“社会连带关系事实”属于社会连带学派的观点，但该学派排斥国家意志；后半句的“统治阶级制定”属于国内法中的阶级意志论。该选项将两者缝合，且完全忽略了国际法是主权国家间平等的协议这一本质。\n- **B ✗** （国家意志说）：这是早期实证主义中国家主权自限说的观点。它认为国际法只依赖于单一国家的自我限制。但这种观点会导致一个致命推论：既然是单方自愿限制，国家就可以随时单方解除限制。这就从根本上否定了国际法的客观约束力。\n- **C ✓** （意志协调说）：完美契合现代国际法理论。国际法没有统一的立法机关，它的效力只能来源于平等的主权国家在相互让步、达成共识的基础上，所形成的“协调意志的协议”（即国际条约和国际习惯）。\n- **D ✗** （主体混乱）：国际法主要调整的是国家与国家之间的关系，而不是“自然人（普通个人）”和国家意志的合一。这个选项属于凭空捏造的干扰项。\n\n---",
+    "guanlian": "国际法学派的其他观点：社会连带学派（强调社会事实）、实证主义学派（强调国家意志）。\n\n(1)社会连带学派：国际法的效力来源于客观存在的“社会事实”（即各国的互相依赖），而不是国家的意志。\n具体讲解：A国需要B国的粮食，B国需要A国的芯片，各国在经济、贸易、环境、安全上紧密相连。这种“互相依赖、一荣俱荣一损俱损”的状态，是一个客观存在的社会事实。为了维持这种连带关系，不让社会崩溃，自然而然就产生了一套行为规范。\n(2)实证主义学派：国际法的效力来源于现实的“国家意志”。没有国家同意，就没有国际法。\n具体讲解：实证主义学派非常务实。他们认为，国际法不能靠学者凭空推导，也不能靠所谓的“连带关系”来约束强国。国际社会的唯一主角是拥有绝对主权的“国家”。既然国家是至高无上的，那么谁能管得住国家？只有国家自己能管得住自己。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-1-2",
+    "type": "选择题",
+    "chapterOrder": 1,
+    "chapter": "国际法的性质与发展",
+    "question": "下列关于国际法的特征的说法错误的有",
+    "options": "A.国际法是通过特定的权威机关强制各国执行国际法的\nB.国际法的制定者主要是国家\nC.国际法是有拘束力的，对国家或其他国际人格者是有强制力的\nD.国际法的主体主要是国家",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "国际法的特征",
+    "jiangjie": "国际法与国内法在特征上最大的区别在于强制力的依据和方式特殊。\n我们可以打个比方：国内法就像是一个有着明确校规、校长和教导处的学校。如果学生违规，教导处（特定的权威机关）会直接予以惩罚。而在国际社会这个“大群”里，所有主权国家都是平等的成年人，不存在一个像“世界政府”这样超越国家之上的特定统一权威机构来强制执行纪律。\n那么，国际法凭什么叫“法”？因为它依然是有法律拘束力和强制力的，只不过它的强制力不是自上而下的压迫，而是通过国家本身单独（如正当防卫、反制措施）或集体的行动（如联合国安理会授权的制裁和维和行动）来实现的。",
+    "zhuxiang": "- **A ✗** （符合题意）：国际社会没有超越国家之上的强制机构，也没有统一的行政机关或司法体系来强制执行国际法。国际法的强制力是通过国家单独或集体的行动来实现的，而不是通过“特定的权威机关”强制执行。该选项生搬硬套了国内法的实施模式，完全忽略了国际社会的平等特征。\n- **B ✓** （不符题意）：国际法没有统一的立法机关，其规则主要是依靠各国在实践中形成的国际习惯和彼此之间缔结的条约（协议）来制定的。因此，国家是国际法的主要制定者。\n- **C ✓** （不符题意）：尽管国际法没有超越国家的强制机构，但它绝不是一纸空文，而是具有拘束力的。国际法对国家或其他国际人格者同样具有强制力，只是这种强制力的实现方式比较特殊（依赖于国家的单独或集体行动）。\n- **D ✓** （不符题意）：主权国家是国际社会首要和主要的单元，国家与国家之间的关系是国际法律关系的主要部分，因此国家是国际法的基本主体，也是主要主体。\n\n---",
+    "guanlian": "国际法的制定者与主体\n\n(1)国际法的主体：国际法主要调整的是国家与国家之间的关系，因此主权国家是国际社会首要和主要的单元，也是国际法的基本主体。虽然现代国际法也承认国际组织等具有一定的主体资格，但国家仍是最核心的主体。\n(2)国际法的制定方式：既然国际社会没有统一的“世界人大”或立法机关，国际法是怎么来的呢？它是主权国家自己通过平等谈判达成的条约，或者在长期反复实践中形成的国际习惯转变而来的。可以说，国家既是国际法游戏规则的遵守者，也是这套规则的制定者。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-1-3",
+    "type": "选择题",
+    "chapterOrder": 1,
+    "chapter": "国际法的性质与发展",
+    "question": "下列关于国际法的效力的根据的说法正确的有",
+    "options": "A.势力均衡\nB.国际社会的法律良知\nC.国家的协议\nD.国家对外政策",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "国际法效力的根据（意志协调说）",
+    "jiangjie": "国际法效力的根据探讨的是：国际社会没有“世界政府”或“世界警察”来强制发号施令，那国际法凭什么对各个主权国家产生法律约束力？\n我国国际法学者普遍认为，国际法效力的根据是“各国意志的协调”。用通俗的话说，主权国家之间是平等的，谁也管不了谁。国际法之所以能管得住大家，是因为它是各国在平等的地位上，通过相互商量、让步、妥协最终达成的“协议”（包括明示的条约和默示的习惯）。这就好比几个互相独立的大老板一起合伙做生意，大家共同拍板定下了一份合同（协议），既然是自己同意并签字画押的，自然就对各方产生了约束力。",
+    "zhuxiang": "- **A ✗** （政治概念）：势力均衡（比如几个大国之间相互制约、力量平衡）属于国际政治和国际关系领域中的概念，它是国际法产生和运作的某种现实背景，但绝对不是国际法具有法律约束力的理论“根据”。\n- **B ✗** （社会连带主义法学派）：这是社会连带主义法学派的主张。该派认为约束力来源于“法律良知”，这不仅过于抽象，而且否认了主权国家在国际法制定中的主体意志，不属于正确选项。\n- **C ✓** （意志协调说）：符合我国学界主流认可的“意志协调说”。平等的国家之间通过协调意志所达成的“协议”（体现为条约或国际习惯），正是国际法对国家具有约束力的真正法理基础。\n- **D ✗** （政策定向说）：这是“政策定向说”的观点。将国际法的效力等同于国家的对外政策，会导致“合则用，不合则弃”的霸权逻辑，从根本上动摇了国际法的法律权威。\n\n---",
+    "guanlian": "国际法效力根据的其他学派观点（社会连带主义法学派、政策定向说）。\n关于国际法凭什么有效，西方学者们提出了很多不同的学派观点，但这些均不是我国学界所采纳的正确观点：\n(1)社会连带主义法学派（强调法律良知）：认为国际法的唯一根源是“各国的法律良知”，依靠这种社会连带关系产生的道义规则来约束大家。\n具体讲解：这种观点认为，现在全球化了，各国经济和生活紧密相连（一荣俱荣），为了不让这种连带关系崩溃，各国心里都会产生一种必须守规矩的“良知”。但这种说法过于唯心，把法律建立在虚无缥缈的“良知”上，忽略了国家的现实利益和主权意志。\n(2)政策定向说（强调对外政策）：把国际法看作动态的政治决策过程，认为国际法就是国家对外政策的表现，效力取决于国家的对外政策。\n具体讲解：这种观点非常“现实主义”，认为法律不过是政治的工具。但如果国际法的效力只跟着国家的“对外政策”走，国家政策一变就可以不守法，这就完全否定了国际法作为法律应有的稳定性。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-1-4",
+    "type": "选择题",
+    "chapterOrder": 1,
+    "chapter": "国际法的性质与发展",
+    "question": "国际法产生的标志是",
+    "options": "A.文艺复兴运动的兴起\nB.威斯特伐利亚和会及《威斯特伐利亚和约》\nC.俄国十月社会主义革命\nD.第一次世界大战的结束及国际联盟的建立",
+    "answer": "答案：B",
+    "analysis": "",
+    "kaodian": "近代国际法的产生标志",
+    "jiangjie": "这道题考察的是国际法历史上最具决定性意义的起点——1648年的《威斯特伐利亚和约》。\n你可以把这想象成国际社会第一次正式的“分家立户”。在这之前，欧洲大地上各个诸侯国和领地大多受制于超越国家的宗教神权（教皇）或封建皇权（神圣罗马帝国），大家不是完全独立平等的。而威斯特伐利亚和会就像是一次全员大会，最后签订的和约第一次在法律上确认了各个国家都是独立、平等的“成年人”。它确立了“国家主权”和“主权平等”的原则，大家都不受外来势力的干涉。既然大家都是平等的独立个体，为了相处就必须有一套彼此都认同的规则，这套规则就是近代国际法。因此，《威斯特伐利亚和约》被公认为近代国际法形成的标志。",
+    "zhuxiang": "- **A ✗** （不符史实）：文艺复兴运动是一场思想文化解放运动，虽然它促进了资产阶级思想的发展并挑战了封建神权，但它并没有在国家间缔结确立“主权平等”原则的法律文件，因此不是国际法产生的标志。\n- **B ✓** （近代国际法标志）：1648年的《威斯特伐利亚和约》具有里程碑意义，它开创了一个由主权独立与平等原则主导的新国际关系时代，正式标志着近代国际法的形成。\n- **C ✗** （混淆概念）：俄国十月社会主义革命是一部分学者眼中“现代国际法”的发端标志之一，而不是最初“近代国际法”产生的标志。\n- **D ✗** （混淆概念）：第一次世界大战的结束及国际联盟的建立，同样是国际法学界关于“现代国际法”起始时间的观点之一，不能作为整个国际法产生的基础标志。\n\n---",
+    "guanlian": "现代国际法的起点争议\n\n国际法的发展不是停滞的，而是分阶段的（如古代、近代、现代）。近代国际法始于1648年，而“现代国际法”的起点，学界主要有三种不同的观点：\n(1)以1917年俄国十月革命胜利或第一次世界大战结束为标志；\n(2)以国际联盟的建立为标志；\n(3)从第二次世界大战结束或联合国建立时才真正开始。\n具体讲解：旧的规则体系（近代国际法）在两次世界大战中被打破，人类为了避免战争、维护人权和全球治理，重新建立了新的规则和组织（如国联、联合国）。选项C和D其实都是关于“现代”国际法起点的不同学说，而不是整个国际法（近代国际法体系）诞生的标志。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-1-5",
+    "type": "选择题",
+    "chapterOrder": 1,
+    "chapter": "国际法的性质与发展",
+    "question": "被誉为\"国际法之父\"的是",
+    "options": "A.萨维尼\nB.格劳秀斯\nC.巴托鲁斯\nD.胡伯",
+    "answer": "答案：B",
+    "analysis": "",
+    "kaodian": "国际法体系的奠基人（格劳秀斯）",
+    "jiangjie": "这道题考察的是国际法历史发展中的标志性人物。荷兰法学家胡果·格劳秀斯首次系统地使用“万民法”来阐述和规范调整国家之间关系的法律，因此被世人冠以“国际法之父”的尊称。\n通俗比喻：就像牛顿为经典力学搭建了基本框架一样，在几百年前欧洲战乱频发的时代，格劳秀斯系统性地整理并确立了主权国家之间打交道的基本规矩（例如《战争与和平法》），把“国际法”变成了一门独立的学问。因为他这“开天辟地”的贡献，法律界尊称他为这门学科的“祖师爷”或“国际法之父”。",
+    "zhuxiang": "- **A ✗** （萨维尼）：萨维尼是德国历史法学派的创始人。他在国际私法领域提出了著名的“法律关系本座说”，是国际私法学界的奠基人之一，但他不是“国际公法”之父。\n- **B ✓** （格劳秀斯）：荷兰人胡果·格劳秀斯最早系统阐述了调整国家关系的法律，被公认为“国际法之父”。\n- **C ✗** （巴托鲁斯）：巴托鲁斯是14世纪意大利法学家，他在国际私法领域提出了经典的“法则区别说”，被称为国际私法学的先驱，而非国际公法之父。\n- **D ✗** （胡伯）：胡伯是荷兰法学家，他的主要贡献在于提出了国际私法领域的“国际礼让说”三原则，同样不属于国际公法领域的“国际法之父”。\n\n---",
+    "guanlian": "国际法名称的演变与提出者（边沁）\n初学者很容易把“国际法之父”和“提出国际法名称的人”搞混。\n(1)早期称谓：古代罗马法中有“市民法”和“万民法”的区分，格劳秀斯最初是借用“万民法”来指代国家间的法律。\n(2)正式定名：直到1789年，英国哲学家、法学家杰里米·边沁才在著作中首次正式改用“国际法”这个称谓，并被普遍接受沿用至今。\n通俗比喻：简单来说，格劳秀斯是孕育这门学科的“生父”（打下了理论地基，确立了法则），而边沁则是给这门学科“正式起名字、上户口”的人。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-2-1",
+    "type": "选择题",
+    "chapterOrder": 2,
+    "chapter": "国际法的渊源",
+    "question": "在国际法历史上，最古老的国际法渊源是",
+    "options": "A.国际习惯\nB.国际条约\nC.一般法律原则\nD.国际法院判例",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "国际习惯的地位与性质",
+    "jiangjie": "国际法的渊源指的是国际法作为有效的法律规则存在和表现的方式。在各种表现形式中，国际习惯是国际法最古老、最原始的渊源。\n通俗地讲，在古代和中世纪，国家之间还没有建立起成熟的开会谈判、签署书面文件的机制。那个时候的国际规则是怎么来的呢？主要是靠各国在长期的交往中“不约而同”地采取某种一致的做法。比如“两国交战不斩来使”，或者“谁先占领无主地谁就拥有主权”。当这种长期的、重复的做法（物质要素：客观实践）被各国普遍认为具有法律约束力（心理要素：法律确信）时，就形成了不成文的“国际习惯”。因为它完全是在漫长的历史岁月中自然演化和沉淀下来的，所以资历最老。",
+    "zhuxiang": "- **A ✓** （国际习惯）：国际习惯是不成文的，它是各个国家在长期的历史交往中自发形成并被接受为法律的规则，因此它是国际法历史上最古老、最原始的渊源。\n- **B ✗** （国际条约）：国际条约是国家之间明确订立的书面协议。虽然它是现代国际法“最主要”的渊源，但这种白纸黑字缔结契约的形式在出现时间上晚于自发形成的国际习惯，并非最古老。\n- **C ✗** （一般法律原则）：一般法律原则在国际司法实践中处于补充和辅助的地位，主要是为了填补条约和习惯缺失时的空白，很少被单独适用，更谈不上是最古老的渊源。\n- **D ✗** （国际法院判例）：国际法院判例在地位上甚至不属于国际法的主要渊源，它仅仅是用于确定国际法规则的“辅助手段”或“补助资料”，因此该选项性质即不符，更不是最古老的渊源。\n\n---",
+    "guanlian": "国际法的其他渊源及其地位（条约、一般法律原则、司法判例）\n\n(1)国际条约：是现代国际法最主要的法律渊源，也是当代国际法规则的主要表现形式。\n具体讲解：条约就像是国家之间签订的“书面合同”。随着时代发展，国家之间的交往越来越复杂，光靠“习惯”那种模糊且缓慢的形成方式已经不够用了，大家更倾向于坐下来白纸黑字地把权利义务写清楚。因此，条约虽然不是最古老的，但却是现在最主要、最常用的。\n(2)一般法律原则：如“善意”、“禁止反言”等，作用是填补法律空白，处于补充和辅助地位。\n具体讲解：当法官在审理国际案件时，如果发现既没有相关的“条约”可以适用，也找不到相关的“国际习惯”，为了避免“无法可依”的尴尬，就可以借用各国国内法体系中都共有的一些基本常识和原则来断案。\n(3)司法判例（和公法学家的学说）：它们不是国际法的主要渊源，而是确定法律原则的补助资料（辅助手段）。\n具体讲解：国际法院的判决或者顶级法学家的著作，只能用来帮助证明或确认某项国际法规则是否存在，它们本身并不能直接凭空创造出国际法。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-2-2",
+    "type": "选择题",
+    "chapterOrder": 2,
+    "chapter": "国际法的渊源",
+    "question": "国际法是（ ）的",
+    "options": "A.国际组织颁布\nB.联合国大会制定\nC.国际交往的实践中形成\nD.国际法学者编著",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "国际法的形成方式（国际法的性质）",
+    "jiangjie": "国际法的形成机制与国内法截然不同。在国内，法律通常是由统一的、凌驾于所有人之上国家立法机关（比如我国的全国人大）自上而下制定并强制颁布的。但在国际社会中，各个主权国家都是平等的，并没有一个超越于各个国家之上的“世界政府”或“全球议会”来统一立法。\n那么国际法是怎么来的呢？它主要依靠各个国家在长期的、反复的国际交往实践中，由于共同的需要，通过彼此谈判达成协议（即“国际条约”），或者在长期实践中自发形成并被广泛接受的普遍行为规则（即“国际习惯”）而产生。简单来说，国际法是各个平等的国家在“一起玩”的过程中，共同商量、相互妥协并经过长期实践摸索出来的“游戏规则”。",
+    "zhuxiang": "- **A ✗** （颁布主体错误）：国际社会没有统一的行政或立法机关。国际组织并不是世界政府，它们没有权力像国内立法机关那样直接“颁布”对所有国家都有强制约束力的普遍性国际法。\n- **B ✗** （制定主体错误）：联合国大会是由各成员国组成的代表性机构，但它并非国际社会的“最高立法机构”。联合国大会通过的决议一般只具有建议性质（常常被视为“国际软法”），不能直接等同于制定了具有强制拘束力的国际法。\n- **C ✓** （形成方式正确）：完美契合国际法的性质理论。国际法的形成主要依靠各国在长期反复的国际交往实践中形成的国际习惯，以及彼此之间通过谈判缔结的条约。因此，国际法是在国家的交往实践中逐步形成和发展起来的。\n- **D ✗** （学者学说的地位错误）：权威公法学家的学说仅仅是证明国际法存在的证据和“辅助资料”。学者只能研究、解释或汇编国际法，不能凭空“编著”出具有法律效力的规则。\n\n---",
+    "guanlian": "国际法的渊源及其辅助资料、国际组织的决议\n\n既然国际法是在实践中商量和摸索出来的，那学者写的书、联合国通过的决议算什么呢？\n(1)学者学说属于“辅助资料”：根据《国际法院规约》第38条，权威公法学家的学说仅仅是用来确定法律原则的“辅助资料”（即证明材料）。打个比方，学者写的书就像是针对游戏规则的“攻略”或“深度解读”，它能帮助法官和国家更好地理解规则，但它本身绝对不能创造或改变游戏规则。\n(2)国际组织的决议通常属于“国际软法”：绝大多数国际组织（如联合国大会）的决议并不具有直接的法律强制拘束力，它们更多是建议、宣言或行动指南。虽然它们对形成新的国际法有重要推动作用，但不能直接等同于制定了强制生效的国际法。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-2-3",
+    "type": "选择题",
+    "chapterOrder": 2,
+    "chapter": "国际法的渊源",
+    "question": "国际法渊源指",
+    "options": "A.国际法的表现形式\nB.国际法的发展过程\nC.国际法的历史来源与国际交往基础\nD.国家立法的草案",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "国际法渊源的内涵",
+    "jiangjie": "在日常生活中，“渊源”一词常常被用来指代事物的起源或历史背景。但在国际法（以及整个法理学）的语境下，它的含义非常特定：“国际法的渊源”指的其实是法律规则的“外衣”或“载体”，也就是国际法的具体表现形式。\n简单来说，当两个国家发生争端，法官或仲裁员去寻找法律依据时，他们不能凭空想象，必须去查阅现成的凭证——比如两国之间白纸黑字签了什么“合同”（国际条约），或者国际社会长久以来默认了什么大家都在遵守的“老规矩”（国际习惯）。这些条约、习惯以及一般法律原则等，就是国际法作为有效的法律规则存在和表现的方式，它们构成了国际法的渊源。",
+    "zhuxiang": "- **A ✓** （表现形式）：符合国际法学界和考试大纲对“国际法渊源”的标准定义。从国际法规范表现形式的角度理解国际法的渊源，是受到广泛认同的观点。国际法的渊源就是指国际法作为有效的法律规则存在和表现的方式，是解决争端时能直接引用的法律依据。\n- **B ✗** （发展过程）：国际法的发展过程（如古代社会到近代、再到现代国际法的演变）属于法律的历史沿革，这是一门历史课探讨的内容，它不能作为法官在法庭上直接引用的“法律依据”。\n- **C ✗** （历史来源与基础）：这是对“渊源”一词的日常望文生义。在国际法理学中，历史来源和国际交往基础属于促成法律产生的“实质渊源”（即促使规则形成的动力和土壤），而不是我们通常所指的具有实际法律约束力的“形式渊源”（即法律规则的具体表现形式）。\n- **D ✗** （主体与性质均错）：“国家立法的草案”仅仅是某一个主权国家在自己国内准备立法的草稿，连正式生效的国内法都算不上。而国际法是由平等的主权国家之间通过协议或实践共同制定的，绝不是某一个单一国家的内部立法草案。\n\n---",
+    "guanlian": "形式渊源与实质渊源的区别、国际法渊源的具体类别\n\n(1)形式渊源与实质渊源的区别：法学上通常把渊源分为“形式渊源”和“实质渊源”。\n“形式渊源”就是法律真正穿在身上的“制服”，是具有法律效力的具体存在形式（如条约、习惯等）。我们在法考和国际法教材中探讨的“国际法的渊源”，默认指的就是这种“形式渊源”。\n“实质渊源”则是指促使这些法律形成的背后原因，比如历史背景、政治经济因素、国际交往的需要等。这就好比“为什么要定这条规矩”（实质渊源）与“这条规矩写在了哪里”（形式渊源）的区别。\n(2)国际法渊源的具体类别：根据《国际法院规约》的规定，国际法的主要渊源包括三种：国际条约、国际习惯和一般法律原则。而司法判例、权威公法学家的学说和国际组织的决议等，只是确定法律原则的“辅助资料”，本身不是渊源。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-2-4",
+    "type": "选择题",
+    "chapterOrder": 2,
+    "chapter": "国际法的渊源",
+    "question": "下列哪项不是国际强行法的特征",
+    "options": "A.国际社会普遍接受\nB.公认为不许损抑\nC.条约抵触无效\nD.不得随意更改",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "国际强行法的概念与特征",
+    "jiangjie": "国际强行法，又称强制法或绝对法，可以通俗地理解为国际社会中谁都不能碰的“铁律”或“底线”。\n在普通的国际交往中，国家之间可以通过平等协商，自由签订条约来约定相互的权利和义务（这被称为“任意法”）。但是，国际强行法，是绝对的红线，**任何国家都必须绝对服从和执行**。比如“禁止侵略战争”、“禁止贩卖奴隶”，绝不允许哪两个国家私下签个条约说“我们两国互相可以贩卖奴隶”，这种“越线”的条约是自始作废的。\n\n根据《维也纳条约法公约》第53条的规定，法学上将国际强行法的特征精准归纳为三大类：**普遍性（普遍接受力）、强制性（不许损抑）、优先性（非经具有同等性质的规范不得更改）** 。",
+    "zhuxiang": "- **A ✗** 该项体现了强行法的普遍性。强行法必须是“普遍适用于所有国际法主体”的规范，这意味着它必须被整个国际社会所普遍接受和公认。\n- **B ✗** 该项体现了强行法的强制性。强行法要求国际法主体必须绝对服从，“不能以约定的方式予以损抑”。也就是说，国家间绝对不能通过协议来打折扣或排除它的适用。“损抑”通俗来说就是“通过私下签条约来搞变通、打折扣、甚至开后门”\n- **C ✓** 当一个条约与现行的国际强行法相抵触时，该条约无效。这是强行法对外部条约产生的一种**法律效力或法律后果**，而不是强行法规范本身的内在特征。\n- **D ✗** 体现的是强行法的“优先性”。它带来的后果是：它隔绝了低位阶法律的冲击，普通条约和习惯法只能顺从它，绝无可能撼动或修改它。\n\n---",
+    "guanlian": "国际强行法的保护目标与具体规则\n\n国际强行法存在的终极目标，是为了保护国际社会普遍认可的最核心利益与价值，它涉及的是对人类整体的义务（对一切义务）。\n具体讲解：到底哪些规则有资格成为“铁律”？主要包括三大方面：一是维护人的基本安全（如惩治侵略罪、危害人类罪、战争罪、海盗罪）；二是保护基本人权（如禁止种族隔离、禁止酷刑、禁止奴隶贸易）；三是促进国家基本利益（如主权平等、不干涉内政、禁止使用武力威胁）。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-2-5",
+    "type": "选择题",
+    "chapterOrder": 2,
+    "chapter": "国际法的渊源",
+    "question": "第一个对强行法作出规定的国际法文件是",
+    "options": "A.《联合国宪章》\nB.《国际法原则宣言》\nC.《维也纳条约法公约》\nD.《世界人权宣言》",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "国际强行法的确立与首次规定文件",
+    "jiangjie": "国际强行法就像是国际社会里的“绝对红线”或“铁律”。在国内法里，有些底线是不能通过双方签合同来改变的（比如不能签合同允许别人伤害自己）；在国际法上也是一样。虽然国际法主要是主权国家们商量着办的（即任意法，大家同意就行），但“强行法”是适用于所有国际法主体、不允许任何国家讨价还价、必须绝对服从的底线。\n这个概念最早是由奥地利学者菲德罗斯引入国际法体系的，而**历史上第一次正式在国际法文件中白纸黑字提出并使用“强行法”概念的，正是1969年的《维也纳条约法公约》** 。",
+    "zhuxiang": "- **A ✗** 《联合国宪章》是二战后确立现代国际关系新秩序的根本大法，它确实规定了诸如“禁止武力威胁或使用武力”、“不干涉内政”等国际法基本原则，但该文件在起草时并没有专门使用或规定“强行法”这一具体的法律概念。\n- **B ✗** 1970年的《国际法原则宣言》是对《联合国宪章》中七项基本原则的进一步解释和重申，其作用是强调原则的重要性，但它并不是第一个提出“强行法”概念的文件。\n- **C ✓** 1969年的《维也纳条约法公约》第一次正式使用了强行法概念，从成文法的角度确认了国际社会存在着一种超越普通条约的“最高规则”，这也是国际法发展史上的一个重大里程碑。\n- **D ✗** 《世界人权宣言》是人权领域的伟大文献，其中倡导的很多理念（如禁止奴隶制）后来成为了强行法的核心保护内容，但这份宣言本身并没有从国际法法理的层面去创立或规定“强行法”这一概念体系。\n\n---",
+    "guanlian": "国际强行法的特征与保护的价值\n\n(1)国际强行法的特征：参照《维也纳条约法公约》第53条，可以归纳为普遍性、强制性、优先性。换句话说，全世界所有国家都得遵守（普遍性），谁都不能找借口违反或约定豁免（强制性），而且它的地位比国家间的一般条约要高（优先性），如果国家间签的条约和强行法打架，条约直接作废。\n(2)保护的核心价值：强行法保护的是全人类整体的、最基础的利益。具体表现为三个方面：一是维护人的基本安全（比如全世界联合抓海盗、惩治战争罪和侵略罪）；二是保护基本人权（比如绝对禁止种族隔离、禁止酷刑和买卖人口）；三是促进国家的基本利益（比如国家主权平等、不随便使用武力）。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-3-1",
+    "type": "选择题",
+    "chapterOrder": 3,
+    "chapter": "国际法与国内法的关系",
+    "question": "关于国际法与国内法的关系以及国际法的特点，不正确的选项有哪些？",
+    "options": "A.国际法与国内法同处于一个法律体系中，国内法优于国际法\nB.国际法与国内法同处于一个法律体系中，国际法优于国内法\nC.国际法与国内法分处于两个独立的法律体系，国内法必须执行国际法义务\nD.国际法与国内法分处于两个独立的法律体系，必然不会相互影响",
+    "answer": "答案：CD",
+    "analysis": "",
+    "kaodian": "国际法与国内法的关系（协调论）",
+    "jiangjie": "关于国际法与国内法的关系，我国学者及现代主流观点主要主张“协调论”。\n协调论认为，国际法与国内法是两个不同的、独立的法律体系，它们分别调整不同领域的社会关系（国际法调整国家间的关系，国内法调整一国之内的关系）。\n但是，这两者并不是毫无瓜葛的。打个比方，这就好比“学校的校规”和“班级的班规”，虽然是两套不同的规定，但班级在制定班规时不能违背学校的校规。同理，国家既是国内法的制定者，也是国际法的参与制定者。国家既然在国际上承认并签署了国际法规范，就必须“言而有信”，有义务让自己的国内法符合其所承担的国际法义务，并在国内执行这些义务。国际法和国内法是相互联系、相互协调的。",
+    "zhuxiang": "- **A ✗** 该选项属于“一元论之国内法优先说”。\n- **B ✗** 该选项属于“一元论之国际法优先说”。\n- **C ✗** （机械的二元论）：二元论的核心是“互不隶属”。既然是独立的两个体系，国际法就不能直接对国内法发号施令。所以二元论绝不会认为“国内法本身必须自动执行国际法义务”。C项把两套体系独立（二元论）和国内法必须听国际法的话（一元论/协调论）强行缝合在一起，理论上是不存在的。\n- **D ✗** （割裂的二元论）：历史上的二元论学者也承认两套体系会相互作用（比如国内法可以作为国际法的证据，国际法可以推动国内法的修改）。D项把二元论极端化地割裂为“必然不会相互影响”，属于对二元论本身的恶意曲解/描述错误。\n\n---",
+    "guanlian": "国际法与国内法关系的其他学说（一元论、二元论）\n除了协调论，历史上还出现过另外两种观点：\n(1)一元论（强调同属一个体系）：认为国际法和国内法同属于一个巨大的法律体系。它又分为两派：\n国内法优先说：认为国家主权绝对至上，国际法只不过是国内法中的“对外公法”，国内法比国际法大。\n国际法优先说：认为国际法处于金字塔顶端，国内法的效力全靠国际法赋予，国际法比国内法大。\n(2)二元论（强调互不联系）：历史上的二元论（以特里佩尔、安茨洛蒂为代表）确实主张两套体系独立且互不隶属（因为调整主体不同，法律渊源不同），但它并不否认两者之间的相互影响和关联。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-3-2",
+    "type": "选择题",
+    "chapterOrder": 3,
+    "chapter": "国际法与国内法的关系",
+    "question": "关于国际法与国内法的关系，理论上有几种学说？",
+    "options": "A.国际法和国内法平行说\nB.协调论\nC.国际法优先说\nD.国内法优先说",
+    "answer": "答案：ABCD",
+    "analysis": "",
+    "kaodian": "国际法与国内法关系的学说",
+    "jiangjie": "国际法与国内法的关系探讨的核心问题是：国际法和国内法究竟是“一套法律”还是“两套法律”？如果两者发生冲突，到底是谁听谁的？\n为了回答这个问题，法学界主要提出了三大基本理论板块：**一元论**、**二元论**（即平行说）和**协调论**。\n简单打个比方来记忆：\n\n- **一元论**认为国际法和国内法是“一家人”（同属于一个法律体系）。既然是一家人，就必须分出个大小王，因此内部又吵出了两派：一派认为国内法是老大（**国内法优先说**），另一派认为国际法是老大（**国际法优先说**）。\n- **二元论（平行说）** 认为国际法和国内法是完全独立的“两家人”（两个不同的法律体系），井水不犯河水，地位平起平坐（效力平行），谁也直接管不着谁。\n- **协调论**折中了二元论，认为国际法和国内法确实是“两家人”，但绝不是老死不相往来，而是处在一个大社区里“相互联系、互相作用”的协作关系。",
+    "zhuxiang": "- **A ✓** （国际法和国内法平行说）：这是**二元论**的核心观点，该学说认为国际法与国内法有重大差异，是两个完全不同的法律体系，两者没有从属关系，在效力上是“平行”的。\n- **B ✓** （协调论）：该学说认为国内法与国际法属于两个独立的体系，但它们是相互联系、相互作用的。国家应当协调好两者的关系，只要国家认真履行义务，两者的关系是可以协调的。\n- **C ✓** （国际法优先说）：属于**一元论**的一个分支，认为国际法和国内法同属一个法律体系，并且国际法的地位和效力优先于国内法。\n- **D ✓** （国内法优先说）：属于**一元论**的另一个分支，认为国际法和国内法同属一个法律体系，但主张国家主权和国内法至高无上，国际法的效力来自国内法。\n\n---",
+    "guanlian": "各学说的代表人物与核心观点\n\n(1) **国内法优先说**（代表人物：耶利内克、佐恩等）：非常强调国家主权绝对至高无上。他们认为，国际法只是国家对自己主权意志的“自我限制”，其实质不过是国内法中的“对外公法”。\n(2) **国际法优先说**（代表人物：凯尔森、劳特派特、狄骥等）：认为国际法优先于国内法的原则才适合人类社会发展需要，国内法的效力实际上是来源于国际法的。\n(3) **二元论/平行说**（代表人物：特里佩尔、奥本海等）：认为国际法与国内法有重大差异。因为是两个独立的体系，所以国际法只有经过“转化”或“并入”的程序，才能在国内法院被适用。\n(4) **协调论**（代表人物：周鲠生、王铁崖等中国学者）：这是我国学者普遍支持的观点。承认两者是不同的法律体系，但强调国家制定了国内法，也参与制定了国际法，所以国家有义务使它的国内法符合于它依国际法所承担的义务。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-3-3",
+    "type": "选择题",
+    "chapterOrder": 3,
+    "chapter": "国际法与国内法的关系",
+    "question": "在国内法与国际法关系上属于一元论的观点的是",
+    "options": "A.国际法优于国内法\nB.国际法与国内法没有隶属关系\nC.国内法优于国际法\nD.国内法与国际法属于同一法律体系",
+    "answer": "答案：ACD",
+    "analysis": "",
+    "kaodian": "国际法与国内法关系的学说——一元论",
+    "jiangjie": "一元论探讨的核心是国际法和国内法究竟是“一家人”还是“两家人”的问题。\n一元论认为，全世界所有的法律（无论是国内法还是国际法）都**属于同一个整体的法律体系**（也就是“一家人”）。既然同在一个体系内，就必然要分出个效力的高低先后。因此，一元论内部又分化成了互相竞争的两大派别：\n\n1. **国内法优先说**：认为国内法是老大，国家主权是绝对的，国际法实际上只是国内法中规范对外事务的一部分（即“对外公法”），国际法的效力来自于国内宪法的授予。\n2. **国际法优先说**：认为国际法是老大，国际法规范着整个国际关系和秩序，国内法的效力是来源于国际法的。\n**比喻记忆**：一元论就像是认定“公司总规章”和“各部门规定”都属于同一个公司的制度体系（同一体系）。既然都在一个公司，要么是“公司总规章”管着“部门规定”（国际法优先），要么是“核心部门规定”架空了“公司总规章”（国内法优先）。",
+    "zhuxiang": "- **A ✓** （国际法优先说）：这是**一元论**内部的一个重要分支派别。该学说主张国际法和国内法同属一个体系，且国际法优先于国内法原则更适合人类社会发展需要，国内法的效力来自国际法。\n- **B ✗** （二元论）：选项中“没有隶属关系”的表述，认为两者效力平行、互不隶属，这是典型的**二元论**观点，不属于一元论。\n- **C ✓** （国内法优先说）：这是**一元论**内部的另一个重要分支派别。该学说基于国家主权绝对至上的理念，认为国际法不过是国家主权的“自我限制”，归根结底属于国内法体系，因此国内法优于国际法。\n- **D ✓** （一元论核心观点）：这是**一元论**的最根本大前提。无论内部怎么争论谁优先，一元论的共同基石就是认定“国内法与国际法属于同一个法律体系”。\n\n---",
+    "guanlian": "国际法与国内法关系的其他学说（二元论与协调论）\n\n(1) **二元论**：认为国际法和国内法有重大差异，是**两个完全不同的法律体系**（“两家人”），它们之间**没有从属关系，在效力上是平行的**。\n**比喻记忆**：二元论就像是A公司和B公司是独立的两家企业。A公司的规定天然管不到B公司的员工；如果B公司觉得A公司的某项规定很好，必须经过自己公司的程序发个文件（即国内法的“并入或转化”程序），该规定才能在B公司内部生效。\n(2) **协调论**：这是我国学者普遍支持的观点。它承认国际法和国内法是两个不同的体系，但强调这两者是**相互联系、相互影响**的。因为制定国内法和参与制定国际法的主体都是国家，国家既然承诺了国际法规范，就有义务让自己的国内法去符合这些义务，这并不是谁效力更高的问题，而是国家如何在国内切实履行国际义务的问题。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-4-1",
+    "type": "选择题",
+    "chapterOrder": 4,
+    "chapter": "国际法基本原则",
+    "question": "1970年《国际法原则宣言》重申了",
+    "options": "A.《联合国宪章》原则\nB.和平共处五项原则\nC.亚洲会议十项原则\nD.《国家经济权利和义务宪章》十五项原则",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "国际法基本原则的形成与发展（《国际法原则宣言》的核心内容）",
+    "jiangjie": "这道题考察的是现代国际法基本原则体系是如何在历史上逐步确立和明确的。\n通俗来说，想象《联合国宪章》是二战后国际社会的“宪法大纲”，它在1945年提出了规范国家间行为的七项基础规则（比如主权平等、不干涉内政等）。但是，为了让这些原则更加明确、更具普遍的指导意义，联合国大会在1970年专门发布了一个文件——《国际法原则宣言》。这个宣言并不是凭空发明了一套新规则，而是把《联合国宪章》里的原则拿出来“重申”和“细化”，并大声告诉全世界：**宣言里写明的这些宪章原则，就是国际法的基本原则，大家必须严格遵守**。因此，《国际法原则宣言》本质上是对《联合国宪章》原则的再一次强调与确认。",
+    "zhuxiang": "- **A ✓** （《联合国宪章》原则）：根据1970年《国际法原则宣言》的明文宣告，该宣言明确提出“本宣言所载之各项宪章原则构成国际法之基本原则”，所以它直接重申和确认的正是《联合国宪章》的各项宗旨与原则。\n- **B ✗** （和平共处五项原则）：和平共处五项原则是中、印、缅三国在1953至1954年间倡导的外交原则。虽然它获得了国际社会的广泛认同，并构成了国际法基本原则的重要组成部分，但1970年的《国际法原则宣言》在文本上直接重申的蓝本是《联合国宪章》，而非单独重申这五项原则。\n- **C ✗** （亚洲会议十项原则）：亚洲会议（亚非会议）提出的十项原则是二战后独立国家对国际法发展的重要贡献，但它同样不是联合国大会1970年《国际法原则宣言》专门重申的对象。\n- **D ✗** （《国家经济权利和义务宪章》十五项原则）：这是联合国大会在1974年（晚于1970年）通过的另一个重要文件，主要针对的是建立国际经济新秩序，无论是从时间线还是核心内容上看，都不符合本题的题意。\n\n---",
+    "guanlian": "现代国际法基本原则的其他重要历史渊源\n除了《联合国宪章》之外，现代国际法基本原则的形成还受到了许多重要历史事件和国家实践的推动。\n(1) 和平共处五项原则：这是**由中国、印度、缅甸共同倡导的**处理国家间关系的准则。它抓住了国际关系的实质，将“互相尊重主权和领土完整、互不侵犯、互不干涉内政、平等互利、和平共处”这五项重要原则整合为一个完备的体系，是中国对国际法的重大贡献。\n(2) 亚洲会议（万隆会议）十项原则：这是二战后兴起的亚非独立国家，在和平共处五项原则的基础上，于亚非会议上提出的十项原则，同样大力推动了现代国际法基本原则体系的形成。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-4-2",
+    "type": "选择题",
+    "chapterOrder": 4,
+    "chapter": "国际法基本原则",
+    "question": "内政是一个",
+    "options": "A.地理概念\nB.空间概念\nC.内容非常广泛的概念\nD.内容比较狭窄的概念",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "国际法上的“内政”概念",
+    "jiangjie": "**讲解**：在国际法中，“内政”探讨的问题是：一个国家到底对哪些事情可以自己说了算，不容外人插手？\n很多人会有个直观的误解，认为“只要发生在国内的事情，就都是内政”。但实际上，内政**不是一个单纯的地理或空间概念**，它的范围也不与领土范围完全相对应。判断某件事是不是内政，唯一的标准是**国际法**。\n**通俗比喻**：把国家比作一个“家庭”，内政就是“家务事”。你们家今天晚上吃什么、客厅怎么装修、钱怎么花，这些都是你们的家务事，内容包罗万象、非常广泛（对应选项C），邻居无权干涉。但是，如果有人在家里制造毒气，这就违反了“小区公约”（国际法）。这时候，居委会或警察（国际社会）来管，你就不能拿“这是我家内部的事（地理范围）”来当挡箭牌。 因此，内政的本质是“**属于国内管辖的事项**”，且前提是该行为**没有违背已确立的国际法原则和规则**。",
+    "zhuxiang": "- **A ✗** （地理概念）：内政虽然一般以国家的领土为基础，但它绝不是一个单纯的地域或地理概念。不能简单地以“事情发生在哪里”来划定内政的界限。\n- **B ✗** （空间概念）：与A项同理，内政的范围并不等同于一国领土的立体空间范围。在国家空间内发生的事（如关押外国使节）如果违反国际法，就不是内政；在国家空间外发生的事（如元首在境外的正当外交活动），依然可以是内政。\n- **C ✓** （内容非常广泛）：只要是不受国际法规范和限制、本质上属于国内管辖的事项，统统属于内政。它涵盖了一个国家政治、经济、社会、文化等各方方面面的制度选择与内外事务，因此是一个内容非常广泛的概念。\n- **D ✗** （内容狭窄）：恰好与C项相反。因为主权国家在不违背国际法的前提下享有极大的自主权，所以内政的范围非常庞大，绝非“狭窄”。\n\n---",
+    "guanlian": "不干涉内政原则及其例外情形\n**讲解**：\n(1) **不干涉内政原则**：任何国家都无权以任何理由，直接或间接地干涉别国的主权范围内的内外事务，也不能强迫他国接受特定的意志或政治制度。比如一国选择何种政治、经济、文化制度，完全是该国的自由。\n(2) **不受“内政”保护的例外（违背国际法的行为）** ：如果一国的行为触犯了国际法，就不再是内政。\n**具体讲解**：比如，甲国在自己国内扣留了外国的外交代表当人质，虽然事情**发生在甲国境内**（地理范围内），但这严重违反了外交关系法，所以**不属于内政**；再比如，某国在境内实施种族隔离政策，因为这是被整个国际社会禁止的犯罪行为，所以同样**不属于内政**。反过来，甲国国家元首出访乙国，邀请乙国元首来年访问甲国，这件事虽然**发生在境外**，但属于国家主权交往，**属于内政**。所以，内政与发生在境内境外无关。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-4-3",
+    "type": "选择题",
+    "chapterOrder": 4,
+    "chapter": "国际法基本原则",
+    "question": "国际法基本原则的特征是",
+    "options": "A.国际社会公认\nB.不许变更\nC.具有普遍约束力\nD.具有强行法的性质\nE.构成国际法的基础",
+    "answer": "答案：ACDE",
+    "analysis": "",
+    "kaodian": "国际法基本原则的概念与四大特征",
+    "jiangjie": "国际法基本原则就像是建构“国际社会”这栋大楼的“承重墙”和“地基”。普通的具体国际法规则（比如两国之间签订的一个关税条约）就像是大楼里的房间隔断，可以根据当事国的需要灵活调整；但基本原则是整个国际法律体系屹立不倒的根本，具有至高无上的地位。\n\n根据国际法理论，这面“承重墙”必须同时具备四个鲜明的特征：\n\n1. **国际社会公认**：也就是说，不能是某一个超级大国或某几个国家关起门来自己定的，必须是整个国际社会大家庭普遍接受、大家都点头认可的规矩（比如和平共处五项原则）。\n2. **具有普遍约束力（普遍意义）** ：普通的条约只管签字的那几个国家，但基本原则是“对世义务”，管的是全天下，适用于国际关系的任何领域、约束所有的国际法主体。\n3. **构成国际法基础**：它是所有其他国际法规则的“老祖宗”。其他所有的具体规则都是从这些基本原则里派生出来的，绝不能和它唱反调。\n4. **具有强行法的性质**：即这些原则是“铁律”，是必须绝对服从的，任何国家不能私下签个协议去违背它。",
+    "zhuxiang": "- **A ✓** （国际社会公认）：一个原则想要升格为“基本原则”，其首要要件就是必须得到国际社会的普遍接受，不能是少数国家的自说自话。\n- **B ✗** （不许变更表述绝对化）：这个选项极具迷惑性。虽然基本原则具有强行法性质，国家之间“不能以约定的方式予以损抑（破坏/规避）”，但这**并不意味着它永远僵化、绝对不许变更**。随着人类文明和国际社会的发展，旧的强行法原则是可以通过后来产生的、具有同等性质的新的国际法一般规范来更改或发展的。此外，教材在总结国际法基本原则的特征时，明确列出的只有四大特征，并不包含“不许变更”这一项。\n- **C ✓** （具有普遍约束力）：基本原则适用于一切国际法领域，对所有国家和国际法主体都有强制约束作用，属于特征之一。\n- **D ✓** （具有强行法的性质）：基本原则保护的是国际社会普遍认可的核心利益与价值（如主权平等、禁止侵略），因此它具有强行法的刚性地位。\n- **E ✓** （构成国际法的基础）：基本原则是国际法体系的根基，其他国际法规则都是在其基础上构建并受其制约的。\n\n---",
+    "guanlian": "国际强行法（Jus Cogens）\n既然提到了“强行法”，我们就需要理解它的本质。强行法是指国际社会中必须绝对服从、**不能用国家间的普通约定去“损抑”（即修改、减损或规避）的最高法律规范**。\n打个通俗的比方：这就像国内法里的“刑法底线”或“公序良俗”。张三和李四不能私下签个合同约定“如果你惹我生气，我就可以合法地打死你”——这种合同是无效的，因为生命权是强行规定，不能靠私人协议放弃。同理，在国际社会中，A国和B国也不能签个条约约定“我们俩联手去侵略C国并将它瓜分”——因为“禁止武力威胁或使用武力”是国际强行法，任何违背它的条约自始无效。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-4-4",
+    "type": "选择题",
+    "chapterOrder": 4,
+    "chapter": "国际法基本原则",
+    "question": "倡导和平共处五项原则的国家是",
+    "options": "A.苏联\nB.美国\nC.中国\nD.印度\nE.缅甸",
+    "answer": "答案：CDE",
+    "analysis": "",
+    "kaodian": "和平共处五项原则的倡导国及其历史背景",
+    "jiangjie": "这道题考察的是谁最早在国际社会上发起了“和平共处五项原则”。\n在第二次世界大战结束后，世界上涌现出了一批刚刚获得独立的新兴国家。这些国家为了维护得来不易的独立、防止超级大国的欺凌，需要一套新的交往规矩。1953年底，中国总理周恩来在接见印度代表团时，首次完整提出了这五项原则。1954年，中国又分别与印度、缅甸发表了联合声明，正式确认了这五项原则作为指导彼此关系的准则。\n通俗地讲，这就好比小区里新搬来的几户普通人家（中、印、缅等新兴独立国家），为了防范小区里的“恶霸”，也为了大家能和睦相处，共同商定并向全小区倡导了一套“邻里交往的黄金法则”。中国、印度、缅甸就是这套法则的共同发起人。",
+    "zhuxiang": "- **A ✗** （背景不符）：苏联在当时是超级大国之一，并没有参与倡导这五项原则。这五项原则主要是由二战后刚刚兴起的亚洲独立国家（中国、印度、缅甸）为了维护自身独立和地区和平而共同倡导的。\n- **B ✗** （背景不符）：美国同样是超级大国，且在当时是资本主义阵营的首头，并非这五项原则的发起国。\n- **C ✓** （首倡国）：1953年周恩来总理代表中国首次完整提出该原则，中国是该原则毫无疑问的首倡国。\n- **D ✓** （共同倡导国）：1954年，中国和印度两国发表联合声明，正式确认将该原则作为两国以及与其他国家关系的准则，印度是共同倡导国。\n- **E ✓** （共同倡导国）：1954年，中国和缅甸两国同样发表了联合声明，确认并倡导了这五项原则，缅甸也是共同倡导国。\n\n---",
+    "guanlian": "和平共处五项原则的具体内容及其在国际法中的地位\n和平共处五项原则的具体内容包括：互相尊重主权和领土完整、互不侵犯、互不干涉内政、平等互利、和平共处。\n通俗来讲，这五条规则可以理解为邻居间的相处之道：绝不强占别人家的地盘（互相尊重主权和领土完整）、绝不动手打人（互不侵犯）、绝不插手别人家的家务事（互不干涉内政）、做邻里买卖要公道不欺客（平等互利），最终达到大家和和气气一起过日子的终极目标（和平共处）。\n这五条原则把原本零散的规则整合成了一个有机的整体，不仅是中国独立自主和平外交政策的基石，更被160多个国家接受，成为了全球公认的、指导国与国交往的国际法基本原则。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-4-5",
+    "type": "选择题",
+    "chapterOrder": 4,
+    "chapter": "国际法基本原则",
+    "question": "在国际法上，干涉方式有",
+    "options": "A.武装干涉\nB.依据权利的干涉\nC.经济干涉\nD.人道主义的干涉\nE.颠覆活动",
+    "answer": "答案：ACDE",
+    "analysis": "",
+    "kaodian": "不干涉内政原则中的“干涉”及其表现形式",
+    "jiangjie": "首先要弄懂什么是“内政”。内政并不是一个地理概念，不能简单理解为“发生在国内的事情”，它的核心标准是“国际法”——只要某个事项本质上属于国内管辖，且没有被国际法所规范或违背国际义务，那就是该国的内政。打个比方，一个国家就像一个家庭，你在自己家里怎么装修、怎么教育孩子，只要不违法，邻居就无权指手画脚。\n而“干涉”，就是第三方擅自强行介入别人家的内部事务，强迫别人按照自己的意愿做事。在现代国际法中，各个主权国家一律平等，任何国家都无权以任何理由直接或间接地干涉别国内政。干涉的表现形式五花八门，不仅包括直接“动刀动枪”，还包括“断人财路”或者“背后煽风点火”等。",
+    "zhuxiang": "- **A ✓** （武装干涉）：这是最直接、最暴力的干涉方式。国际法明确指出，武装干涉及对国家人格或政治、经济要素的任何武力干预，均属于严重违反国际法的干涉行为。例如未经授权的轰炸或军事打击。\n- **B ✗** （依据权利的干涉）：这是一个混淆项。现代国际法中的不干涉内政原则明确规定，“任何国家或国家集团均无权以任何理由直接或间接干涉任何其他国家之内政或外交事务”。因此，在现代国际法体系下，不存在所谓“享有干涉别国权利”的合法形式，任何干涉特权的主张都是对国家主权平等原则的违背。\n- **C ✓** （经济干涉）：属于非武装形式的隐蔽干涉。国际法禁止任何国家使用经济、政治等手段去强迫另一国家，以达到让该国屈服并获取利益的目的。现实中，某些国家频繁利用长臂管辖或经济制裁去干涉他国内政，这就是典型的经济干涉。\n- **D ✓** （人道主义的干涉）：这是国际法理论和实践中经常被讨论的一种干涉形式。虽然未经安理会授权的单边“人道主义干涉”在国际法上仍然是非法的，但它确实是现实中某些国家干涉他国的一种常见名目和实际存在的干涉方式。\n- **E ✓** （颠覆活动）：属于隐蔽和破坏性的干涉方式。组织、协助、煽动、资助或容许为了推翻另一国政权的暴力、恐怖或武装活动（如在别国煽动“颜色革命”以颠覆政权），同样是国际法明令禁止的干涉别国内政的手段。\n\n---",
+    "guanlian": "“人道主义干涉”与“保护的责任”\n\n随着时代发展，干涉理论也遇到了新的挑战。比如一国内部发生了惨绝人寰的种族灭绝或大屠杀（就像有家长在家里严重残杀儿童），这时候邻居能直接踹门进去干预吗？\n(1) **人道主义干涉**：这是指个别国家单方面打着“保护人权”的旗号，未经允许直接动用武力干涉别国。国际法明确规定，未经联合国安理会授权的单方“人道主义干涉”是非法行为，是对不干涉内政原则的严重破坏。换句话说，邻居不能自己拿着武器踹门进去。\n(2) **保护的责任**：这是现代国际法引入的新理念。当一国发生特定的四大国际罪行（灭绝种族罪、战争罪、族裔清洗、危害人类罪）时，国际社会有责任介入保护，但这必须是由联合国安理会授权的集体行动，不能由某个国家单打独斗。这把主观且容易被滥用的“干涉特权”，变成了客观且受严格限制的集体“保护责任”。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-5-1",
+    "type": "选择题",
+    "chapterOrder": 5,
+    "chapter": "国际法的主体",
+    "question": "现代国际法主体应当包括",
+    "options": "A.国家\nB.政府间国际组织\nC.非政府间国际组织\nD.争取独立的民族\nE.个人",
+    "answer": "答案：ABDE",
+    "analysis": "",
+    "kaodian": "国际法主体的范围（种类）",
+    "jiangjie": "国际法主体探讨的问题是：在国际社会这个“大舞台”上，谁有资格作为独立的“玩家”直接上桌打牌（也就是直接参与国际关系、享受国际法权利、承担国际法义务）？\n目前国际法公认的“玩家”有三类：\n\n1. 国家：这是最老牌、最核心的“头号玩家”（基本主体），权力最完整。\n2. 政府间国际组织：这是由国家们组建的“俱乐部”（重要主体），比如联合国、世界卫生组织。它们的权力是成员国赋予的，属于有限的、派生的主体。\n3. 争取独立的民族：这是“候补玩家”（有限的国际法主体）。那些正在反抗殖民统治、争取独立的民族，为了方便它们开展国际交往以实现建国，国际法破例赋予了它们在过渡期间一定的资格。\n4. **个人/法人的地位：** 存在争议",
+    "zhuxiang": "- **A ✓** 国家拥有绝对的主权，拥有最完整的权利能力和行为能力，是国际法中最首要、最基本的法律关系参加者。\n- **B ✓** 政府间国际组织（如联合国）由主权国家通过协议建立，拥有自己独立的国际法律人格，可以缔结条约、派遣代表，是国际法的重要主体。\n- **C ✗** 国际法范畴内讲的国际组织，严格意义上仅指“政府间国际组织”。非政府组织通常只是国内法上的法人，传统理论认为它们不能直接承受国际法的权利与义务，不属于国际法主体。\n- **D ✓** 争取独立的民族在建立代表本民族的政治实体后，客观上需要进行国际交往、参加谈判。为了实现民族自决权，国际社会广泛承认它们属于一种特殊、有限的国际法主体。\n- **E ✓** 现代国际法（如国际人权法、国际刑法）直接赋予了个人一些权利或规定了国际犯罪义务（如惩治战争罪），虽然国际法学界对“个人是否为主体”仍有巨大争议，但我国逐渐认可个人的主体地位。\n\n---",
+    "guanlian": "国际法主体的构成要件 与 个人/法人的地位\n\n(1) **构成要件**：想成为国际法上的“玩家”，必须满足两个硬性条件：\n第一，能以自己的行动**独立**参加国际关系，不受别人控制（行为能力）；第二，能**直接**承受国际法上的权利（比如签条约、派使节）和义务（比如不侵犯别国），而不需要借助于别人（权利能力）。\n(2) **个人和非政府组织的地位**：学术界有“激进说”（认为只有个人才是主体）或“折中说”的争论，但在传统和主流的国际法实践（实证法学派）中，认为“惟国家是国际人格者”。目前我国逐渐接受个人作为主体。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-6-1",
+    "type": "选择题",
+    "chapterOrder": 6,
+    "chapter": "国际法上的国家",
+    "question": "我国刑法第八条规定，\"外国人在中华人民共和国领域外对中华人民共和国国家或者公民犯罪，而按本法规定的最低刑为三年以上有期徒刑的，可以适用本法，但是按照犯罪地的法律不受处罚的除外。\"，这主要属于",
+    "options": "A.领域管辖\nB.属人优越权\nC.保护性管辖\nD.普遍管辖",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "保护性管辖权",
+    "jiangjie": "**讲解：**\n管辖权中的“保护性管辖”探讨的问题是：如果一个外国人在外国的地盘上，做了损害我们国家或我们同胞重大利益的坏事，我们能不能管？答案是：能。\n**通俗解释**：保护性管辖简单来说就是“**谁敢在外面欺负我或者我的人，我就管谁**”。它是指国家对于外国人在本国境外侵害本国国家或公民重大利益的犯罪行为行使管辖的权利。题目中明确指出是“外国人”在“我国领域外”针对“我国国家或公民”犯罪，这完全符合国家为了保护自身和国民利益而行使的管辖权逻辑。",
+    "zhuxiang": "- **A ✗** （领域管辖/属地管辖）：该管辖权的基础是“行为发生在本国领土内”。法条中明确写着“在中华人民共和国**领域外**”，既然已经出了我们的地盘，自然就不适用领域管辖。\n- **B ✗** （属人优越权/属人管辖）：该管辖权的前提是犯罪主体具有“本国国籍”。但法条开篇第一句话就是“**外国人**……”，犯罪主体不是我国公民，因此排除了属人管辖。\n- **C ✓** （保护性管辖）：法条规定的情形是“外国人”在“领域外”对“我国国家或者公民”犯罪。主体是外国人，地点在国外，但**受害者是本国或本国公民**，管辖的核心目的是为了保护本国及公民的重大利益免受外部侵害，完美对应保护性管辖权的定义。\n- **D ✗** （普遍管辖）：普遍管辖针对的是不论犯罪地点、不论罪犯国籍的“危害全人类利益”的特定国际犯罪。而该法条针对的是“对中华人民共和国国家或者公民犯罪”，具有明确的国家指向性和利益保护性，并非针对全人类的犯罪，故不属于普遍管辖。\n\n---",
+    "guanlian": "国际法上的其他三种管辖权（属地管辖、属人管辖、普遍管辖）\n**讲解：**\n在国际法上，除了保护性管辖，管辖权主要还分为以下三种：\n**(1) 领域管辖（属地管辖）**\n**通俗解释**：即“**我的地盘我做主**”。只要在我的国家领土范围内（包括领陆、领水和领空），不管你是本国人还是外国人，归我管（除了享有外交豁免等特权的人士）。只要事发地在我这儿，我就有管辖权。\n**(2) 属人优越权（属人管辖/国籍管辖）**\n**通俗解释**：即“**我的人我来管**”。只要是拥有我国国籍的国民，无论他跑到天涯海角（不论在国内还是国外），我都有管辖权。\n**(3) 普遍性管辖**\n**通俗解释**：即“**全人类的公敌，人人得而诛之**”。针对那些严重危害国际和平与安全以及全人类利益的特定国际犯罪行为（例如公海上的海盗、贩奴、战争罪、空中劫持等），不管你是哪国人，也不管你在哪犯的罪，只要抓到，任何国家都有权管辖。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-6-2",
+    "type": "选择题",
+    "chapterOrder": 6,
+    "chapter": "国际法上的国家",
+    "question": "甲国与乙国1992年合并为一个新国家丙国。此时，丁国政府发现，原甲国中央政府、甲国南方省，分别从丁国政府借债3000万美元和2000万美元。同时，乙国元首以个人名义从丁国的商业银行借款100万美元，用于乙国1991年救灾。上述债务均未偿还。甲乙丙丁四国没有关于甲乙两国合并之后所涉债务事项的任何双边或多边协议。根据国际法中有关原则和规则，下列哪一选项是正确的？",
+    "options": "A.随着一个新的国际法主体丙国的出现，上述债务均已自然消除\nB.甲国中央政府所借债务转属丙国政府承担\nC.甲国南方省所借债务转属丙国政府承担\nD.乙国元首所借债务转属丙国政府承担",
+    "answer": "答案：B",
+    "analysis": "",
+    "kaodian": "国家债务的继承原则",
+    "jiangjie": "**讲解**：\n国家继承探讨的是：当一个老国家发生领土变更（比如两国合并、国家解体分立等）变成新国家后，老国家生前留下的权利和义务（包括债务），新国家要不要接手？\n在国际法中，当两个或多个国家合并成一个新国家时，如果没有特别协议，原国家的“国家债务”原则上应全部转属给继承国（即新国家）来承担。这就像两家公司合并成一家新公司，新公司自然要全面接手原公司的合法债务，不能因为换了个“招牌”就赖账。",
+    "zhuxiang": "- **A ✗** （债务自然消除说）：根据国际法规则，国家合并时，原国家的合法“国家债务”应当转属给合并后的新国家继承，并不会因为新主体的出现就自然消除。\n\n- **B ✓** （国债转属）：原甲国中央政府从丁国政府借的3000万美元，是代表国家整体对外负债，属于典型的“国债”（即一国对他国所负的财政义务）。在甲乙两国合并时，这笔国家债务依法应转属新主体丙国政府承担。\n\n- **C ✗** （地方债务不继承）：原甲国南方省从丁国政府借的2000万美元，是地方当局自己承担的对外债务。这种“地方债务”在国际法上不属于“国家债务”的范畴，因此新成立的丙国政府没有义务继承。\n\n- **D ✗** （私人债务不继承）：乙国元首“以个人名义”从丁国的商业银行借款，无论这笔钱最终用于什么高尚的目的（如救灾），它的法律性质都是个人对外国法人的“私人债务”，不属于国家债务。因此，丙国政府无需承担此项债务。\n\n---",
+    "guanlian": "国家债务的范围界定（即“哪些债必须还，哪些债不用还”）\n**讲解**：\n虽然新国家要继承老国家的债务，但并非所有的欠款都要“父债子偿”。国际法上明确规定，有义务继承的仅仅限于 **“国家非恶债”** ，即一国中央政府依据平等条约对其他国际法主体（如他国政府、国际组织）欠下的债务。\n具体可以通过“三看”来通俗记忆：\n(1) **看是谁借的**：\n\n- **国债**（国家整体借的）和 **地方化债务**（以国家名义借，但只用在某个地方）：属于国家债务，**必须继承**。\n- **地方债务**（地方政府自己出面借的，如某省某市自己去借钱）：不属于国家债务范畴，**不继承**。\n(2) **看找谁借的**：国家对外国企业、法人和普通个人借的钱，属于普通民商事债务，不属于国际法规范的国家债务，在国家继承中**不继承**。\n(3) **看借来干嘛（是否为恶债）** ：如果是违反国际法基本原则借的钱（比如借钱去发动侵略战争、镇压人民），这叫“恶债”，新国家**绝对不继承**。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-6-3",
+    "type": "选择题",
+    "chapterOrder": 6,
+    "chapter": "国际法上的国家",
+    "question": "S国是一个新成立的国家。其成立后，甲国代表向联合国大会提案支持S国成为联合国的会员国；乙国与S国签署了两国互助同盟友好条约；丙国允许S国在其首都设立商业旅游服务机构；丁国与S国共同参加了某项贸易规则的多边谈判会议。根据国际法的有关规则，上述哪些国家的行为构成对S国的正式承认？",
+    "options": "A.甲国\nB.乙国\nC.丙国\nD.丁国",
+    "answer": "答案：AB",
+    "analysis": "",
+    "kaodian": "国际法上承认的方式（重点考察“默示承认”）",
+    "jiangjie": "在国际法中，“承认”通俗来讲就是国际社会的老成员对新成员（比如新成立的国家）表态：“我认可你跟我是平起平坐的国家了”。\n这种表态分为两种：一种是“有话直说”的明示承认（直接发声明、建交通知等）；另一种则是“用行动表态”的默示承认。也就是嘴上虽没直接宣布，但干的事儿全是把对方当成正牌主权国家来对待。\n只要做出了以下几个典型的“大动作”，就等于给出了默示承认：\n\n1. 建交或接受领事：跟你互设大使馆或领事馆。\n2. 签政治合同：跟你签署具有高度政治互信的条约，比如“双边友好同盟条约”。\n3. 拉你进“高级群”：正式投票支持你加入那种“只有主权国家才能进的国际组织”（比如联合国）。",
+    "zhuxiang": "- **A ✓** （支持加入特定国际组织）：联合国是典型的“仅对主权国家开放”的国际组织。甲国提案支持S国成为联合国会员，就等于是在国际舞台上用实际行动表示“我认为S国是个合格的主权国家”。这符合默示承认中“支持参加仅对国家开放的国际组织”的行为。\n\n- **B ✓** （缔结政治性条约）：乙国与S国签署了“两国互助同盟友好条约”。这属于正式的“政治性条约”，国家之间只有相互认可对方是平等的法律实体，才会结为同盟。因此它构成了法律意义上的正式承认。\n\n- **C ✗** （建立非官方机构）：丙国允许S国设立的是“商业旅游服务机构”，这属于建立“非官方或非完全外交性质的某种机构”。开门做生意搞旅游，属于事实上的经济交往，不能拔高到国家承认的政治高度，不构成正式承认。\n\n- **D ✗** （共同参加多边会议）：丁国与S国只是“共同参加了某项贸易规则的多边谈判会议”。在大型多边国际场合里碰到一起开会是常有的事，不能因为坐在同一个会议室里就视为互相承认，否则国际会议就没法开了。这属于“共同参加多边国际会议或国际条约”，不构成默示承认。\n\n---",
+    "guanlian": "不构成默示承认的行为（事实上的交往）\n不要以为两国之间只要有接触，就代表互相“正式承认”了。国际交往中有时为了实际需求，会保留一些“逢场作戏”的接触，但这不代表发了“国家认证证书”。\n通俗来说，政治归政治，生意归生意。以下这些行为太“接地气”，达不到政治承认的门槛，一般不认为是默示承认：\n\n1. 碰巧同桌开会：共同参加那种有好几个国家都在的多边国际会议或多边条约。\n2. 搞点小生意：只签订双边投资、税收等“纯商业性条约”。\n3. 设个办事处：只建立非官方或非完全外交性质的机构（比如旅游代办处、民间贸易办公室）。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-7-1",
+    "type": "选择题",
+    "chapterOrder": 7,
+    "chapter": "国际组织法",
+    "question": "根据《联合国宪章》，对于秘书长的选举程序，下列哪一表述是正确的？",
+    "options": "A.由联合国安理会采取关于程序性事项的投票程序，直接表决选出秘书长\nB.由联合国大会直接选举，大会成员2/3多数通过\nC.由安理会采取实质性事项表决程序推荐秘书长候选人，经联合国大会以简单多数表决通过\nD.由安理会采取程序性事项表决程序推荐秘书长候选人，经联合国大会表决获2/3多数通过",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "联合国秘书长的产生程序",
+    "jiangjie": "联合国秘书长是联合国“大管家”（联合国秘书处这一常设行政管理机关的首脑）。选这个“大管家”的过程可以形象地比喻为“董事会推荐，全体员工大会批准”：\n首先，必须由联合国的核心决策层——“安全理事会”（董事会）挑人并做出推荐。因为秘书长职位极其关键，安理会在推荐时必须慎之又慎，需要适用“实质性事项（非程序性事项）”的表决程序。这意味着五个常任理事国（五大股东）都有“一票否决权”，任何一个大佬不同意都推选不出来。\n其次，安理会选出候选人后，交由“联合国大会”（全体员工大会）进行表决。在大会这一关，表决相对容易，只需要普通的“简单多数”（过半数）同意就可以正式任命了，不需要极高的通过门槛。",
+    "zhuxiang": "- **A ✗** （程序错误、权限错误）：安理会无权“直接选出”秘书长，它的权限只是“推荐”；并且由于推荐秘书长是大事，必须适用“实质性事项”投票程序（有否决权），而不是“程序性事项”。\n- **B ✗** （无视安理会权限、比例错误）：联合国大会不能撇开安理会去“直接选举”，必须经过安理会推荐；并且大会表决只需“简单多数”，而不是“2/3多数”。\n- **C ✓** （完美契合程序）：秘书长的产生严格遵循两步走——由安理会采取实质性事项表决程序（确保大国一致）推荐候选人，再经由联合国大会以简单多数（一般问题表决）通过。\n- **D ✗** （双重错误）：前半句错在安理会推荐不能用“程序性事项表决”（必须用实质性事项）；后半句错在联合国大会表决不需要“2/3多数”（只需简单多数）。\n\n---",
+    "guanlian": "安理会与联合国大会的表决制度\n\n(1) 安理会表决制度：分为“程序性事项”和“实质性事项”（非程序性事项）。\n具体讲解：“程序性事项”是一些日常开会、议程安排的琐事，15个理事国里只要随便凑够9票赞成就能通过，常任理事国没有否决权。“实质性事项”则是诸如推荐秘书长、采取维和行动等大事，必须获得至少9票赞成，且其中必须包含5个常任理事国的“一致同意”（即大国一致原则，任何一常任理事国都不能投反对票），常任理事国享有“一票否决权”。\n(2) 联合国大会表决制度：分为“重要问题”和“一般问题”。\n具体讲解：“重要问题”涉及维持和平建议、接纳新会员国等，需要出席并投票的成员国“三分之二（2/3）多数”通过。“一般问题”则是日常决议，只需“简单多数”即可。在联合国大会看来，通过新任秘书长属于“一般问题”的范畴。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-7-2",
+    "type": "选择题",
+    "chapterOrder": 7,
+    "chapter": "国际组织法",
+    "question": "负责协调联合国经济、社会、人权和文化活动的机关是",
+    "options": "A.大会\nB.安全理事会\nC.经社理事会\nD.秘书处",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "联合国的六大主要机关——经济及社会理事会（经社理事会）的职权",
+    "jiangjie": "联合国为了实现其宗旨，设立了六个主要机关，经社理事会就是其中之一。经社理事会是联合国大会权力下，专门负责协调联合国及联合国系统各组织的经济、社会、人权和文化活动的机关。\n通俗地讲，如果把联合国看作一个“世界政府”，经社理事会就相当于“民政与发展福利部”。安全理事会管的是打仗、维和等“硬安全”问题，而经社理事会管的则是吃饱饭（农业）、治病（卫生）、读书（教育文化）、赚钱（经济贸易）等“软发展”问题。",
+    "zhuxiang": "- **A ✗** （大会）：联合国大会是审议机关，职权涵盖国际、组织监督和内部行政等广泛方面。它负责讨论整体方针，但专门负责“协调经济、社会、人权和文化活动”的具体职能是下放给经社理事会的。\n- **B ✗** （安全理事会）：安全理事会对维持国际和平与安全负有主要责任，是唯一有权采取行动制止侵略、解决战争冲突的机关。它不管经济、文化等人权和发展事务。\n- **C ✓** （经社理事会）：明确契合定义。经社理事会正是联合国体系内，负责统筹、协调经济、社会、人权和文化等具体活动的专属机关。\n- **D ✗** （秘书处）：秘书处是联合国的常设行政机关，负责处理日常行政事务和具体办事，而不是宏观统筹和协调全球经济社会文化活动的决策或协调机关。\n\n‍",
+    "guanlian": "联合国其他主要机关（大会、安全理事会、秘书处）的核心定位\n\n(1) **大会（联合国大会）：**  由全体会员国组成，是联合国的审议和建议机关。\n通俗讲解：大会相当于联合国的“全体股东大会”。大家坐在一起讨论国际上的各种问题，实行“一国一票”。但要注意，大会不是立法机关，它做出的决议（除内部事务外）通常只具有建议性质，没有法律拘束力。\n(2) **安全理事会（安理会）：**  在联合国六大主要机关中处于首要政治地位。\n通俗讲解：安理会相当于联合国的“全球警察局”或“核心董事会”。它是唯一有权采取强制行动（包括武力制裁）来维持国际和平与安全的机关。\n(3) **秘书处：**  根据大会、安理会和其他机关的指示，从事联合国的日常事务和行政工作。\n通俗讲解：秘书处相当于联合国的“大管家”或“行政办公厅”。秘书长带着一帮国际公务员，负责开会倒水、发通知、写报告、搞调研等具体的行政后勤事务，不能接受任何国家政府的指示。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-7-3",
+    "type": "选择题",
+    "chapterOrder": 7,
+    "chapter": "国际组织法",
+    "question": "下列国际组织中属于区域性国际组织的是",
+    "options": "A.阿拉伯国家联盟\nB.托管理事会\nC.非殖民化委员会\nD.国际劳工组织",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "国际组织的类型（区域性国际组织）",
+    "jiangjie": "区域性国际组织是与“全球性国际组织”相对的概念。它是指在相同地域内的国家，或者虽然不在相同地域内，但为了维护某种特定的“区域性利益”而组成的国际组织与集团（如欧洲联盟、非洲统一组织等）。\n**通俗比喻**：想象整个地球是一个超级大社区。全球性国际组织（比如联合国、世界贸易组织）就像是“全社区业主大会”，只要是这个社区的合法住户（主权国家）一般都能进，管的是全社区的公共事务。而区域性国际组织就像是“某栋楼的楼长委员会”或者“某个特定片区的互助小组”（比如“亚洲区”、“欧洲区”或“阿拉伯语区”），只有属于这个特定圈子或有共同区域利益的国家才能加入，大家抱团取暖，主要目的是维护自己这片小天地里的和平、安全与共同利益。",
+    "zhuxiang": "- **A ✓** （区域性组织）：阿拉伯国家联盟（简称阿盟）是由阿拉伯国家组成的国际组织。它在民族、历史、语言和文化上具有紧密的联系，其宗旨是维护阿拉伯区域内的共同利益，是一个非常典型的区域性国际组织。\n- **B ✗** （联合国主要机关）：托管理事会是联合国的六个主要机关之一，负责监督特定托管领土的行政管理。它是全球性组织（联合国）的内部核心机构，根本不属于独立的区域性国际组织。\n- **C ✗** （联合国下属机构）：非殖民化委员会是联合国大会下设的一个专门处理非殖民化问题的委员会，属于联合国系统内的一个机构，面向的是全球的非殖民化进程，而不是一个独立的区域性国际组织。\n- **D ✗** （全球性专门机构）：国际劳工组织是联合国的专门机构之一。虽然它是“专门性”的（专门管劳工问题），但它的业务范围和成员国面向的是全球，属于“全球性专门机构”，而非“区域性”组织。\n\n‍",
+    "guanlian": "联合国的主要机关与专门机构\n\n(1) 联合国的主要机关：联合国为了实现其宗旨，内部设立了六个主要机关——大会、安全理事会、经济及社会理事会、托管理事会、国际法院和秘书处。\n**通俗比喻**：这些主要机关就像是联合国这个“超级集团总公司”内部的核心直属部门（如总经办、安保部、法务部等），它们是整个联合国架构的骨架。\n(2) 联合国的专门机构：指依据各国政府间协定创立，在某一特定业务领域（如卫生、通信、劳工、金融等）负有广大国际责任的“全球性专门组织”，它们通过特别协定与联合国建立关系。\n**通俗比喻**：专门机构（如国际劳工组织、世界卫生组织）就像是与联合国“集团总公司”有外包或合作关系的“专业子公司”。它们虽然只管某一个具体行业（比如打工人的权益、全球的看病吃药），但它们的业务范围是面向全球所有国家的，绝不是只管某个小片区的区域性组织。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-7-4",
+    "type": "选择题",
+    "chapterOrder": 7,
+    "chapter": "国际组织法",
+    "question": "联合国的宗旨是",
+    "options": "A.会员国主权平等\nB.禁止使用武力\nC.维护国际和平与安全\nD.不干涉别国内政",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "联合国的宗旨与活动原则的区别",
+    "jiangjie": "简单来说，“宗旨”就是联合国这个国际组织成立的“终极目标”和“初心”，回答的是“联合国想干什么”的问题。而“原则”则是联合国及其会员国为了实现上述目标，在日常交往中必须遵守的“行为规范”或“规矩”，回答的是“应该怎么干”的问题。\n打个比方，一个公司的“宗旨”（目标）可能是“成为全球最大的科技企业”，而它的“原则”（规矩）则是“合法经营、不搞垄断、善待员工”。在国际法考试中，千万不能把“宏大的目标（宗旨）”和“具体的规矩（原则）”混为一谈。",
+    "zhuxiang": "- **A ✗** “会员国主权平等”属于《联合国宪章》第2条规定的联合国“活动原则”，它是各国在国际舞台上交往的底线规矩，而不是联合国的最终宗旨。\n- **B ✗** “禁止使用武力”同样属于《联合国宪章》第2条规定的“活动原则”，它是为了实现和平而必须遵守的具体行为要求，并非宗旨本身。\n- **C ✓** “维护国际和平与安全”是《联合国宪章》第1条明确规定的首要“宗旨”，也是联合国成立的最核心目标。\n- **D ✗** “不干涉别国内政”属于《联合国宪章》第2条规定的“活动原则”，是对各主权国家行为的限制和规范，不属于宗旨。\n\n‍",
+    "guanlian": "《联合国宪章》第1条（宗旨）与第2条（原则）的具体内容\n初学者在记忆时，可以通过“愿景”和“底线”来进行区分。\n(1) **联合国的宗旨（四大目标）** ：《联合国宪章》第1条规定了联合国的宗旨，包括：1.维持国际和平与安全；2.发展各国间的友好关系；3.促进国际合作；4.协调各国行动。这些都是带有美好愿景的终极目的。\n(2) **联合国的活动原则（七大规矩）** ：《联合国宪章》第2条规定了联合国的活动原则，包括：1.主权平等原则；2.善意履行宪章义务原则；3.和平解决国际争端原则；4.禁止使用武力或以武力相威胁原则；5.集体协助原则；6.确保非成员国遵守宪章；7.不干涉内政原则。这些都是带有强烈约束性、底线性的具体行为准则。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-7-5",
+    "type": "选择题",
+    "chapterOrder": 7,
+    "chapter": "国际组织法",
+    "question": "联合国大会对于重要问题的表决，以到会及投票会员国的",
+    "options": "A.三分之二多数决定\nB.二分之一多数决定\nC.四分之三多数决定\nD.五分之四多数决定",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "联合国大会的表决制度",
+    "jiangjie": "联合国大会（简称“联大”）就像是国际社会的“全体村民大会”，所有联合国会员国都在这里开会。在联大表决时，最基本的原则是“一国一票”，即国家无论大小、强弱，表决权都是平等的。\n为了提高决策效率同时兼顾决策的慎重性，联大将要表决的事项分为了两类：“一般问题”和“重要问题”。既然是“重要问题”，说明该决议对国际社会影响深远，因此设定的通过门槛就比较高，不能仅仅刚过半数就拍板，而是必须得到**出席并参加投票的会员国的三分之二多数（2/3多数）** 赞成才能通过。",
+    "zhuxiang": "- **A ✓** 依据《联合国宪章》和国际法基本规则，联合国大会对于重要问题的决议，要求必须以出席并参加投票的会员国三分之二（2/3）多数通过。\n- **B ✗** 二分之一多数（即简单多数、过半数）是联合国大会针对“一般问题”（而非重要问题）的表决通过标准。选项张冠李戴，降低了重要问题的表决门槛。\n- **C ✗** 四分之三多数不是联合国大会表决的标准比例。国际法中联合国的表决比例主要围绕简单多数（过半数）和三分之二多数，此处属于捏造的干扰项。\n- **D ✗** 五分之四多数同样不是联合国大会表决的法定比例，属于干扰项。\n\n‍",
+    "guanlian": "“重要问题”的范围与“一般问题”表决，以及安理会的表决制度（对比记忆）\n\n(1) 联大“一般问题”的表决：对于重要问题之外的“一般问题”，联大采取的是“简单多数（过半数）”通过的方式。通俗来说，就是只要赞成票比反对票多（超过一半），决议就能通过。\n(2) 联大“重要问题”到底包括哪些？：事关重大的事情才叫重要问题，例如：关于维持国际和平与安全的建议、接纳新会员国加入联合国、中止会员国权利或开除会员国、选举安全理事会/经社理事会/托管理事会的理事国、选举国际法官等。这些事情犹如“村里的大事”，所以需要2/3的人点头。\n(3) 联合国安理会的表决制度（容易与联大混淆的考点）：安理会是联合国唯一有权采取强制行动的机关。安理会共有15个理事国，它的表决门槛是“9票”。其中程序性问题只要任意9票即可；而非程序性（实质性）问题，不仅需要9票，还要求5个常任理事国（中、美、俄、英、法）没有一个投反对票，这就是著名的“大国一致原则”或“一票否决权”。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-7-6",
+    "type": "选择题",
+    "chapterOrder": 7,
+    "chapter": "国际组织法",
+    "question": "联合国专门机构具有下列特点",
+    "options": "A.在专门领域从事活动\nB.与联合国没有法律联系\nC.有独立的法律地位\nD.与联合国建立法律联系\nE.是联合国的附属机构",
+    "answer": "答案：ACD",
+    "analysis": "",
+    "kaodian": "联合国专门机构的概念与特征",
+    "jiangjie": "联合国专门机构是指依据各国政府间协定创立，在某一**特定业务领域**（如文化、科教、卫生、金融贸易等）负有广大国际责任，并通过**特别协定**与联合国建立特殊法律关系的全球性专门组织。\n**通俗比喻**：你可以把“联合国”想象成一个极其庞大的“商业联盟总部”，而“专门机构”（如世界卫生组织WHO、国际货币基金组织IMF）则是加盟这个联盟的“独立合伙人公司”。\n这些合伙人公司有自己独立的营业执照、独立的章程和独立的管理层（**即具有独立的国际法律地位和人格，法律地位等同于联合国**）。它们各自专攻特定的业务（**即在专门领域从事活动**）。正因为它们是独立的公司，所以它们绝对不是总部的下属分公司（**不是联合国的附属机构或组成部分**）。但是，既然组成了联盟，它们就必须和总部签订一份合作协议（**即通过特别协定与联合国建立法律联系**），总部的“经济及社会理事会”会负责与它们协商并协调彼此间的活动。",
+    "zhuxiang": "- **A ✓** （特定领域）：联合国专门机构的分类通常按专业领域划分，如从事通信运输、文化科教卫生、金融贸易等，它们都在特定的专业领域内开展全球性的活动。\n- **B ✗** （联系否定）：专门机构虽然有独立地位，但它们都必须通过签订“特别协定”与联合国建立联系，因此“没有法律联系”的说法是错误的。\n- **C ✓** （独立地位）：专门机构是具有独立国际法律人格的组织，它们拥有各自独立的组织章程、机关体系和成员国，作为独立的国际法主体自主活动。\n- **D ✓** （建立联系）：如上所述，专门机构通过特别协定被纳入庞大的联合国组织体系之内，与联合国建立了明确的法律关系，并接受联合国经济及社会理事会的协商与协调。\n- **E ✗** （机构性质）：这是最容易混淆的陷阱。专门机构是平等于联合国的独立实体，它们按照自己的成立章程自主活动，绝对**不是**联合国的附属机构，也不是联合国的组成部分。\n\n‍",
+    "guanlian": "联合国的附属机构（与专门机构的区分界限）\n在国际法中，“附属机构”和“专门机构”是截然不同的。\n**联合国的附属机构**：是由联合国的主要机关（如联合国大会、安理会）根据《联合国宪章》设立的内部机构，比如联合国大会下设的各个委员会、人权理事会等。\n**具体讲解**：如果说专门机构是外面的“独立合伙人”，那附属机构就是总部自己内部成立的“下属业务部门”或“专案组”。附属机构没有自己独立的法律地位，其权力是联合国主要机关赋予的，它们通常是辅助主要机关进行审议和建议的机构。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-7-7",
+    "type": "选择题",
+    "chapterOrder": 7,
+    "chapter": "国际组织法",
+    "question": "关于联合国大会，下列说法中正确的有",
+    "options": "A.大会由联合国全体会员国的代表组成\nB.联合国大会设有六个主要委员会\nC.大会表决程序实行一国一票制\nD.安理会五个常任理事国的代表轮流担任大会主席\nE.有权自行直接委派联合国秘书长",
+    "answer": "答案：AC",
+    "analysis": "",
+    "kaodian": "联合国大会的组成与表决机制",
+    "jiangjie": "你可以把联合国想象成一个全球性的“超级大公司”，而联合国大会（简称联大）就是这个公司的“全体股东大会”。\n既然是全体大会，那么每一个加入了联合国的国家（股东）都有资格派代表参加，大家排排坐，共同商讨国际大事。在这个大会里，讲究的是“大小股东一律平等”，不管你是超级大国还是弹丸小国，在投票表决时大家都只有一票，也就是“一国一票制”。不过需要注意的是，这个“股东大会”并不像我们国内的立法机关那样可以制定具有强制约束力的法律，它针对一般事项通过的决议多属于“建议”性质。",
+    "zhuxiang": "- **A ✓** （全员参与）：联合国大会由联合国的全体会员国组成，没有任何一个会员国会被排除在大会之外。\n- **B ✗** （机构设置细节）：联合国大会下设的是 **7个** 主要委员会（另外还有2个程序委员会和若干特别委员会），而不是6个。\n- **C ✓** （平等表决）：大会表决实行会员国一国一票制，体现了国际法上的国家主权平等原则。\n- **D ✗** （五常的限制）：根据联合国的规则与惯例，每届会议会选举主席1人，但安理会5个常任理事国的代表 **不担任** 大会主席，不过他们可以当选为副主席。选项说“轮流担任”是完全相反的。\n- **E ✗** （秘书长任命程序）：联合国大会 **无权自行直接** 委派秘书长。正确的程序是“安理会推荐 + 联合国大会表决通过”。必须先经过安理会的推荐（且安理会五常对此拥有否决权），大会才能进行委派。\n\n---",
+    "guanlian": "联合国机构间的权力制衡（五常的限制与秘书长的产生）\n\n(1) 权力平衡与大会主席：安理会的五个常任理事国（中、法、俄、英、美）在联合国里拥有极大的权力（比如一票否决权），相当于“核心董事”。为了防止权力过分集中，联合国在实践中形成了一个规矩：这五个“核心董事”的代表不能去担任大会主席（但可以当副主席），要把露脸和主持会议的机会留给其他国家。\n(2) 秘书长的产生：联合国秘书长相当于这个超级大公司的“CEO”，负责全盘的行政管理。这么重要的职位，不能由“股东大会”（联大）直接拍板决定。程序上，必须先由“核心董事会”（安理会）挑出合适的人选并向大会“推荐”，然后再由“股东大会”（联大）投票表决通过（委派）。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-8-1",
+    "type": "选择题",
+    "chapterOrder": 8,
+    "chapter": "国际法上的个人",
+    "question": "国籍法是",
+    "options": "A.国家间解决国籍问题引起争执的法律\nB.国内法\nC.国家确定外国国民的法律\nD.具有国际公约性质的法律",
+    "answer": "答案：B",
+    "analysis": "",
+    "kaodian": "国籍法的概念与性质",
+    "jiangjie": "国籍法是规定个人国籍的取得、变更（包括恢复）、丧失以及处理国籍冲突的规则和原则的法律规范的总体。\n通俗地讲，国籍法完全是一个国家的“家规”，主要体现为**国内法**。一个国家要给谁发“身份证明”（授予国籍）、允许谁“销户”（丧失国籍），需要什么条件和程序，全凭这个国家自己说了算，纯属一国主权范围内的国内管辖事项。就比如，一国政府可以不需要任何理由地拒绝外国人的入籍申请。既然是自家的规矩，它自然属于国内法的范畴，而不是国际法。",
+    "zhuxiang": "- **A ✗** （偷换概念）：国家间解决国籍冲突和争执的法律通常体现为国际法（如双边或多边的国际条约）。而国籍法本身只是一国单方面制定的内部规则，它不是国家之间用来解决争端的工具。\n- **B ✓** （符合定性）：国籍法规定的是国籍的取得与丧失等问题，属于一国主权范围内的事项，纯属国内管辖，主要体现为国内法。\n- **C ✗** （对象错误）：国籍法是一个国家用来确定某个人“是不是本国国民”的法律依据。至于某个人是不是“外国国民”，那是那个外国的国籍法说了算，本国的国籍法无法越俎代庖去确定他国国民。\n- **D ✗** （性质混淆）：国际公约（条约）是多个主权国家（或国际组织）之间通过谈判、协商达成的国际书面协定。而国籍法是由单一国家单方面制定并实施的国内法，完全不具备国家间契约（国际公约）的性质。\n\n‍",
+    "guanlian": "国籍的抵触（冲突）\n因为各国的国籍法都是各国闭门独立制定的（属于国内法），标准各不相同，这就必然会导致在国际交往中出现“撞车”现象，也就是国籍的抵触。\n具体讲解：\n(1) **积极抵触（双重或多重国籍）** ：比如甲国看重“血缘”（血统主义），乙国看重“出生地”（出生地主义），那么甲国人在乙国生下的孩子，就会同时被两国法律承认为本国人，这就产生了双重国籍。\n(2) **消极抵触（无国籍人）** ：反之，如果各国的规矩恰好都不收留某个人（比如因为婚姻、收养或被剥夺国籍），这个人就会沦为“无国籍人”，即不具有任何国家国籍。\n当解决这些因国内法差异产生的跨国冲突时，国家间可能会签订一些双边或多边的“国际条约”，但各国的“国籍法”本身的国内法性质并不会改变。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-8-2",
+    "type": "选择题",
+    "chapterOrder": 8,
+    "chapter": "国际法上的个人",
+    "question": "因出生而取得国籍的方式有",
+    "options": "A.出生地原则\nB.血统原则和出生地原则相结合\nC.居住地原则\nD.继有国籍原则",
+    "answer": "答案：AB",
+    "analysis": "",
+    "kaodian": "因出生取得国籍的原则（原始国籍）",
+    "jiangjie": "国籍的取得主要分两类，第一类就是“因出生而取得”，这在法律上被称为“原始国籍”。它是最主要的一种取得国籍的方式。\n各国在决定一个新生儿的原始国籍时，通常会采用以下三种原则：\n(1) **血统主义原则**：也就是“看爹妈，不看地方”。好比基因遗传，只要父母是该国人，不管孩子生在地球的哪个角落，都自动获得该国国籍。\n(2) **出生地主义原则**：也就是“看地方，不看爹妈”。这就好比游戏里的“出生点”，只要你是在这个国家的领土上出生的，不管你父母是哪国人，你都能获得该国国籍。\n(3) **混合原则（血统与出生地相结合）** ：即把上面两者结合起来看。这也是当今大多数国家（包括我国）采用的办法，主要是为了既保障血脉传承，又能尽量避免新生儿一出生就面临双重国籍或无国籍的尴尬局面。我国采用的是“以双系血统主义为主、出生地主义为辅”的混合原则。",
+    "zhuxiang": "- **A ✓** （出生地原则）：它是因出生取得国籍的三大原则之一，完全符合题意。\n- **B ✓** （血统原则和出生地原则相结合）：也就是我们常说的“混合原则”，同样是因出生取得国籍的三大原则之一，完全符合题意。\n- **C ✗** （居住地原则）：在因出生取得国籍的判断中，并没有“居住地原则”。“居住地”通常是作为后天“申请入籍（继有国籍）”的考核条件（例如要求申请人在该国连续居住满一定年限），或者是用于解决外国人国籍冲突时（寻找“最密切联系地”）的判断标准。\n- **D ✗** （继有国籍原则）：概念混淆。国籍的取得方式分为“因出生取得（原始国籍）”和“因加入取得（继有国籍）”两大类。选项将两者混为一谈，题目问的是“因出生而取得”，而继有国籍是指后天“因加入而取得”，答非所问。\n\n‍",
+    "guanlian": "因加入取得国籍（继有国籍）\n除了生下来就有的原始国籍，还有一种是在后天成长过程中换来的国籍，叫做“继有国籍”（因加入而取得国籍）。\n这通常是基于本人的意愿或者发生了某些特定的事实，从而获得了新的国籍。如果说“原始国籍”是出生时系统自动分配的新手村，那“继有国籍”就是你后天主动申请“转会”或“跨服”。\n常见的继有国籍方式包括：申请入籍（比如在国外满足了居住年限和语言要求后申请）、婚姻入籍（和外国人结婚）、因收养或认领入籍，以及因国家间的领土交换而导致的国籍变更等。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-8-3",
+    "type": "选择题",
+    "chapterOrder": 8,
+    "chapter": "国际法上的个人",
+    "question": "最惠国待遇",
+    "options": "A.是一国给予另一国的优惠待遇\nB.是给外国人与本国人相同的待遇\nC.是没有范围限制的\nD.是国家之间在互惠原则基础上互相给予的",
+    "answer": "答案：D",
+    "analysis": "",
+    "kaodian": "最惠国待遇",
+    "jiangjie": "最惠国待遇探讨的是国际交往中，国家之间如何给予对方国民或企业待遇的标准。\n它的核心含义是：一国（施惠国）给予另一国（受惠国）的国民、法人或商船等待遇，**不低于**现时或将来给予**任何第三国**的待遇。\n**通俗比喻**：假设你（施惠国）开了一家高级俱乐部，里面有很多VIP客人。你向客人B（受惠国）承诺了“最惠国待遇”，意思就是：“不管我以后给客人C、客人D什么最顶级的福利和折扣，我都保证自动给你客人B也安排上一模一样的一份。”它追求的是在“所有外国人”之间的一碗水端平，保证受惠国永远处于“最受优惠”的梯队，不被歧视。在现代国际法中，这种待遇通常是通过签订条约，在互惠互利的基础上相互给予的。",
+    "zhuxiang": "- **A ✗** （概念混淆）：最惠国待遇不是简单单向的“优惠待遇”。“优惠待遇”（如发达国家对发展中国家的普惠制）属于差别待遇的一种。最惠国待遇的本质是“不低于任何第三国”的无歧视待遇，重点在于横向比较所有外国，且通常是基于条约双向相互给予的，而非单方面施舍。\n- **B ✗** （张冠李戴）：给外国人与本国人相同的待遇，这在国际法上叫作“国民待遇”，而不是最惠国待遇。最惠国待遇是拿“外国人跟其他外国人”比，国民待遇是拿“外国人跟本国人”比。\n- **C ✗** （无视特殊情形）：最惠国待遇是有严格适用范围和特殊例外的。例如，边境贸易给邻国的特殊便利、欧盟等关税同盟或自由贸易区内部的优惠、双边互免签证协议等，都属于最惠国待遇“不适用的特殊情形”。它绝不是没有范围限制的。\n- **D ✓** （本质属性）：现代国际法上的最惠国待遇（通常表现为条约中的最惠国条款），是国家之间出于平等的商业、贸易等交往需求，在“互惠待遇”这一基础原则之上相互订立和给予的。这就保证了缔约国双方在对方国家都能享受到不低于任何第三国的平等待遇。\n\n‍",
+    "guanlian": "外国人待遇的其他一般原则（国民待遇、互惠待遇、差别待遇）\n\n(1)国民待遇：在一定范围内，给本国境内的外国人与本国公民**相同**的待遇。\n**具体讲解**：国民待遇是“内外平权”，拿外国人跟自己的本国人比。比如，外国人在中国开办企业，需要缴纳和中国企业一样比例的税款，这就是国民待遇。不过这种待遇一般只限于民事和诉讼权利，不包括政治权利（如选举权），且在某些涉及国家安全的特定职业（如飞行员、引水员）上有限制。\n(2)互惠待遇：一国给予外国国民某种权利或优遇，必须以**该外国也给予本国国民同等权利**为前提。\n**具体讲解**：互惠待遇就是“投桃报李”。你对我的国民好，我就对你的国民好；你给我免签，我就给你免签。这是外国人待遇的基础性原则。\n(3)差别待遇：国家给予外国人不同于本国公民的待遇，或者对不同国家的外国人给予**不同**的待遇。\n**具体讲解**：比如，发达国家出于扶持目的，专门给发展中国家提供“普遍优惠待遇”（普惠制），这种专门给某类国家的特别关照，就属于差别待遇。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-8-4",
+    "type": "选择题",
+    "chapterOrder": 8,
+    "chapter": "国际法上的个人",
+    "question": "甲国公民詹某在乙国合法拥有一幢房屋。乙国某公司欲租用该房屋，被詹某拒绝。该公司遂强行占用该房屋，并将詹某打伤。根据国际法中的有关规则，下列救济方式哪一项是正确的？",
+    "options": "A.詹某应向乙国提出外交保护请求\nB.詹某可以将此事件诉诸乙国行政及司法当局\nC.詹某应向甲国驻在乙国的外交团提出外交保护的请求\nD.甲国可以立即行使外交保护权",
+    "answer": "答案：B",
+    "analysis": "",
+    "kaodian": "外交保护的条件之“用尽当地救济原则”",
+    "jiangjie": "在国际法上，如果一个外国人在当地受到侵害，他不能一上来就哭喊着找“娘家人”（母国）出面进行外交干涉。出于对东道国属地管辖权（领土主权）的尊重，受害人必须先按照当地的法律，把当地能用的救济手段（比如报警、向当地行政机关投诉、在当地法院起诉等）全部用一遍。\n**通俗比喻**：你去别人家做客，被他家的另一位客人或者他养的狗咬伤了，你首先应该找这家的主人（当地行政及司法当局）来处理和赔偿。只有当这个主人故意包庇、完全不讲理，你穷尽了所有办法都讨不回公道时，你才能叫你自己的家长（母国外交代表）出面跟对方家长交涉。这就叫“用尽当地救济原则”。",
+    "zhuxiang": "- **A ✗** （找错对象）：外交保护是母国（本国）对本国国民在海外受到侵害时提供的保护。詹某是甲国人，乙国是侵权行为发生地，詹某不可能向“加害地所在国（乙国）”去申请外交保护，他只能找乙国的警察和法院。\n\n- **B ✓** （用尽当地救济）：根据国际法的“属地管辖权”和“用尽当地救济原则”，詹某在乙国被乙国私人公司打伤并侵占房屋，首先应当向乙国的行政（比如警察局）或司法当局（法院）寻求法律救济，以此来维护自己的合法权益。\n\n- **C ✗** （条件未成就）：詹某被私人公司打伤，目前属于私人纠纷，乙国政府尚未介入，不构成“国家不当行为”；同时，詹某也还没有“用尽当地救济”（还没去乙国报警或起诉）。在这两个条件都不满足的情况下，去找甲国驻乙国大使馆申请外交保护是为时过早的。\n\n- **D ✗** （程序错误）：甲国绝对不能“立即”行使外交保护权。正如前面所说，必须等詹某先把乙国的司法和行政救济手段都用尽了，且乙国当局确实存在“拒绝司法”等国家不当行为时，甲国才能行使外交保护权。越过当地法院“立即”行使，是对乙国国家主权和司法管辖权的严重侵犯。\n\n‍",
+    "guanlian": "外交保护的另一前提——“国家不当行为”（国家责任的归属）\n外交保护不是随便就能发动的，它是一国政府对另一国政府的交涉。因此，只有当侵害行为是 **“所在国政府（国家）”** 干的，或者能归咎于所在国时，母国才能行使外交保护权。\n**通俗比喻**：如果只是两个普通老百姓打架，或者是私人公司之间的纠纷，这属于普通的民事或刑事案件，属于当地警察和法院管的范畴，上升不到“外交层面”和“国家责任”。在本题中，打人的是“乙国某私人公司”，不是乙国政府，因此在这个阶段，它只是一个普通的治安或民事案件，不能直接触发外交保护。只有当詹某去乙国法院告状，乙国法院无理拒绝受理或者故意枉法裁判（即发生了“拒绝司法”的国家不当行为），侵害才上升为乙国的国家责任，此时才能谈外交保护。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-8-5",
+    "type": "选择题",
+    "chapterOrder": 8,
+    "chapter": "国际法上的个人",
+    "question": "高某出生在甲国，其父亲是乙国人，母亲是丙、丁双重国籍人，假设对原始国籍的获得，甲丙两国采取纯粹的出生地主义，乙丁两国都采取纯粹的双系血统主义。此时，根据有关国际法规则和国际实践，对于高某此时国籍状况，下列何种表述是正确的？",
+    "options": "A.高某可能拥有甲乙丙丁四国的国籍\nB.高某仅可能拥有甲乙丙三国的国籍\nC.高某仅可能拥有甲乙丁三国的国籍\nD.高某仅可能拥有甲乙两国的国籍",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "原始国籍的取得原则（出生地主义与血统主义）及国籍的积极冲突",
+    "jiangjie": "关于一个人出生时到底归属哪国国籍（原始国籍），国际上主要有两种“认人”或“认地”的规则：\n(1) **出生地主义（认地不认人）** ：一个人的国籍根据他的出生地来决定，不论其父母的国籍如何。\n比喻：这就好比“土地印章”，只要你在这片土地上降生，这片土地的国家就会给你盖上他们国家的“印章”（发国籍），根本不管你爸妈是哪国人。\n(2) **血统主义（认人不认地）** ：根据父母的国籍来确定一个人出生时的国籍。“双系血统主义”意味着不仅看父亲，也看母亲，只要父母中有一方是该国人，孩子就能随之获得该国国籍。\n比喻：这就好比“血脉传承”，只要你身上流着这个国家国民的血（父母有一方是），无论你出生在地球的哪个角落，这个国家都会认你做本国国民。\n(3) **国籍的积极冲突**：由于各国采取的“认人”和“认地”规则不同，当这些规则在同一个人身上叠加时，就会导致一个人一出生就同时拥有两个或两个以上国家的国籍，这种“一人多籍”的现象在国际法上被称为国籍的积极冲突。",
+    "zhuxiang": "- **C ✓** 我们来给高某“算一算”他到底能拿到哪几个国家的国籍：\n\n- **甲国（纯粹出生地主义）** ：高某出生在甲国。因为甲国“认地不认人”，所以高某**能取得甲国国籍**。\n- **乙国（纯粹双系血统主义）** ：高某的父亲是乙国人。因为乙国“认人不认地”，所以高某通过父亲的血脉**能取得乙国国籍**。\n- **丙国（纯粹出生地主义）** ：高某的母亲虽然有丙国国籍，但高某出生在甲国，并未出生在丙国。因为丙国只“认地不认人”，所以高某**无法取得丙国国籍**。\n- **丁国（纯粹双系血统主义）** ：高某的母亲拥有丁国国籍。因为丁国是双系血统主义（父母任一方即可），“认人不认地”，所以高某通过母亲的血脉**能取得丁国国籍**。\n综上所述，高某一出生就因各国立法的重叠，获得了甲、乙、丁三国的国籍，这正是典型的国籍积极冲突现象。因此，C项正确，A项错误。\n\n- **B ✗** 选项中包含了丙国。如前所述，丙国采取纯粹出生地主义，而高某出生在甲国，并未在丙国领土降生，故绝对无法取得丙国国籍。同时遗漏了丁国。\n\n- **D ✗** 选项遗漏了丁国。由于丁国采取双系血统主义，高某完全可以通过其母亲的丁国国籍身份顺利取得丁国国籍。\n\n‍",
+    "guanlian": "",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-8-6",
+    "type": "选择题",
+    "chapterOrder": 8,
+    "chapter": "国际法上的个人",
+    "question": "一美国人在日本将一伊朗人杀死，后潜逃英国",
+    "options": "A.伊朗可向美国请求引渡\nB.美国可向英国请求引渡\nC.日本可向英国请求引渡\nD.伊朗可向英国请求引渡\nE.日本可向美国请求引渡",
+    "answer": "答案：BCD",
+    "analysis": "",
+    "kaodian": "引渡的主体（请求国与被请求国）",
+    "jiangjie": "这道题考察的核心是“谁有资格要人（请求国）”以及“应该向谁要人（被请求国）”。\n(1) **向谁要人（被请求国）** ：引渡是指一国应他国的请求，将在“本国境内”的嫌疑犯或罪犯交给请求国审判或处罚。因此，被请求国必然是罪犯当前潜逃并实际逗留的那个国家。\n(2) **谁有资格要人（请求国）** ：通常是对该罪犯或犯罪行为有“管辖权”的国家。根据国际法实践，有权请求引渡的主体主要有三类：①罪犯本人所属国；②犯罪行为发生地国；③受害国。\n\n**通俗比喻**：假设张三抢了李四的东西，逃到了王五家里。李四（受害者）、张三的父母（所属国）、或者案发地辖区的警察（发生地国）都有正当理由管这件事（有管辖权）。但是，如果要抓张三，他们都必须统一去找王五（实际控制人/罪犯所在地）要人。如果他们跑去其他地方要人，显然是扑空的。",
+    "zhuxiang": "结合本题案情：罪犯是**美国人**（美国有属人管辖权）；犯罪地在**日本**（日本有属地管辖权）；受害者是**伊朗人**（伊朗作为受害国享有管辖权）；罪犯目前潜逃至**英国**（英国是实际控制罪犯的所在国，即被请求国）。\n\n- **A ✗** （找错人了）：罪犯目前潜逃在英国，并不在美国。伊朗想要人，应该向实际控制罪犯的英国请求引渡，向美国要人是徒劳的。\n- **B ✓** （属人管辖）：美国作为罪犯本人的所属国，对该案享有属人管辖权，有权向罪犯所在地英国请求引渡。\n- **C ✓** （属地管辖）：日本作为犯罪行为发生地国，对该案享有属地管辖权，有权向罪犯所在地英国请求引渡。\n- **D ✓** （受害国管辖）：伊朗作为受害国，对该案享有管辖权，有权向罪犯所在地英国请求引渡。\n- **E ✗** （找错人了）：与A项同理，罪犯现在躲在英国，日本只能向英国要人，向美国请求引渡对象不符。\n\n‍",
+    "guanlian": "国家管辖权的分类\n为什么上述三个国家有权请求引渡？这衍生出国际法上的“国家管辖权”概念。\n(1) **属地管辖权**：指国家对本国领域内的一切人、物和所发生的事件有权管辖。\n*通俗解释*：“我的地盘我做主”。只要事情发生在我家里，我就有权管。\n(2) **属人管辖权**（又称国籍管辖权）：指国家对具有其本国国籍的人实行管辖的权利，不论此人在国内还是国外。\n*通俗解释*：“我的人我来管”。只要是我的孩子，跑到天涯海角我也能管。\n(3) **保护性管辖权**：指国家对于外国人在本国领土外侵害本国国家或公民重大利益的犯罪行为行使管辖的权利。\n*通俗解释*：“敢欺负我的人，虽远必究”。保护本国人不受外人侵害。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-8-7",
+    "type": "选择题",
+    "chapterOrder": 8,
+    "chapter": "国际法上的个人",
+    "question": "从国际法上说，庇护权",
+    "options": "A.是个人的权利\nB.是国家从它的属地优越权引申出来的权利\nC.是指个人有受庇护的权利\nD.是国家给予个人庇护的权利\nE.属一国主权范围内的事",
+    "answer": "答案：BDE",
+    "analysis": "",
+    "kaodian": "庇护权的性质与主体",
+    "jiangjie": "国际法上的庇护探讨的问题是：当一个外国人因为政治原因被追捕，跑到另一国请求“政治避难”时，接收国有没有权利保护他？\n我们需要明确一个核心逻辑：**庇护权本质上是“国家的权利”，而不是“个人的权利”** 。\n我们可以打个比方来理解：国家就像是一座大房子的主人（拥有主权），而逃亡的外国人是被外面追打、跑来敲门求助的人。让不让这个人进门、进门后护不护着他，**决定权完全在房主（国家）手里**。房主愿意保护他，这是房主的权利和自由；但求助者只能“请求”收留，并没有强行要求房主必须收留他的“权利”。因此，给不给庇护、怎么给庇护，完全由国家自己说了算，是一国主权范围内的事情。",
+    "zhuxiang": "- **A ✗** （权利主体错位）：庇护权的主体是国家，而不是个人。个人在国际法上只有“寻求”或“请求”庇护的资格，但并没有绝对获得庇护的法定权利。\n- **B ✓** （权力来源准确）：国家的庇护权正是基于其对自身领土的绝对控制权。正因为国家享有属地优越权，它才能在自己的领土上合法地为外国人提供保护，不受他国干涉。\n- **C ✗** （权利主体错位）：同A项一样，国际法并没有赋予个人“享有受庇护”的必然权利。给不给庇护，完全取决于国家的意愿，个人不能强买强卖。\n- **D ✓** （权利实质准确）：这个选项准确描述了庇护权的运作方向——它是“国家”作为权利主体，决定“给予”个人保护的一种权利，强调了动作的发起方和决定方是国家。\n- **E ✓** （主权体现准确）：庇护是一种国家的主权行为。对于请求政治避难的外国人是否给予庇护，完全由被请求的国家自行决定，这属于一国内政和主权范围内的事项，别国无权干涉。\n\n---",
+    "guanlian": "属地管辖权（属地优越权）与庇护的双重义务\n\n(1) **属地管辖权（属地优越权）** ：指国家对本国领域内的一切人、物和所发生的事件有行使管辖的权利。\n具体讲解：为什么国家有底气保护一个被别国通缉的人？因为只要这个人跑到了我的领土上，我的地盘我做主，别人不能随便进来抓人。庇护权正是从这种“我的地盘我说了算”的属地管辖权中自然衍生出来的。\n(2) **庇护的双重义务**：当国家决定给予某人庇护时，国家既要“积极作为”（允许他入境、居留并给予保护），也要“消极不作为”（拒绝把他引渡回追捕他的国家，也不能驱逐他）。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-9-1",
+    "type": "选择题",
+    "chapterOrder": 9,
+    "chapter": "国家领土法",
+    "question": "国家领土主权",
+    "options": "A.不受任何限制\nB.受国际惯例限制\nC.受国际条约限制\nD.受国际习惯和国际条约的限制",
+    "answer": "答案：D",
+    "analysis": "",
+    "kaodian": "领土主权的限制",
+    "jiangjie": "**讲解**：\n领土主权是指国家对其领土范围内的人和物所行使的最高的和排他的权力。初学者常常会望文生义，以为既然是“主权”，在自己的地盘上当然想干什么就干什么，绝对自由。\n但实际上，**领土主权并不是绝对的，它必须受到国际法的限制**。具体来说，领土主权的限制是指国家领土的所有权和管辖权由于**受国际条约或国际习惯的约束**而不能完全行使的情况。\n\n**通俗比喻**：国家就像是一个房子的主人，领土就是这个房子。作为房主，你在自己家里确实有最高的决定权（领土主权）。但是，你的权力不是绝对的：\n第一，你不能在家里制造炸弹或者半夜放高音喇叭影响邻居，这是大家约定俗成的“公共规矩”（**国际习惯**）。\n第二，如果你自愿和邻居签了合同，允许他每天借用你的院子停车，那你就必须遵守合同让出部分使用权，这是你主动签署的“协议”（**国际条约**）。\n因此，房主的权利必然受到“公共规矩”和“私人协议”的双重限制。",
+    "zhuxiang": "- **A ✗** （主权绝对论）：领土主权虽然是国家权力的核心，但它并不是绝对的。在国际社会中，没有任何一个国家的领土主权可以不受任何限制地任意行使，否则就会导致国际秩序的混乱。\n- **B ✗** （限制来源片面）：国际惯例（国际习惯）确实会限制领土主权（即“一般性限制”），但这只是其中一个方面，忽略了国际条约同样可以对领土主权产生限制。该选项表述不够全面。\n- **C ✗** （限制来源片面）：国际条约确实可以对特定国家的领土主权产生特殊限制，但这同样只说对了一半，忽略了国际习惯带来的一般性限制。\n- **D ✓** （全面准确）：完美概括了领土主权受到限制的两个核心来源。国家领土的所有权和管辖权正是由于受“国际条约”或“国际习惯”的共同约束，而不能绝对、完全地行使。\n\n‍",
+    "guanlian": "对领土主权限制的具体分类\n**讲解**：\n根据国际法，国家在行使领土主权时受到的限制通常分为两种：\n(1)**一般性限制**：对一切国家或大多数国家领土主权的限制。这类限制通常来源于**国际习惯**。\n**具体讲解**：比如，你不能因为河水流经你的国家，就把水全截断了让下游邻国没水喝；又比如，你必须允许外国商船在你的领海内“无害通过”（只要人家不惹事，你就得让路）。这是为了国际社会的整体和谐。\n(2)**特殊限制**：依据**国际条约**对特定国家领土主权的限制。\n**具体讲解**：这是两国或多国之间“私下商量好”的限制。比如“共管”（两个国家共同管理一块领土）、“租借”（把领土租给别国使用），或者“国际地役”（通过条约允许别国在你的领土上修铁路等）。因为是条约规定的，所以只对签字的特定国家有效。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-9-2",
+    "type": "选择题",
+    "chapterOrder": 9,
+    "chapter": "国家领土法",
+    "question": "南极条约对缔约国所提出的领土主权要求规定的是",
+    "options": "A.冻结现状\nB.维持现状\nC.缔约国放弃\nD.缔约国相互承认和支持",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "南极的法律地位（“冻结”领土主权要求）",
+    "jiangjie": "在20世纪初，有多个国家（如英国、法国、澳大利亚等）为了争夺资源，先后对南极提出了领土主权要求。为了解决这种相持不下的争夺，《南极条约》确立了一个极其聪明的制度，那就是“**冻结**”对南极的领土主权要求。\n所谓“冻结”，并不是强迫各国彻底放弃已经提出的领土要求，也不是承认这些要求合法，而是把这些争议“放进冰箱里冷藏起来”。具体规定为：第一，条约既不支持，也不否定各国之前已经提出的领土要求；第二，在条约生效期间，任何国家都不允许提出新的领土要求，也不准扩大现有的要求；第三，大家在南极科考等活动，也不能作为日后争夺领土的证据或基础。简单来说就是：“搁置争议，共同科考”。",
+    "zhuxiang": "- **A ✓** （冻结现状）：完美契合《南极条约》的核心规定。条约明确要求“冻结”对南极的领土主权要求，把所有的主权声索和领土争议全部暂时封存，不提新要求，也不扩大旧要求。\n- **B ✗** （维持现状）：“维持现状”这个词在法律上往往带有“承认并固化当前各方占有格局”的意味。但《南极条约》明确表示，它**不构成对现有领土主张的支持**，因此它并不是去维持或承认某个国家对南极某块地的占有现状，而是直接把争议冷处理。\n- **C ✗** （缔约国放弃）：《南极条约》并没有强硬要求以前提出过领土主张的国家彻底放弃这些主张。条约明确指出不构成对现有主张的否定，这就意味着过去的声索依然停留在纸面上，只是被“冻结”了，并未被强制“放弃”。\n- **D ✗** （缔约国相互承认和支持）：这个选项完全违背了南极专为全人类和平利用的初衷。如果缔约国相互承认领土主张，就等于几个大国合伙把南极瓜分了。条约明文规定，**不构成对任何现有的对南极领土主张的支持**。\n\n‍",
+    "guanlian": "南极的其他法律制度与领土取得方式（先占）\n\n(1) **南极的其他法律制度（和平利用与自由科考）** ：南极只能用于和平目的，虽然不禁止使用军事人员或设施来进行科学研究，但绝不能搞军事演习或核试验等活动。同时，全人类都有在南极进行科学考察的自由，各国应当互相合作，把科考计划和科研成果拿出来交流共享。\n(2) **传统领土取得方式“先占”的限制**：在传统国际法中，国家可以通过“先占”来合法取得“无主地”（即不属于任何国家的土地）的主权。但是，现代国际法明确规定，南极地区、外层空间等属于全人类的共同利益区域，已经**不再属于可以“先占”的无主地**。国家不能再跑去南极插个国旗就说“这块地是我的”。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-9-3",
+    "type": "选择题",
+    "chapterOrder": 9,
+    "chapter": "国家领土法",
+    "question": "流经两个以上国家并对所有国家的船舶开放的河流是",
+    "options": "A.共管河流\nB.多国河流\nC.通洋河流\nD.国际河流",
+    "answer": "答案：D",
+    "analysis": "",
+    "kaodian": "国际河流与多国河流的概念及区别",
+    "jiangjie": "在国际法上，根据河流的法律地位和开放程度，跨越国界的河流有着严格的区分。这里最容易混淆的就是“多国河流”与“国际河流”。\n可以用“道路通行权”来打个通俗的比方：\n一条河流如果流经了A、B、C三个国家，它首先是一条“多国河流”。这就像是A、B、C三家人共同共有的一条“内部通道”，通常情况下，这条通道只对这三家人（沿岸国）开放，外人（非沿岸国）不经过允许是不准随便进入的。\n但是，如果A、B、C三国签订了一个国际条约，决定把这条内部通道向全世界开放，允许所有国家的船舶（尤其是商船）都能来这里自由航行，那么这条河流的格局就升级了，它就从“多国河流”摇身一变，成为了“国际河流”，也就是全世界公用的“水上高速公路”。",
+    "zhuxiang": "- **A ✗** （共管河流）：国际法关于河流的法定分类中并没有“共管河流”这一标准类别。在传统国际法中，“共管”一般是指两个或两个以上国家对同一领土区域共同行使主权。该选项属于生造的干扰项。\n- **B ✗** （多国河流）：多国河流确实流经两个或两个以上国家，但在国际实践中，它一般只对“所有沿岸国”开放，非沿岸国的船舶未经许可不得航行。它达不到题目中“对所有国家的船舶开放”的标准。\n- **C ✗** （通洋河流）：国际法中通常表述为“通洋运河”或“国际运河”，指的是一国境内人工开凿的、通向海洋且对所有国家开放的航道。题目明确问的是“河流”（天然水道）且流经多国，因此不选此项。\n- **D ✓** （国际河流）：完美契合题干定义。当一条多国河流通过国际条约的规定，对所有国家（包括非沿岸国）的船舶开放航行时，它就被称为国际河流。\n\n‍",
+    "guanlian": "国际法上的其他河流/水道分类（内河、界河、通洋运河）\n除了多国河流和国际河流，国际法上还有其他几种重要的水域划分，我们可以继续用“道路”来比喻：\n(1) 内河：从源头到入海口全都只在一个国家境内的河流（如我国的长江、黄河）。这纯属该国的“私家车道”，国家拥有完全主权，外国船舶没经过允许绝对不能进。\n(2) 界河：作为两个国家边界线的河流（如中俄黑龙江）。这就像两家院子中间的“隔离沟”，属于两国各自一半。通常只对这两个相邻的国家开放，除特殊情况外，一方的船不能随便去另一方靠岸，更不对外人开放。\n(3) 通洋运河（国际运河）：这是人工开凿的通向海洋的水道（如苏伊士运河、巴拿马运河）。它虽然位于一个国家领土内，但因为航运价值巨大，通常由国际条约规定将其“国际化”，对全世界所有国家开放。它和国际河流的区别在于：运河是“人工挖的”，河流是“天然形成的”。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-9-4",
+    "type": "选择题",
+    "chapterOrder": 9,
+    "chapter": "国家领土法",
+    "question": "八角岛是位于乙国近海的本属于甲国的岛屿。40年前甲国内战时，乙国乘机强占该岛，并将岛上的甲国居民全部驱逐。随后乙国在国内立法中将该岛纳入乙国版图。甲国至今一直主张对该岛的主权，不断抗议乙国的占领行为并要求乙国撤出该岛，但并未采取武力收复该岛的行动。如果这种实际状态持续下去，根据国际法的有关规则，下列判断哪一项是正确的",
+    "options": "A.根据实际统治原则，该岛在乙国占领50年后，其主权就归属乙国\nB.根据时效原则，该岛在乙国占领50年后，其主权将归属乙国\nC.根据实际统治和共管原则，乙国占领该岛50年后，该岛屿主权属于甲乙国共有\nD.根据领土主权原则，即使乙国占领该岛50年后，该岛屿主权仍然属于甲国",
+    "answer": "答案：D",
+    "analysis": "",
+    "kaodian": "领土主权原则与传统国际法取得领土的方式（时效）",
+    "jiangjie": "**讲解**：\n**(1) 领土主权原则**：领土主权是指国家对其领土范围内的人和物所行使的最高的和排他的权力。如果一块领土本属于A国，只要A国没有明确放弃主权（比如一直在抗议、主张权利），即使被B国非法强占再久，在法律上这块领土依然属于A国。这就像你的手机被偷了，只要你一直在报警和声索，无论小偷拿了多少年，手机的所有权在法律上永远是你的。\n**(2) 时效原则及其限制**：传统国际法上的“时效”，是指一国非法占有他国某块土地后，在相当长时期内**持续公开地、不受干扰地占有**，从而取得该土地主权的方式。\n但是，时效成立的一个关键前提是“不受干扰”（即原主权国没有提出抗议或反对）。如果原主权国天天抗议，这就不叫“不受干扰”。而且在现代国际法中，因为时效不问占领本身是否合法，加上期限无法确定，时效的适用历来争议很大，现在基本没有普遍适用意义了。",
+    "zhuxiang": "- **A ✗** （曲解实际统治原则）：国际法上的“实际统治”原则，是用来判断哪个政权能在国际上代表这个国家（即合法政府的认定标准），而不是用来支持他国非法武力兼并领土的。乙国单纯的军事强占，不能依据此原则取得该岛主权。\n\n- **B ✗** （时效原则不适用）：时效原则要求对领土的占有必须是“长期持续、公开且**不受干扰**的”。题干中明确说明甲国“至今一直主张对该岛的主权，不断抗议并要求乙国撤出”，这意味着乙国的占领受到了强烈的干扰和反对，根本不符合时效的条件。此外，时效原则在现代国际法中已基本失去普遍适用意义。\n\n- **C ✗** （共管需基于国家同意）：“共管”是指有关国家对该领土的主权互相限制、共同管理。本案中，乙国是单方面非法强占，且甲国一直在抗议，双方根本不存在达成“共管”协议的意愿和事实，该岛屿不可能自动变成甲乙两国共有。\n\n- **D ✓** （领土主权不因非法占有而丧失）：根据国际法上的“领土主权”原则，八角岛本属于甲国，乙国的乘机强占属于非法的侵犯行为。只要甲国没有放弃主权并在持续抗议，即使其未采取武力收复，乙国占领的时间再长（哪怕50年），也不能改变该岛屿领土主权仍属于甲国这一法律事实。\n\n‍",
+    "guanlian": "实际统治原则与共管原则\n**讲解**：\n**(1) 实际统治原则**：在国际法中，这个原则通常用来**认定一个国家的合法政府**。也就是说，只有实际有效统治了这个国家绝大部分领土的政权，才可被视为在国际上代表这个国家的合法政府，才有权行使国家主权。**它并不是“谁抢到地盘就归谁”的意思**。\n**(2) 共管原则**：是指两个或者两个以上国家**共同行使主权**。这就像几个人合伙买了一套房，大家都在房产证上写了名字，需要互相商量着来，主权是互相限制的。这种状态必须建立在国家间和平达成协议的基础上，绝不是一国非法单方强占后就能自动变成“共有”的。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-9-5",
+    "type": "选择题",
+    "chapterOrder": 9,
+    "chapter": "国家领土法",
+    "question": "风光秀丽的纳列温河是甲国和乙国的界河。两国的边界线确定为该河流的主航道中心线。甲乙两国间没有其他涉及界河制度的条约。现甲国提议开发纳列温河的旅游资源，相关旅行社也设计了一系列界河水上旅游项目。根据国际法的相关原则和规则，下列哪一项活动不需要经过乙国的同意，甲国即可以合法从事？",
+    "options": "A.在纳列温河甲国一侧修建抵近主航道的大型观光栈桥\nB.游客乘甲国的旅游船抵达乙国河岸停泊观光，但不上岸\nC.游客乘甲国渔船在整条河中进行垂钓和捕捞活动\nD.游客乘甲国游船在主航道上沿河航行游览",
+    "answer": "答案：D",
+    "analysis": "",
+    "kaodian": "界河（界水）的法律制度",
+    "jiangjie": "界河探讨的是两国之间作为国界的河流该如何管理和使用的问题。界河的法律地位是分属沿岸国家的内水，通常以河流的中心线或主航道中心线为界，两边各自属于两国的领土主权范围。\n为了方便初学者记忆，你可以把界河想象成邻居之间**共同使用的一条过道**。这条过道从中间划了一条线，左边归你，右边归邻居。\n\n1. **走路（航行）** ：既然是共享过道，大家都有权在这条过道上正常通行，谁也不用拦着谁（相邻国家在界河上享有平等的航行权）。\n2. **停车（停泊）** ：你不能未经允许就把车停到邻居那一侧的过道上（除遇险外，一方船舶未经允许不得在对方河道靠岸停泊）。\n3. **拿东西（捕捞）** ：你只能在你自己那一侧捡掉下来的果子，不能过界去邻居那边拿（渔民一般只能在本国一侧捕鱼）。\n4. **施工（建工程）** ：如果你想在过道上修个大门或搭个棚子，哪怕是在你自己的地界上起步，只要可能影响整条过道的结构或邻居的使用，你就必须先和邻居商量（一方欲在界河上建造工程设施，应取得另一方同意）。",
+    "zhuxiang": "- **A ✗** （建造设施需同意）：在界河上建造桥梁、堤坝、大型栈桥等工程设施，可能会改变水流、影响主航道或损害对方的利益。因此，国际法规定，**即使是在甲国本国一侧修建，也应取得另一方（乙国）的同意**。\n- **B ✗** （靠岸停泊需许可）：界河以主航道中心线为界，越过中心线就进入了乙国的领土。**除遇难或有其他特殊情况外，一方船舶未经允许不得在对方河道靠岸停泊**，哪怕游客不上岸也不行。\n- **C ✗** （捕捞活动有界限）：界河分属沿岸国家的部分属于该国领土，受该国主权管辖。因此，**渔民一般只能在界水的本国（甲国）一侧捕鱼**，绝不能跨越国界到“整条河”中进行垂钓和捕捞活动。\n- **D ✓** （平等航行权）：由于界河是两国的界水，**相邻国家在界水上享有平等的航行权**。游客乘甲国游船在主航道上沿河正常航行游览，是合法行使航行权的表现，不需要经过乙国的同意。\n\n‍",
+    "guanlian": "多国河流与国际河流的区别\n除了作为边界的界河，国际法上还有其他类型的河流，重点在于区分它们对谁开放：\n(1) **多国河流**：指依次流经几个国家的河流。各段分别属于流经国领土。\n具体讲解：多国河流就像是一个“小区内部道路”，它**一般只对所有沿岸国（小区业主）开放**，非沿岸国的船舶未经许可不得航行。\n(2) **国际河流**：通过条约规定，对所有国家开放航行的多国河流（如多瑙河、莱茵河）。\n具体讲解：这相当于小区业主们签了协议，把内部道路升级成了“市政公共马路”。**国际河流一般允许所有国家的船舶（特别是商船）无害航行**，但流经各国的河段依然是各国的主权领土。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-9-6",
+    "type": "选择题",
+    "chapterOrder": 9,
+    "chapter": "国家领土法",
+    "question": "传统国际法上领土取得的方式有",
+    "options": "A.先占\nB.时效\nC.征服\nD.割让\nE.添附",
+    "answer": "答案：ABCDE",
+    "analysis": "",
+    "kaodian": "传统国际法取得领土的方式",
+    "jiangjie": "领土的取得与变更探讨的问题是国家如何合法地获得或增加自己的地盘。传统国际法是指在过去（特别是二战及《联合国宪章》诞生之前）通行的国际法规则。在那个时代，国际社会主要认可五种“拿地盘”的合法手段：先占、时效、添附、割让、征服。这就好比过去大国之间划分势力的游戏规则，只要符合这五种情况中的一种，在当时就被承认为是合法取得了该领土的主权。",
+    "zhuxiang": "- **A ✓** （先占）：指国家有意识地占有“无主地”（不属于任何国家且非人类共同利益区域的土地）并取得主权，条件是必须实行有效占领。通俗地说就是“这块荒地没人要，谁先发现并实际管辖，地就是谁的”。\n- **B ✓** （时效）：指一国非法地占有他国部分领土，在相当长时期内持续公开地、不受干扰地占有，从而取得该土地的主权。通俗地说就是“哪怕一开始是强占的，只要占得够久且对方一直默认没反抗，这块地慢慢就合法归你了”（不过在现代国际法中争议极大，基本无适用意义）。\n- **C ✓** （征服）：指国家通过武力打败他国并兼并其全部或部分领土。通俗地说就是“打赢了，地盘我就直接拿走”。这在传统国际法上是合法的领土取得方式，但在现代已被彻底废弃。\n- **D ✓** （割让）：指国家依照条约规定将自己的领土转让给别国。通俗地说就是“签合同过户领土”。过去有打败仗后被迫割地的（强制性割让），也有自愿花钱买的（非强制性割让）。\n- **E ✓** （添附）：指因自然（如河流泥沙冲积）或人为（如填海造地）原因使国家增加了一块领土。通俗地说就是“大自然送的”或者“自己动手填出来的”，只要不损害邻国利益，至今也是合法的领土获取方式。\n\n‍",
+    "guanlian": "现代国际法对领土获取方式的扬弃与新方式\n随着时代发展，过去那种“靠拳头抢地盘”的强盗逻辑行不通了。现代国际法对传统方式进行了严格的筛选和限制，并引入了更加民主、和平的新方式。\n(1) 传统方式的现状：现在地球上基本不存在“无主地”了，所以“先占”失去了现实适用空间；“征服”和“强制性割让”（战败被迫割地）因为违反了现代国际法“禁止使用武力原则”而被彻底废弃，属于非法行为。现在还能合法使用的传统方式，主要是“非强制性割让”（比如国家间自愿的土地买卖、赠与或交换）和不损害邻国利益的“添附”。\n(2) 现代获取领土的新方式：主要是“民族自决”（受殖民统治的人民自己当家作主建立新国家）和“公民投票”（争议领土上的居民自己投票决定领土归属）。这强调的是领土变更需要“尊重当地老百姓的意愿”。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-9-7",
+    "type": "选择题",
+    "chapterOrder": 9,
+    "chapter": "国家领土法",
+    "question": "现代国际法上承认的领土变更方式主要有",
+    "options": "A.买卖\nB.交换\nC.添附\nD.人民自决\nE.收复失地",
+    "answer": "答案：DE",
+    "analysis": "",
+    "kaodian": "现代国际法上的领土变更方式",
+    "jiangjie": "我们可以把国家的“领土”想象成极其特殊的“国家级不动产”。在二战以前的旧时代，国际法遵循的是“强权即真理”，谁拳头大谁就能抢地盘。\n但在二战之后，以《联合国宪章》为核心的**现代国际法**建立了。现代国际法有两大铁律：一是“禁止使用武力侵略”，二是“主权平等与人权尊重”。基于这两个铁律，现代国际法彻底否定了过去靠武力强占地盘的做法，并**专门创制和承认**了符合现代正义价值观的领土变更方式。其中最核心的就是两大方式：\n1.**把决定权还给人民**（人民自决）：地盘归谁，得问问住在上面的人民愿不愿意。\n2.**正义的物归原主**（收复失地）：过去被列强用不平等条约或武力抢走的土地，现在必须合法要回来。",
+    "zhuxiang": "- **A ✗** （属于传统国际法方式）：“买卖”在学术分类上属于传统国际法中的“非强制性割让”。虽然它是平等自愿的，但在现代国际法话语体系中，领土不再是商品，不能由君主或政府像卖大白菜一样任意买卖，因此它不属于现代国际法主导和承认的“现代变更方式”。\n- **B ✗** （属于传统国际法方式）：“交换”同样属于传统国际法中的“非强制性割让”。它的法理基础来源于传统的国家主权绝对处分权，在分类上被划归为传统国际法制度，不是现代国际法创制的新型方式。\n- **C ✗** （属于传统国际法方式）：“添附”完全是大自然的鬼斧神工（如河流改道、三角洲淤积）或技术性的围海造陆，它是最典型的、从古至今都有的**传统**领土取得方式，不能算作现代国际法发展出的新型领土变更方式。\n- **D ✓** （现代国际法核心方式）：“人民自决”是现代国际法（特别是去殖民化运动）的伟大勋章。它打破了“领土随主权者任意处分”的旧传统，强调领土变更必须尊重当地居民的自由意志（如通过公民投票决定归属）。这是纯正的、最具代表性的**现代国际法方式**。\n- **E ✓** （现代国际法核心方式）：“收复失地”（恢复历史性权利）是现代国际法基于“禁止武力侵略”和“废除不平等条约”原则而确立的合法方式。当一个国家通过合法手段收回过去被非法剥夺的领土时（如中国收回香港、澳门），现代国际法坚定地承认其合法性。这同样是**现代国际法方式**。\n\n‍",
+    "guanlian": "传统国际法上的领土取得/变更方式\n\n既然有“现代方式”，就一定有“传统方式”。在传统的国际法教材里，领土取得有三大传统老祖宗：**先占**（发现无人岛并占领）、**时效**（非法占了很久没人反抗就变成自己的）和**添附**（大自然送的土地）。\n另外，传统国际法上还有一个核心概念叫“割让”。割让就像是转让不动产，分为两种：\n\n- **强制性割让：**  打输了被迫割地赔款（现代国际法已彻底宣布其非法）。\n- **非强制性割让：**  两个国家坐下来，心平气和地做交易。比如国家之间觉得边界不好管，互相**交换**一块土地（交换）；或者像当年俄国缺钱，把阿拉斯加卖给美国（买卖）。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-9-8",
+    "type": "选择题",
+    "chapterOrder": 9,
+    "chapter": "国家领土法",
+    "question": "先占是国际法中国家取得领土主权的一种方式。根据现代国际法的有关规则，下列哪些选项已经不能被作为先占的对象？",
+    "options": "A.南极地区\nB.北极地区\nC.国际海底区域\nD.月球",
+    "answer": "答案：ABCD",
+    "analysis": "",
+    "kaodian": "传统国际法取得领土的方式——先占及其客体条件",
+    "jiangjie": "“先占”是传统国际法中获取领土主权的一种合法方式，它的核心规则类似于民间俗语中的“谁先发现谁先得”。但要合法“先占”，必须满足两个硬性条件：\n第一，目标必须是“无主地”（即不属于任何国家的土地）；\n第二，必须是“有效占领”（不仅要先发现，还得在上面建立行政机构、颁布法律，实施真正的管辖）。\n\n**通俗比喻**：这就好比在一片未开发的大陆上，谁先找到一块没有主人的荒地，并且在上面建了村庄、派了警察管理（有效控制），这块地就归谁。但是，放到现代来看，地球上早就被各国探索完毕，静态地看，世界上已经不存在传统意义上的“无主地”了。此外，为了防止大国为了争夺仅剩的几块极端区域打得头破血流，现代国际法通过各种条约，明确把一些特殊区域排除在了“无主地”的范围之外，禁止任何国家去“先占”。",
+    "zhuxiang": "- **A ✓** （南极地区）：南极受《南极条约》的管辖。该条约实行了“冻结”原则，即冻结了各国对南极的领土主权要求，规定南极仅用于和平目的和科学研究，任何国家不得对南极领土提出新的或扩大现有要求。因此，南极已经不能作为无主地被先占。\n- **B ✓** （北极地区）：北极绝大部分是北冰洋上的冰盖。虽然有些北极沿岸国家曾根据“扇形理论”（以自己国家海岸线为底，向北极点画个扇形来瓜分地盘）主张领土权利，但这遭到了大多数国家的反对。现有的北极环保相关条约并没有改变北极地区本身的法律地位，它不能被视为无主地而被某个国家单方面先占。\n- **C ✓** （国际海底区域）：《联合国海洋法公约》明确规定，国家管辖范围以外的海床和洋底及其底土（即国际海底区域）及其自然资源是“人类共同继承的财产”。任何国家都不得对该区域主张或行使主权，当然也就绝对不能成为先占的对象。\n- **D ✓** （月球）：外层空间（包括月球和其他天体）受《外空条约》等国际法约束。条约确立了“共同利益原则”和“自由探索原则”，明确规定任何国家不得通过主张要求、使用或占领的方法，将月球等外层空间据为己有。也就是说，即便某个国家第一个在月球上插上了国旗，也不能把月球先占为本国领土。\n\n‍",
+    "guanlian": "现代国际法上的特殊空间与“人类共同继承财产”\n既然地球上的陆地基本分完了，剩下的那些未知的、极端的、或者资源丰富的公共区域（如极地、太空、深海）怎么办？现代国际法为它们设立了特殊的法律地位。\n**通俗比喻**：这些特殊区域就像是地球村里的“公共绿地”或者“全体村民共有的财产”。\n\n1. **冻结现状**：有些地方（如南极）大家都有争议，为了避免打架，大家签个协议，把这些争议像放进冰箱一样“冻结”起来，谁也不许提新的要求，大家只能在这里搞和平的科学研究。\n2. **人类共同继承财产**：有些地方（如国际海底区域、月球）被明确规定为全人类共有。就像小区的公摊面积和公共设施，任何一户人家都不能私自圈起来据为己有，开发利用必须为了全人类的利益。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-9-9",
+    "type": "选择题",
+    "chapterOrder": 9,
+    "chapter": "国家领土法",
+    "question": "甲河是多国河流，乙河是国际河流。根据国际法相关规则，下列哪些选项是正确的？",
+    "options": "A.甲河沿岸国对甲河流经本国的河段拥有主权\nB.甲河上游国家可对自己享有主权的河段进行改道工程，以解决自身缺水问题\nC.乙河对非沿岸国商船也开放\nD.乙河的国际河流性质决定了其属于人类共同的财产",
+    "answer": "答案：AC",
+    "analysis": "",
+    "kaodian": "多国河流与国际河流的法律地位与航行制度",
+    "jiangjie": "这道题主要考察的是流经多个国家的河流在所有权和使用权上的划分。\n(1) **多国河流**：打个比方，一条长长的胡同穿过了好几户人家的院子。这条胡同在谁家院子里，产权就属于谁（沿岸国对本国河段拥有主权）。大家平时约定，这几户人家可以互相串门（对所有沿岸国开放），但是外面的陌生人没有许可绝对不能进来（非沿岸国船舶未经许可不得航行）。同时，就算产权是你的，你也不能把自家那段路给挖断了，让别人无路可走，或者把水全截断让下游没水喝（不得有害利用、不得擅自改道或堵塞）。\n(2) **国际河流**：国际河流本质上是“升级版”的多国河流。胡同里的几户人家签订了一份正式契约（国际条约），决定把这条胡同向“全社会”开放，全世界的商船都可以来这里通行（对所有国家开放航行）。但是，**开放通行权不等于交出所有权**，胡同的地皮依然归各家自己所有（河段依然是该国主权下的领土）。",
+    "zhuxiang": "- **A ✓** （主权归属）：无论是多国河流还是国际河流，流经各国的河段都分别属于各国领土，沿岸国对自己领土内的那一段河流拥有绝对的主权。\n\n- **B ✗** （权利滥用）：虽然上游国家对流经本国的河段拥有主权，但在多国河流中，沿岸国不能“任性”地滥用权利。如果为了解决自身缺水就单方面进行改道或堵塞工程，属于有害地利用河流，会严重损害下游国家的利益。关于多国河流的航行、使用和管理等事项，一般都应由有关沿岸国通过协议来解决。\n\n- **C ✓** （国际河流的开放性）：国际河流的根本特征就是通过国际条约确立了其“国际化”的航行地位。它不仅允许沿岸国通行，也一般允许所有国家的船舶（特别是商船）进行无害航行，因此非沿岸国的商船同样可以进入。\n\n- **D ✗** （领土性质）：这是个典型的偷换概念干扰项。国际河流虽然名字里带有“国际”二字，并且向所有国家开放航行，但它流经各国领土的河段**仍然是该国主权下的领土**，绝不是“人类共同继承的财产”。人类共同继承财产通常指国际海底区域或月球等地。\n\n---",
+    "guanlian": "人类共同继承财产\n\n选项D中提到了“人类共同的财产”（即人类共同继承财产）。在国际法中，这个词是一个非常特殊且级别很高的概念。它指的是那些任何国家都不能声明占为己有、必须为全人类利益而和平使用的区域，比如**国际海底区域（公海海底）** 和**月球等外层空间**。国际河流在地球的陆地上，妥妥地属于各沿岸国的领土，国家对它拥有绝对的主权，所以千万不要把“向全世界开放航行”和“属于全人类财产”混为一谈。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-1",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "1960年第二次联合国海洋法会议是为了专门研究",
+    "options": "A.领海的宽度问题\nB.专属经济区问题\nC.大陆架问题\nD.养护渔业资源问题",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "联合国海洋法会议的编纂历程与领海宽度问题",
+    "jiangjie": "**讲解**：\n国际海洋法的规则并不是一蹴而就的，而是通过几次重大的“国际会议”不断吵架、妥协才逐步确立的。\n我们可以把海洋法会议理解为全世界国家为了“划分地盘和资源”而召开的村民大会：\n\n- **第一次村民大会（1958年第一次联合国海洋法会议）** ：大家取得了很多共识，比如什么是领海、什么是公海、什么是大陆架，并且顺利通过了四项公约。但是，有一个最核心的利益问题大家没谈拢——“领海到底该有多宽？”（即每个国家家门口的私人院子到底能往外扩多远）。\n- **第二次村民大会（1960年第二次联合国海洋法会议）** ：因为上次没谈拢，大家在两年后专门针对“领海的宽度问题”以及捕鱼区界限又开了一次会，也就是本题考察的会议。不过这次会议依然因为各国利益分歧太大而以失败告终。（*注：材料中仅在习题部分提及了本次会议，其专门研究领海宽度的具体历史背景属于材料外的国际法常识，您可作进一步独立核实*）。\n- **第三次村民大会（1982年第三次联合国海洋法会议）** ：经过漫长的谈判，大家终于在这次会议上大获全胜，不仅规定了领海宽度不超过12海里，还确立了专属经济区等新制度，最终诞生了最全面完整的《联合国海洋法公约》。",
+    "zhuxiang": "- **A ✓** 1958年的第一次海洋法会议虽然通过了《领海及毗连区公约》，但各国对领海的宽度争执不下。因此，1960年的第二次海洋法会议就是为了专门“啃这块硬骨头”（专门研究领海宽度及捕鱼区界限问题）而召开的。\n- **B ✗** 专属经济区是1982年《联合国海洋法公约》确立的新区域和新制度。在1960年召开第二次海洋法会议时，专属经济区制度尚未进入国际海洋法的正式编纂议程，因此不可能是当时的专门研究对象。\n- **C ✗** 大陆架问题早在1958年的第一次联合国海洋法会议上就已经被专门讨论，并且已经顺利通过了《大陆架公约》。既然已经有了专门的公约，1960年的会议自然不需要再将其作为专门研究的核心议题。\n- **D ✗** 与大陆架问题类似，养护渔业资源的问题也已经在1958年的第一次会议上解决，当时各国已经通过了《捕鱼及养护公海生物资源公约》。因此它也不是1960年会议的专门研究对象。\n\n‍",
+    "guanlian": "1958年第一次海洋法会议的成果与《联合国海洋法公约》的新制度\n**讲解**：\n(1) **1958年会议的成果（传统海洋法）** ：在1958年的第一次会议上，各国其实已经解决了海洋法上的很多基础问题，并制定了四部公约：《领海及毗连区公约》《公海公约》《大陆架公约》和《捕鱼及养护公海生物资源公约》。这意味着，关于大陆架的定义和公海捕鱼养护的规则，在那时就已经基本定型了。\n(2) **专属经济区（现代海洋法的新概念）** ：专属经济区是一个“新星”概念，它是指领海以外、从基线量起不超过200海里的区域，沿海国在这里享有勘探、开发自然资源的主权权利。这个概念在1958年和1960年的时候还不存在，它是后来由广大发展中国家努力争取，并在1982年《联合国海洋法公约》中才确立的全新制度。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-2",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "1992年《中华人民共和国领海与毗连区法》规定，我国的领海基线采用",
+    "options": "A.正常基线\nB.直线基线\nC.交替采用正常基线和直线基线\nD.低潮线",
+    "answer": "答案：B",
+    "analysis": "",
+    "kaodian": "中国的领海基线划定方法（直线基线法）",
+    "jiangjie": "领海基线是什么？你可以把它想象成国家测量自己海域地盘的“起跑线”。从这条线往外量，才能确定领海、毗连区、专属经济区等的范围。我国《领海及毗连区法》明确规定，我国领海宽度为12海里，并且采用“直线基线法”来划定。\n为什么采用这种方法呢？因为我国的海岸线非常曲折，而且近海散落着大量的岛屿。如果顺着水边线一寸一寸地画，那这条“起跑线”会弯弯曲曲、极其琐碎。所以我国采取的办法是：在大陆向海突出的地方，或者外面的岛屿上，挑几个关键点（基点）当“木桩”，然后用一条条拉直的绳子（直线）把这些“木桩”连起来。这套连起来的直线圈，就是我国的领海基线。",
+    "zhuxiang": "- **A ✗** （正常基线）：正常基线是顺着退潮时的海岸线自然形成的。由于我国海岸线曲折且近海多岛屿，如果采用正常基线会导致海洋划界极其复杂，不利于国家管辖，因此我国没有采用这种方法。\n- **B ✓** （直线基线）：完美契合我国法律规定。我国《领海与毗连区法》及海洋法实践中，正是根据我国海岸线曲折、近岸岛屿众多的地理特征，明确规定采用直线基线法来划定领海基线。\n- **C ✗** （交替采用）：国际法上确实存在确定基线的混合方法（即不同海岸区段采用不同基线），但针对我国的具体法律规定而言，我国明确统一采用的是“直线基线法”，而非交替采用。\n- **D ✗** （低潮线）：“低潮线”其实就是“正常基线”的另一个名字。由于我国不采用正常基线，自然也就不会将选项中的低潮线作为正确答案。\n\n‍",
+    "guanlian": "领海基线的两种主要类型（正常基线与直线基线）\n\n(1) 正常基线（又称低潮线、自然基线）：也就是海水退潮退到最低限度时，水面和陆地交界的那条自然痕迹。这种方法就像是“沿着海岸的轮廓描边”，通常适合海岸线比较平直、外面没什么岛屿的国家。\n(2) 直线基线：正如前面所说，它不沿着海岸线描边，而是人为选取突出的点用直线相连。这种方法专门适用于海岸线极为曲折，或者近岸有一系列岛屿的情况。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-3",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "\"无害通过权\"中的\"无害\"一词是指",
+    "options": "A.不违反国际法\nB.不损害沿海国的和平、安全或良好秩序\nC.不损害其他国家的领海航行权\nD.不违反沿海国的法律规章",
+    "answer": "答案：B",
+    "analysis": "",
+    "kaodian": "领海的无害通过权及其“无害”的界定",
+    "jiangjie": "领海受沿海国主权支配，是国家领土的组成部分。但为了兼顾国际海上贸易与航运的便利，国际法确立了“无害通过权”：即所有国家（不论是沿海国还是内陆国）的船舶，都有权在特定前提下，继续不停和迅速地通过沿海国的领海。\n这里的 **“无害”有着严格的法律界定，专门指船舶的通过“不损害沿海国的和平、良好秩序或安全”** 。\n**通俗比喻**：领海就像是沿海国门前的一块“私家院子”。为了方便大家通行，主人允许陌生人（外国船舶）从院子里借道穿过。但是借道有个绝对前提：你必须是个“规矩的过客”（无害）。所谓的“规矩”，并非要求你一定是个道德模范，而是你**不能在主人的院子里搞破坏、不能舞刀弄枪威胁主人的安全、不能扰乱主人家的正常生活清净**（即不损害沿海国的和平、安全或良好秩序）。只要你不惹事生非，主人就不能拦着你借道。",
+    "zhuxiang": "- **A ✗** （范围泛化）：“不违反国际法”这个表述过于宽泛。“无害通过”是一项非常具体的海洋法制度，其焦点在于船舶的通过行为是否对**具体的沿海国**构成了现实的损害，而不是泛泛地谈论是否违反了整个宏大的国际法体系。\n\n- **B ✓** （法条原意）：完美契合《联合国海洋法公约》的明确规定。只要外国船舶在领海内的通过行为没有损害沿海国的“和平、良好秩序或安全”，这种通过在法律上即被认定为是“无害”的。\n\n- **C ✗** （对象错位）：无害通过权处理的是“过境的外国船舶”与“领海所属的沿海国”这两者之间的权利义务关系。它关注的重点是不能损害主人的利益，这与其他第三国（其他国家）的领海航行权毫无关系，属于生搬硬套的干扰项。\n\n- **D ✗** （概念混淆）：外国船舶在通过领海时，确实应当遵守沿海国关于海关、财政、卫生等方面的法律规章，但 **“不违反规章”是船舶的通行义务，不能直接等同于“无害”的定义界限**。举例来说，一艘商船如果仅仅是违反了某项轻微的行政申报规章，这属于违规行为，但它并没有严重到破坏国家的“和平、安全和良好秩序”的程度（即不一定属于“有害”）。“无害”的底线是国家的和平与安全，标准比“不违反一切琐碎规章”要高得多。\n\n‍",
+    "guanlian": "无害通过的其他限制条件与规则\n除了必须满足“无害”这一根本性质外，外国船舶在别人领海里“借道”时，还必须遵守以下行为规范：\n(1) **持续且迅速**：“通过”是为了穿过领海或进出内水，因此必须连续不停和迅速地进行，不可以随意在别人的领海里闲逛、停泊或下锚（除非遇到不可抗力、遇难或需要救助他人）。\n(2) **潜艇必须“露面”** ：潜水艇或其他水下潜水器在通过领海时，绝对不能在水下隐蔽潜行，必须**浮出水面并展示其国旗**，做到光明正大。\n(3) **沿海国的管理权**：沿海国不可以向纯粹只是穿越领海的船舶收取“过路费”，但为了航行安全，沿海国有权要求不同吨位、不同类型的船舶（如危险品船）走指定的专属通航分道。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-4",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "领海的宽度为从领海基线量起不超过",
+    "options": "A.3海里\nB.6海里\nC.12海里\nD.24海里",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "领海的宽度与法律地位",
+    "jiangjie": "领海的宽度问题探讨的是沿海国对其周边海域行使完全主权的空间极限。\n如果把一个国家的陆地领土比作“私家别墅”，那么领海就是这栋别墅自带的“私家前院”。在这个前院里，国家拥有绝对的主权（就像在自己家里一样），包括水域、上空、海床和底土。\n但是，为了防止某些国家把公海都圈成自己的院子，1982年的《联合国海洋法公约》定下了一个规矩：每个国家都可以自己决定“前院”有多大，但从领海基线（也就是院子的最内侧边界）向外量起，**最大不能超过12海里**（小于或等于12海里均可）。我国的《领海及毗连区法》也明确规定，我国领海的宽度从领海基线量起为12海里。",
+    "zhuxiang": "- **A ✗** （历史概念）：3海里是早期国际法中传统的“大炮射程”标准，但现代海洋法早已将其废弃，允许国家主张更宽的领海。\n- **B ✗** （无依据干扰项）：6海里仅为部分国家曾经的历史主张或过渡性主张，并非《联合国海洋法公约》规定的法定上限。\n- **C ✓** （领海法定上限）：完全契合《联合国海洋法公约》第3条的规定，领海的宽度从基线量起不超过12海里。\n- **D ✗** （张冠李戴）：24海里是从领海基线量起的“毗连区”的最大外部界限，而不是领海的界限。该选项把毗连区的宽度限度套用在了领海上。\n\n‍",
+    "guanlian": "毗连区和专属经济区的宽度\n\n(1)毗连区的宽度（不超过24海里）：毗连区相当于“私家前院”外面的“社区安保巡逻带”。它从领海基线量起，最远不超过24海里。在这里，沿海国没有完全的主权，但可以为了防止海关、财政、卫生、移民等方面的违法行为而进行“抓小偷”式的行政管制。注意，既然领海最多占了12海里，那么毗连区的实际宽度通常也是12海里（24海里减去领海的12海里）。\n(2)专属经济区的宽度（不超过200海里）：专属经济区相当于别墅外围更大的“专属农场和矿场”。它从领海基线量起，最远不得超过200海里。在这个区域内，沿海国对自然资源（如捕鱼、开采石油）拥有专属的权利，但这里已经不是领土，外国的船只和飞机可以在这里自由航行和飞越。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-5",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "对于外国船舶在用于国际航行的海峡行使过境通行权，沿海国",
+    "options": "A.不应妨碍\nB.不应予以停止\nC.不应妨碍但在特定条件下可以停止\nD.不应妨碍和不应予以停止",
+    "answer": "答案：D",
+    "analysis": "",
+    "kaodian": "用于国际航行的海峡的通行制度（过境通行权）",
+    "jiangjie": "用于国际航行的海峡（如马六甲海峡、霍尔木兹海峡）就像是海洋上的“国际高速公路咽喉”，连接着公海或专属经济区，对全球贸易和航行至关重要。为了保障这条“大动脉”的畅通，国际法赋予了外国船舶和飞机在这里行使“过境通行权”。\n所谓“过境通行”，可以理解为一种“**VIP快速通道**”：船舶和飞机有权**不受阻碍地**、连续不停且迅速地穿过海峡。因为这条通道具有全球战略意义，所以国际法对海峡沿岸国施加了极其严格的义务：第一，**不应妨碍**，也就是不能设置路障或故意刁难拦截；第二，**不应予以停止**，也就是哪怕沿海国以军演或国家安全为由，也不能将这条国际通道哪怕是暂时性地关闭。",
+    "zhuxiang": "- **A ✗** （表述不全）：“不应妨碍”确实是沿海国的义务，因为过境通行权要求外国船舶和飞机能不受阻碍地过境。但该选项忽略了“不能停止”的义务，表述不够全面。\n- **B ✗** （表述不全）：“不应予以停止”也是沿海国的义务，国际海峡的通行不得被随时掐断。但同样，该选项只说了一半。\n- **C ✗** （张冠李戴）：“在特定条件下可以停止”这是**普通领海**的无害通过权才有的限制。沿岸国为了国家安全，可以暂时停止普通领海的无害通过。但如果是用于国际航行的海峡，不论是适用过境通行权，还是特殊情况下适用无害通过权，沿岸国都**不应予以停止**。此选项将普通领海的规则错套在了国际海峡上。\n- **D ✓** （表述全面）：完整地概括了沿海国对于过境通行权的核心义务。为了保障国际交通的自由与绝对畅通，沿海国既**不应妨碍**，也**不应予以停止**。\n\n‍",
+    "guanlian": "领海的无害通过权与国际海峡过境通行权的区别\n\n初学者在做题时，极容易将海峡的“过境通行权”与普通领海的“无害通过权”搞混。\n(1) **普通的领海——无害通过权（带条件的通行）** ：领海是沿海国领土的组成部分，受沿海国主权支配。外国船舶在这里的通行就像是“借道别人家的院子”。只要你不损害沿海国的和平与安全（即“无害”），就可以迅速通过。但沿海国为了自身安全，**在特定条件下是可以暂时停止**外国船舶的无害通过的。\n(2) **国际海峡——过境通行权（绝对的畅通）** ：国际海峡的水域虽然可能也属于沿岸国的领海，但因为它是国际交通枢纽，所以适用的规则“越级”了。过境通行权不仅允许船舶航行，还允许飞机飞越，且沿海国**绝对不能停止**这种通行。退一步讲，即便是在某些只适用“无害通过权”的特殊国际海峡（如由一国大陆和该国岛屿构成的海峡），国际法也明确规定其无害通过是**不应予以停止**的。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-6",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "甲国是群岛国，乙国是甲国的隔海邻国，两国均为《联合国海洋法公约》的缔约国。根据相关国际法规则，下列哪一选项是正确的？",
+    "options": "A.他国船舶通过甲国的群岛水域均须经过甲国的许可\nB.甲国为连接其相距较远的两岛屿，其群岛基线可隔断乙国的专属经济区\nC.甲国因已划定了群岛水域，则不能再划定专属经济区\nD.甲国对其群岛水域包括上空和底土拥有主权",
+    "answer": "答案：D",
+    "analysis": "",
+    "kaodian": "群岛水域的法律地位与航行制度",
+    "jiangjie": "（1）**群岛水域的法律地位**：群岛水域是介于群岛国的内水和领海之间的具有特殊法律地位的水域。群岛国对群岛水域拥有完全的主权，且这种主权不仅限于水体本身，还向上延伸到水域的上空，向下延伸到海床和底土，以及其中所包含的资源。\n*比喻*：这就好比群岛国是一个由多个零散房屋（岛屿）组成的大型庄园。这些房屋之间夹杂的空地就是“群岛水域”。群岛国不仅拥有这片空地的所有权，还拥有空地上方的天空和地下的土壤。\n（2）**航行制度**：虽然群岛国拥有主权，但为了照顾国际航运的便利，必须允许他国船只/飞机通行。航行分为两种：一是所有国家的船舶都享有“无害通过权”（即只要不损害群岛国和平与安全，就可以连续不停地穿过，无需事先批准）；二是群岛国可以指定特定的海道和空中航道，供他国船舶和飞机享有“群岛海道通过权”（类似于过境通行权，可以迅速飞越或驶过）。",
+    "zhuxiang": "- **A ✗** （航行制度限制）：根据《联合国海洋法公约》，所有国家的船舶在群岛水域享有“无害通过权”和“群岛海道通过权”。既然是“无害通过”，只要遵守规则且不损害沿海国安全，就可以不经许可直接通过，无需每次都向甲国申请“路条”。\n- **B ✗** （基线划定规则）：国际法明确限制了群岛基线的划定方式，群岛基线不能以隔断另一国领海同公海或专属经济区联系的方法划定。甲国的基线绝不能为了连起自己的远海岛屿，就把乙国的专属经济区给掐断。\n- **C ✗** （海洋区域权利）：群岛水域和专属经济区是不冲突的两个概念。群岛水域是基线**以内**的水域，而专属经济区是从基线向**外**延伸的海域。甲国划定了群岛水域后，基线以外依然有权划定领海、毗连区、专属经济区和大陆架。\n- **D ✓** （主权范围）：群岛国对其群岛水域拥有完整的主权，并且这项主权不仅及于水域本身，还立体延伸，及于该水域的上空、海床和底土。\n\n‍",
+    "guanlian": "群岛基线的划定规则与海洋空间划分的层级\n\n（1）**群岛基线的划定**：群岛国可以通过连接群岛最外缘各岛和各干礁的最外缘各点来划定“直线群岛基线”（相当于在庄园最外围拉一圈围栏）。但这道“围栏”的拉法有严格规矩，其中一条红线就是：绝不能把邻国的领海、专属经济区或公海给隔断了。\n*比喻*：你可以在自家庄园外围建围墙，但决不能把邻居家出门上公共大道的必经之路给死死堵住。\n（2）**海洋空间划分**：群岛国在划定了群岛基线（围栏）后，基线里面的水域叫“群岛水域”（如果有河口、海湾则可以再往里划定“内水”），而在基线向外，群岛国依然可以按规矩继续划定自己的领海、毗连区、专属经济区和大陆架。\n*比喻*：确立了庄园内部的归属（群岛水域）后，完全不影响你继续主张庄园围墙外面的法定绿化带或专属停车位（专属经济区等）。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-7",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "甲国人张某侵吞中国某国企驻甲国办事处的大量财产。根据中国和甲国的法律，张某的行为均认定为犯罪。中国与甲国没有司法协助协定。根据国际法相关规则，下列哪一选项是正确的？",
+    "options": "A.张某进入中国境内时，中国有关机关可依法将其拘捕\nB.中国对张某侵吞财产案没有管辖权\nC.张某乘甲国商船逃至公海时，中国有权派员在公海将其缉拿\nD.甲国有义务将张某引渡给中国",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "国家管辖权（保护性管辖权与管辖权的行使）",
+    "jiangjie": "国家管辖权是指国家对特定的人、物和事件进行管理或施加影响的权利。这里重点考察的是“保护性管辖权”。\n保护性管辖权是指国家对于外国人在该国领域外侵害该国国家或公民重大利益的犯罪行为行使管辖的权利。\n**通俗释义**：“保护性管辖权”就像是国家的“护盾”，它的逻辑是“谁敢在外面动我的核心利益，我就管谁”。本题中，张某虽然是外国人，且在外国犯罪，但他侵吞的是中国国企的巨额财产，损害了中国的国家利益，所以中国有权管辖。而当这个嫌疑人自己跑到了中国境内（自投罗网），中国作为拥有管辖权的国家，当然可以在自己的地盘上直接动用警察将其拿下。",
+    "zhuxiang": "- **A ✓** （管辖权的行使）：张某的行为侵害了中国国家利益，中国拥有保护性管辖权。既然中国有管辖权，当张某进入中国境内时，中国有关机关就可以依法直接行使管辖权，将其拘捕。\n\n- **B ✗** （保护性管辖权）：张某虽然是甲国人且在甲国作案，但他侵吞了中国某国企驻甲国办事处的大量财产，属于危害中国国家利益的犯罪。根据国际法上的保护性管辖原则，中国司法机关对该案有管辖权。\n\n- **C ✗** （船旗国专属管辖与登临权限制）：甲国商船在公海航行时受甲国（船旗国）专属管辖。张某的贪污行为并不属于海盗、贩卖毒品、非法广播、贩卖奴隶等国际法规定的可触发“登临权”和“普遍管辖”的特定罪行，因此中国执法部门无权在公海上登临甲国商船缉拿乘客。\n\n- **D ✗** （无引渡义务）：国际实践中，国家没有必须引渡罪犯的义务，除非根据条约承担了该义务。题目明确指出中甲两国“没有司法协助协定”。此外，张某是甲国人，甲国完全可以援引“本国国民不引渡”原则拒绝将其交出。因此，甲国没有任何义务将张某引渡给中国。\n\n‍",
+    "guanlian": "公海管辖权与引渡制度\n\n**(1) 公海管辖权（船旗国专属管辖与登临权）：**\n公海上航行的船舶受船旗国管辖，即“一船一旗，专属管辖”。只有当外国船舶涉嫌海盗、贩运奴隶、非法广播等国际公认的严重犯罪时，其他国家的军舰等公务船才拥有“登临权”，可以强行登船检查。\n**通俗释义**：公海就像是一个没有警察的“公共广场”。在广场上，一艘商船挂了甲国的国旗，它就是甲国的一块“流动地盘”，归甲国专属管辖。别的国家不能随便上去抓人。除非这艘船在干“反人类”的勾当（比如海盗、贩卖奴隶），成了公敌，别国的执法船才能强行上去抓人。普通的贪污犯，绝对不够格触发这种“登临权”。\n\n**(2) 引渡制度（引渡的义务与本国国民不引渡原则）：**\n引渡是国家行为，国际法中，国家没有一般的引渡义务，引渡通常需要依据相关的引渡条约进行。此外，除非条约或国内法有特殊规定，一般各国都有权拒绝将本国的国民引渡给外国，即“本国国民不引渡”原则。\n**通俗释义**：引渡就是A国请B国帮忙把逃犯抓起来送回来。但B国并没有“必须帮忙”的强制义务，除非两国提前签了“互助合同（引渡条约）”。而且，就算是签了条约，国家也像护犊子的家长一样，通常会拒绝把“自己的亲骨肉（本国公民）”交给外国去审判。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-8",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "甲国在其宣布的专属经济区水域某暗礁上修建了一座人工岛屿。乙国拟铺设一条通过甲国专属经济区的海底电缆。根据《联合国海洋法公约》，下列哪一选项是正确的？",
+    "options": "A.甲国不能在该暗礁上修建人工岛屿\nB.甲国对建造和使用该人工岛屿拥有管辖权\nC.甲国对该人工岛屿拥有领土主权\nD.乙国不可在甲国专属经济区内铺设海底电缆",
+    "answer": "答案：B",
+    "analysis": "",
+    "kaodian": "专属经济区的法律地位与沿海国管辖权",
+    "jiangjie": "**讲解**：\n专属经济区既不是国家的领海，也不是完全自由的公海，它是一个“自成一类”的特殊海域。\n**通俗比喻**：如果把“领海”比作你家神圣不可侵犯的 **“私家庭院”** （国家享有绝对的领土主权），把“公海”比作所有人都能自由活动的 **“公共广场”** （大家都有公海自由），那么“专属经济区”就像是你向村里承包的一片 **“果园”** 。\n在这个“果园”里，你虽然没有这块地的绝对所有权（没有领土主权），但你拥有摘果子、挖矿的绝对优先权（勘探、开发自然资源的主权权利）。同时，为了更好地管理果园，你完全有权在果园里搭一个看守棚或者建一个水塔（即建造和使用人工岛屿、设施和结构），你对这些设施拥有专门的管理权（管辖权）。",
+    "zhuxiang": "- **A ✗** （违背管辖权规定）：甲国作为沿海国，在自己的专属经济区内拥有建造和使用人工岛屿、设施和结构的管辖权，因此甲国完全有权在该暗礁上修建人工岛屿。\n- **B ✓** （契合管辖权规定）：根据《联合国海洋法公约》，沿海国对在其专属经济区内建造和使用人工岛屿和设施拥有明确的管辖权。\n- **C ✗** （主权权利不等于领土主权）：专属经济区不是领海，沿海国对专属经济区不拥有绝对的“领土主权”，只享有勘探开发资源的“主权权利”以及特定的“管辖权”。修建人工岛屿不能改变该海域的性质，人工岛屿本身也不享有自然岛屿的领土主权地位。\n- **D ✗** （否定了他国自由）：其他国家（包括乙国）在甲国的专属经济区内，依然享有铺设海底电缆和管道的自由。只要乙国遵守相关国际法，甲国无权绝对禁止其铺设，只是乙国在铺设的具体路线和范围上需要事先告知并征得甲国的同意。\n\n‍",
+    "guanlian": "其他国家在专属经济区的权利（航行、飞越与铺设电缆管道的自由）\n**讲解**：\n虽然专属经济区是沿海国的“果园”，但它不能完全阻挡别人的正常通行。只要别人不是来偷你果子（侵犯自然资源）的，其他国家在这个区域里依然享有一定的自由。\n**通俗比喻**：你的邻居（其他国家）不仅可以从你的“果园”上空飞过去、从水面上开船路过（航行和飞越的自由），他们甚至还有权在你的果园地下埋一根自家用的自来水管或电线（铺设海底电缆和管道的自由）。当然，邻居埋管子的时候需要和你商量具体的路线，不能把你的果树根给刨了（不得影响沿海国对自然资源的开发，线路需经沿海国同意）。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-9",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "乙国军舰A发现甲国渔船在乙国领海走私，立即发出信号开始紧追，渔船随即逃跑。当A舰因机械故障被迫返航时，令乙国另一艘军舰B在渔船逃跑必经的某公海海域埋伏。A舰返航半小时后，渔船出现在B舰埋伏的海域。依《联合国海洋法公约》及相关国际法规则，下列哪一选项是正确的？",
+    "options": "A.B舰不能继续A舰的紧追\nB.A舰应从毗连区开始紧追，而不应从领海开始紧追\nC.为了紧追成功，B舰不必发出信号即可对渔船实施紧追\nD.只要B舰发出信号，即可在公海继续对渔船紧追",
+    "answer": "答案：A",
+    "analysis": "",
+    "kaodian": "紧追权的行使条件与限制",
+    "jiangjie": "紧追权探讨的问题是：外国船只在我国的地盘里犯了法，然后马上逃跑到了“公海（国际公共水域）”，我们还能不能追出去抓它？\n答案是可以，但为了防止国家滥用权力在公海上随便抓人，国际法给“紧追权”设定了非常严格的“通关条件”：\n\n1. **起点要合法**：必须从国家管辖范围内的海域（比如内水、领海、毗连区、专属经济区或大陆架）开始起跑。\n2. **起跑要鸣枪（发信号）** ：不能一声不吭地在背后暗戳戳追。必须在嫌疑船只“视听所及”的距离内（对方能看到或听到），发出明确的停驶信号后，紧追才算正式开始。\n3. **过程要“不断线”（连续性）** ：紧追必须连续不停地进行，绝对不能中断。如果原来的军舰（比如A舰）坏了，需要换新军舰（比如B舰）接着追，这就好比“接力赛”，**B舰必须在A舰退出前赶到现场完成交接**。如果A舰先撤了，B舰过一会儿才来或者在前面“守株待兔”，这就叫中断，紧追权当场作废。\n4. **终点有限制**：只要追上了就能抓；但如果嫌疑船只逃回了它自己的国家，或者逃到了第三国的领海，紧追就必须立刻终止（因为你不能跑到别人家里去抓人）。",
+    "zhuxiang": "- **A ✓** （中断即失效）：紧追必须连续不断。A舰因为故障被迫返航，半小时后B舰才碰到渔船，且B舰采取的是“埋伏”的手段。这就好比接力赛里第一棒跑回家了，第二棒在终点前抄近道蹲守，这在国际法上属于“紧追中断”。一旦中断，B舰就不能再以“紧追权”为由在公海上抓捕渔船了。\n\n- **B ✗** （起点错误）：紧追权可以从沿海国的内水、领海、毗连区、专属经济区或大陆架等管辖海域开始。题目中甲国渔船在乙国“领海”走私，A舰从领海开始紧追是完全合法合规的，不需要非得等到船开到毗连区才开始追。\n\n- **C ✗** （无视法定程序）：行使紧追权是一个严谨的执法过程，国际法明确规定紧追开始前必须发出视觉或听觉的停驶信号（鸣笛或打灯）。不能为了“紧追成功”就搞偷袭，不发信号绝对不合法。\n\n- **D ✗** （无法补救中断）：B舰此时面临的核心问题是“紧追已经中断了半小时”，而不是“发不发信号”的问题。一旦紧追的连续性被打破，紧追权就归于消灭，无论B舰发不发信号，都不能再在公海上继续所谓“合法”的紧追了。\n\n‍",
+    "guanlian": "公海管辖权的例外\n\n公海是全人类共同的财富，原则上在公海上航行的船舶只受“船旗国（它挂哪个国家的国旗）”的专属管辖。但为了打击国际犯罪，国际法规定了公海专属管辖的例外情况，主要包括“登临权”和“紧追权”。\n除了上述的“紧追权”（跨区域追捕），还有一个叫“登临权”：如果一国军舰在公海上遇到一艘船，有合理理由怀疑它在干“海盗、贩卖奴隶、非法广播”等全人类公敌的勾当，或者这艘船根本没有国籍，军舰就可以直接上去盘问检查。这两种权力都是为了维护海洋秩序而给沿海国开的“特权绿灯”。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-10",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "由于甲国海盗严重危及国际海运要道的运输安全，在甲国请求下，联合国安理会通过决议，授权他国军舰在经甲国同意的情况下，在规定期限可以进入甲国领海打击海盗。据此决议，乙国军舰进入甲国领海解救被海盗追赶的丙国商船。对此，下列哪一选项是正确的？",
+    "options": "A.安理会无权作出授权外国军舰进入甲国领海打击海盗的决议\nB.外国军舰可以根据安理会决议进入任何国家的领海打击海盗\nC.安理会的决议不能使军舰进入领海打击海盗成为国际习惯法\nD.乙国军舰为解救丙国商船而进入甲国领海属于保护性管辖",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "国际习惯法的构成要素",
+    "jiangjie": "**讲解**：\n国际法中的“国际习惯（习惯国际法）”并不是谁发个文件、下个指令就能立刻变出来的。它的形成必须同时具备两个缺一不可的要素：\n\n1. **客观因素（物质要素）** ：存在各国重复一致的“一般实践”或“通例”。打个比方，就像草地上原本没有路，必须是大家长年累月都在这里走，踩出了一条客观存在的痕迹。\n2. **主观因素（心理要素）** ：这种一般的实践必须被各国接受为法律，也就是所谓的“法律确信”。继续上面的比方，不仅大家都要走这条路，而且心里都一致认为“我们有合法的权利走这条路”。\n**因此，联合国安理会虽然可以通过一项决议来授权某次具体的行动，但这仅仅是一个针对特定事件的单次授权。单凭一纸决议，既没有长年累月的“各国普遍实践”，也代表不了全球国家的“法律确信”，所以它无法像施魔法一样瞬间凭空创造出一条新的“国际习惯法”** 。",
+    "zhuxiang": "- **A ✗** （无视安理会维和职权）：根据《联合国宪章》，安理会有权在维护国际和平与安全方面做出决议并采取行动。题目中甲国海盗已经严重危及国际运输安全，且甲国主动提出了请求，因此安理会完全有权作出授权他国军舰进入甲国领海打击海盗的决议。\n- **B ✗** （夸大决议效力范围）：安理会的授权是非常严谨和具体的。只有在某国领海的海盗真正危及了国际和平与安全等特定情况下，安理会才能作出决议。决议绝不能被无限放大，更不是允许外国军舰拿着这一个决议就可以随意进入“任何国家”的领海打击海盗。\n- **C ✓** （国际习惯的形成条件）：国际习惯法的形成必须同时具备各国的“物质要素（重复一致的行为）”和“心理要素（法律拘束力确信）”。安理会的单次授权决议不能代替各国的普遍实践和法律确信，因此它不能使“军舰进入领海打击海盗”自动跃升为一项放之四海而皆准的国际习惯法。\n- **D ✗** （曲解保护性管辖）：保护性管辖的前提必须是针对侵害了**本国**或**本国公民**重大利益的行为。题目中，是“乙国”军舰去解救“丙国”商船，乙国保护的是第三国（丙国）的利益，而非乙国自身的国家或公民利益，因此根本不符合保护性管辖的定义。\n\n‍",
+    "guanlian": "联合国安理会的职权、管辖权的分类\n**讲解**：\n**(1) 联合国安理会的职权（维持和平与安全）** ：\n安理会在联合国中处于首要政治地位，是**唯一有权采取行动以维持国际和平与安全的机关**。当出现威胁世界和平、破坏和平或侵略行为时，安理会有权“断定”情况，并做出决议或授权采取必要行动（包括军事行动）。它就像是国际社会的“高级保安队长”，在甲国海盗严重危及国际运输安全，并且甲国自己也请求帮忙的紧急情况下，安理会完全有权授权其他国家的军舰进去帮忙打海盗。但是，这种授权是针对特定危机“对症下药”的，绝不是开具一张可以随意进入任何国家领海的“万能通行证”。\n\n**(2) 保护性管辖权**：\n所谓“保护性管辖权”，核心在于 **“保护本国”** 。它是指当外国人在国外犯了罪，且这个犯罪**严重侵害了“本国”或“本国公民”的重大利益**时，国家为了保护自己而行使的管辖权。\n打个比方：如果外国人在海外伪造中国货币，或者侵害了中国公民的生命财产，中国为了保护自身的重大利益，就可以跨国行使管辖权抓人，这就叫保护性管辖。但如果你是为了见义勇为去救“别人家”的孩子，那就不能叫保护性管辖。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-11",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "甲国是1982年《联合国海洋法公约》的缔约国。甲国的船舶在各国管辖以外的某海底进行矿产开采作业时，其活动应遵守国际法的哪一种制度？",
+    "options": "A.公海海底的开发制度\nB.甲国有关海洋采矿的国内法\nC.国际海底区域的开发制度\nD.公海自由制度",
+    "answer": "答案：C",
+    "analysis": "",
+    "kaodian": "国际海底区域及其开发制度",
+    "jiangjie": "国际海底区域探讨的核心问题是：在所有国家管辖范围（比如领海、专属经济区、大陆架）之外的深海海底，那些无主的丰富矿产到底归谁？怎么挖？\n在国际法上，**国家管辖范围以外的海床、洋底及其底土被称为“国际海底区域”** 。你可以把这片海底想象成全人类共同拥有的一座“地下宝库”。既然是全人类的共同财产（人类的共同继承财产），任何国家都不能把它占为己有，也不能按自己的规矩随便乱挖。\n为了公平分配这座宝库里的财富，1982年《联合国海洋法公约》为它量身定制了一套特殊的 **“平行开发制”** 。意思就是，想要开采这里的矿产，必须通过国际海底管理局来申请并签订合同，一部分由管理局代表全人类自己开发（保留区），另一部分交由申请国或其企业开发（合同区）。",
+    "zhuxiang": "- **A ✗** （生造概念）：《联合国海洋法公约》中并没有“公海海底”这一法律术语，对于国家管辖范围以外的海床及底土，正确的法定称呼是“国际海底区域”。\n- **B ✗** （管辖权越界）：题目明确指出该海底位于“各国管辖以外”，这意味着任何单一国家都无法对该区域行使属地管辖权，因此甲国不能用自己的国内法来单方面规定全人类共同财产的开采规则。\n- **C ✓** （精准适用）：甲国船舶在“各国管辖以外的某海底”进行开采，这片区域在法律上就是“国际海底区域”，因此必须遵守《联合国海洋法公约》确立的国际海底区域的开发制度（即平行开发制）。\n- **D ✗** （张冠李戴）：“公海自由制度”适用的是上方的“水体”（如航行自由、捕鱼自由等），并不适用于下方海床和底土里的矿藏开采。不能把“楼上”的自由航行规则，用到“楼下”的挖矿活动中。\n\n‍",
+    "guanlian": "公海与国际海底区域的空间划分区别\n海洋法的空间划分是非常立体的，我们可以用“楼上”和“楼下”的关系来比喻。\n(1) **公海（楼上）** ：公海指的是国家管辖范围以外的“水体”（海域）。在公海这片水域里，适用的是 **“公海自由制度”** ，大家都可以相对自由地航行、飞越、捕鱼、铺设海底电缆和管道等。\n(2) **国际海底区域（楼下）** ：国际海底区域指的是国家管辖范围以外的“地皮及地下”（海床和底土）。它的法律地位不影响其上覆水域（公海）的法律地位。对于底土里的矿产开采，绝对不能适用“公海自由”随便挖，而是必须严格遵守国际海底管理局的开发制度。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-12",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "1958年《日内瓦海洋法公约》调整的海域是",
+    "options": "A.领海\nB.毗连区\nC.专属经济区\nD.大陆架\nE.公海",
+    "answer": "答案：ABDE",
+    "analysis": "",
+    "kaodian": "1958年第一次联合国海洋法会议成果",
+    "jiangjie": "1958年，联合国在日内瓦召开了第一次海洋法会议，这次会议通过的成果统称为1958年《日内瓦海洋法公约》。它实际上包含了四个具体的公约，分别是： **《领海及毗连区公约》《公海公约》《大陆架公约》和《捕鱼及养护公海生物资源公约》** 。\n通俗讲解：想象一下，1958年各国第一次正式坐在一起给海洋“划地盘”、“定规矩”。当时大家的共识只涵盖了最传统的几个区域：自家大门外的水域（**领海及毗连区**）、海底自然延伸的地基（**大陆架**），以及属于全人类共同玩耍的无主之地（**公海**）。这部1958年的公约，调整的就是这几个老牌的传统海域。",
+    "zhuxiang": "- **A ✓** （领海）：1958年的会议通过了《领海及毗连区公约》，领海属于其明确调整的海域。\n- **B ✓** （毗连区）：同样由1958年的《领海及毗连区公约》进行调整规范。\n- **C ✗** （专属经济区）：专属经济区是**1982年《联合国海洋法公约》才确立的“新区域”** 。把它放在1958年的公约里属于“时空错乱”，当时并不存在这一海域划分。\n- **D ✓** （大陆架）：1958年的会议专门通过了《大陆架公约》来调整该区域。\n- **E ✓** （公海）：1958年的会议通过了《公海公约》以及《捕鱼及养护公海生物资源公约》，对公海的航行、捕鱼等制度进行了调整。\n\n‍",
+    "guanlian": "1982年《联合国海洋法公约》与专属经济区\n1982年，第三次联合国海洋法会议通过了更为全面完整的《联合国海洋法公约》。**专属经济区正是这部1982年《海洋法公约》所确立的新区域**。\n通俗讲解：随着时代发展，沿海国觉得光靠狭窄的“领海”捕鱼和开采资源远远不够，于是在1982年大家重新谈判，硬生生在领海之外划出了一大片（最多200海里）的“资源自留地”，这就是专属经济区。所以在1958年的时候，各国的字典里根本还没有“专属经济区”这个法律概念。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-13",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "沿海国对领海的主权及于",
+    "options": "A.海港\nB.领海的水域\nC.领海的上空\nD.领海的底土\nE.海湾",
+    "answer": "答案：BCD",
+    "analysis": "",
+    "kaodian": "领海的法律地位与主权范围",
+    "jiangjie": "领海是沿海国陆地领土和内水以外，邻接的一定宽度的海水带，最大宽度不超过12海里。领海的法律地位非常高，它直接受沿海国的主权支配，是国家领土的组成部分。\n想象一下，一个国家的主权不仅仅是平面的，而是“立体”的。当沿海国对领海主张主权时，这个主权就像切蛋糕一样，是一个立体的空间柱：它不仅包含**海面的水域本身**，还向上延伸到这片水域的**上空**（这就是为什么外国飞机不能随便飞越别国领海），向下延伸到这片水域下面的**海床和底土**。这就构成了沿海国对领海完整的立体主权。",
+    "zhuxiang": "- **A ✗** （属于内水）：海港（港口）位于领海基线向陆地的一侧，整个港口水域在法律上被明确划分为国家的“内水”，而不是领海。\n- **B ✓** （主权范围）：领海最直观的组成部分就是从领海基线向量起不超过12海里的这片海水水域，沿海国对此享有主权。\n- **C ✓** （主权范围）：国家的主权是立体的，领海上方的空气空间（领海上空）同样属于国家享有主权的领空，外国航空器未经允许不得进入。\n- **D ✓** （主权范围）：领海的下覆底土（即海底的泥沙和岩层）同样是国家领土的组成部分，国家对其享有完全的主权权利，可以排他性地开采里面的资源。\n- **E ✗** （属于内水）：如同海港一样，符合国际法标准的海湾（直线基线划在海湾内）位于基线的内侧，其水域构成国家内水的一部分，不属于领海的范畴。\n\n‍",
+    "guanlian": "领海基线与内水的界定\n虽然沿海国对周边的海水都有管辖权，但国际法上把这些海水划分成了不同区域，其中最关键的界线叫做“**领海基线**”。\n我们可以把“领海基线”比作一户人家院子的“大门门槛”。\n\n1. **内水（门槛里面的区域）** ：领海基线向陆地一面（靠岸一边）的水域叫做“内水”。比如向陆地凹进去的海湾、停泊船只的海港，都属于内水。内水就像你家大门内的内院，国家拥有绝对的、完全的主权，外国船只连“无害通过”的权利都没有（除非有条约或特许）。\n2. **领海（门槛外面的区域）** ：从领海基线向海洋方向量起、不超过12海里的水域才是“领海”。领海就像你家大门外的专属私家车道，虽然也是你的地盘，但国际法规定外国船舶享有“无害通过权”（即只要不捣乱，可以不停留地迅速路过）。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-14",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "我国领海与毗连区法规定，对于在我国毗连区内违反下列方面法律和法规的行为，我国有权行使管辖权",
+    "options": "A.海关\nB.财政\nC.卫生\nD.出入境管理\nE.安全",
+    "answer": "答案：ABCDE",
+    "analysis": "",
+    "kaodian": "我国在毗连区的管制权（管辖权）范围",
+    "jiangjie": "**讲解**：\n毗连区是指紧挨着领海、从领海基线量起向外不超过24海里的特定海域。\n**通俗比喻**：如果把一个国家比作一栋“房子”（领土和领海），那么毗连区就像是房子外面的“**院子篱笆外的一圈缓冲区**”。这片区域虽然不属于你家的绝对私有地盘（不是领海，没有完全主权），但为了防止坏人翻墙进来，或者抓捕刚从家里搞完破坏逃出去的毛贼，房主（沿海国）有权在这个缓冲区里进行巡逻和特定事项的管制。\n根据《中华人民共和国领海及毗连区法》第13条明确规定，我国有权在这个“缓冲区”内，为了防止和惩处违反**安全、海关、财政、卫生或者入境出境管理**的法律和法规的行为，行使管制权。",
+    "zhuxiang": "- **A ✓** （海关）：属于我国法律明确规定的管制范围，主要为了打击海上走私等违法行为。\n- **B ✓** （财政）：属于我国法律明确规定的管制范围，主要为了防止逃避关税、偷税漏税等损害我国经济利益的行为。\n- **C ✓** （卫生）：属于我国法律明确规定的管制范围，主要为了防止动植物疫情、传染性疾病等通过海上渠道传入我国。\n- **D ✓** （出入境管理）：属于我国法律明确规定的管制范围（在国际法中常表述为“移民”），主要为了打击海上偷渡、非法越境等行为。\n- **E ✓** （安全）：这是**我国国内法特别声明的管辖事项**，为了维护国家主权和领土的整体安全，我国有权在毗连区对违反国家安全的行为行使管辖权。\n\n‍",
+    "guanlian": "《联合国海洋法公约》关于毗连区管制的规定与我国法律的差异\n**讲解**：\n**通俗对比**：国际通行规则（《海洋法公约》）给“缓冲区”设定的监控权限只有四个：**海关、财政、移民（出入境）、卫生**。比如查走私（海关/财政）、查偷渡（移民）、查传染病（卫生）。\n但是，**我国的国内法在国际法这四项的基础上，特别增加了一项——“国家安全”** 。这意味着，如果我国有充分理由认为外国船舶在我国毗连区内可能威胁到我国的国家安全，我国同样有权对其行使管辖权。做题时，一定要注意看题目问的是“《海洋法公约》”还是“我国法律”。本题明确问的是“我国领海与毗连区法”，所以“安全”必须选上。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-15",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "大陆架的外部界限为",
+    "options": "A.100海里\nB.200海里\nC.350海里\nD.2500公尺等深线\nE.2500公尺等深线100海里",
+    "answer": "答案：CE",
+    "analysis": "",
+    "kaodian": "大陆架的宽度与外部界限",
+    "jiangjie": "大陆架可以理解为国家陆地领土在海水下的“自然延伸”。但大自然并不总是公平的，有的国家海岸一入水就是深渊（大陆架极窄），有的国家外海则有广阔的平缓浅滩（大陆架极宽）。为了兼顾地理现实与法律公平，《联合国海洋法公约》对大陆架的外部界限制定了一套“保底+按实计算+封顶”的组合规则：\n\n1.  **“保底”规定**：无论沿海国真实的海下地质结构有多窄，哪怕不到200海里，法律都直接赋予其从领海基线量起扩展到200海里的法定大陆架。\n2.  **“按实计算”规定**：如果自然延伸的大陆边外缘在200海里到350海里之间，则以实际的地质边缘作为大陆架的宽度。\n3.  **“封顶”规定**：如果大自然过于偏爱，让某国的大陆边延伸超过了350海里，法律也不能任其无限划定。此时有两个“封顶”限制：一是绝对距离不能超过从基线量起350海里；二是从水深2500公尺（米）的地方往外再加100海里。划界时这两个最大限制条件哪个离得近，就以哪个为准。",
+    "zhuxiang": "- **A ✗** 100海里本身并不是大陆架外部界限的独立法定测算标准。在规则中，100海里必须依附于“2500公尺等深线”使用，单独的100海里作为界限是没有法律依据的。\n- **B ✗** （混淆了“保底”与“封顶”）200海里是大陆架的法定“保底”宽度。考题专门问“大陆架的外部界限”时，特指的是《海洋法公约》第76条第5款中限制国家向深海过度扩张的“最大界限”，也就是上限而非下限。因此不选B。\n- **C ✓** 350海里是大陆架外部界限的法定“封顶”标准之一。当大陆架自然延伸极宽时，最远不能超过从领海基线量起350海里。\n- **D ✗** 2500公尺（米）等深线这一地质标志不能单独作为外部界限。必须在等深线的基础上再向外延伸100海里，才能作为划界标准。\n- **E ✓** 2500公尺等深线外100海里是大陆架外部界限的另一个法定“封顶”标准。当自然架极宽时，外部界限不应超过基线量起350海里，或不应超过2500公尺等深线外100海里，两者取其近者。\n\n‍",
+    "guanlian": "专属经济区与大陆架的异同\n很多初学者容易把同为200海里的“专属经济区”和“大陆架”搞混。可以这样区分：\n\n1. **管辖范围（水里 vs. 地下）** ：专属经济区包含水体、海床和底土，国家既可以捕鱼也可以挖矿；而大陆架仅仅指海床和底土，国家在大陆架上的权利主要针对非生物资源（如石油天然气）和定居种生物。\n2. **宽度限制**：专属经济区是“死规定”，外部界限最远就是领海基线量起200海里，不能再多。但大陆架由于前述的规则，在满足地质条件时可以突破200海里，最远延伸至350海里或2500米等深线外100海里。\n3. **权利取得（要不要喊一嗓子）** ：专属经济区必须由沿海国通过国内法以“宣告”的方式主张才能拥有；但大陆架的权利是基于陆地领土的事实联系“固有”的，不需要国家实际占领，也不需要明文公告就能直接享有。",
+    "flagMemory": false
+  },
+  {
+    "id": "xz-10-16",
+    "type": "选择题",
+    "chapterOrder": 10,
+    "chapter": "国际海洋法",
+    "question": "1958年《公海公约》只规定了公海自由中的四项自由，1982年《海洋法公约》增加为六大自由。这增加的两项自由是",
+    "options": "A.飞越自由\nB.航行自由\nC.铺设海底电缆和管道的自由\nD.建造人工岛屿和设施的自由\nE.科学研究的自由",
+    "answer": "答案：DE",
+    "analysis": "",
+    "kaodian": "公海自由的六大内容及其历史演变",
+    "jiangjie": "公海可以被看作是国际社会的“公共广场”，它不属于任何国家的领土，也不受任何国家主权的管辖和支配，对所有国家（不论是沿海国还是内陆国）开放。既然是“公共广场”，大家自然享有在里面活动的自由。\n\n公海自由的内容是随着人类科技水平的进步而不断发展的。在早期，人类利用海洋的能力有限，“公海自由”最初主要指的就是航行自由和捕鱼自由。到了1958年的《公海公约》时期，国际社会明文确立了四项自由：航行自由、捕鱼自由、飞越自由、铺设海底电缆和管道的自由。\n随着科技的进一步爆发，人类不仅能在海面上跑、海里捞鱼，还具备了在深海搞科研探测以及在海上建造各种人工设施的能力。因此，1982年的《联合国海洋法公约》与时俱进，将公海自由的内容扩充为了**6项**，新增了 **“建造国际法所容许的人工岛屿和其他设施的自由”** 以及 **“科学研究的自由”** 。",
+    "zhuxiang": "- **A ✗** （飞越自由）：属于1958年《公海公约》就已经确立的四项传统自由之一。随着飞机的普及，这项自由早就被国际社会公认，不是1982年才增加的。\n- **B ✗** （航行自由）：这是公海自由最古老、最核心的基础。早在几百年前大航海时代就已经存在，当然也包含在1958年的四项自由之中。\n- **C ✗** （铺设海底电缆和管道的自由）：随着19世纪末跨国电报电缆的铺设，这项权利也早就成为了传统公海自由的一部分，包含在1958年规定的四项自由内。\n- **D ✓** （建造人工岛屿和设施的自由）：随着海上钻井平台等大型人工设施建造技术的成熟，1982年《联合国海洋法公约》顺应时代发展，将其作为新增的公海自由列入其中。\n- **E ✓** （科学研究的自由）：现代海洋科学技术的发展使得深海勘探成为可能，为了促进全人类对海洋的了解和保护，1982年《联合国海洋法公约》将科学研究的自由正式确立为公海的第六大自由。",
+    "guanlian": "公海的管辖权（公海自由是有规矩的自由）\n虽然公海是自由的“公共广场”，但这绝不意味着公海是法外之地。为了维护公海上的良好秩序，国际法规定了两套主要的管辖规则：\n(1) **船旗国管辖（专属管辖）** ：这是公海管辖的基础。船舶在公海上航行必须悬挂一国旗帜（一船一旗），并且只受该国管辖。\n*比喻*：这就像大街上的汽车必须挂车牌。你在公海上开船，挂了A国的国旗，A国就是你的“监护人”，你要遵守A国的法律，别国一般无权管你。如果一艘船挂两面甚至多面旗帜来回切换，就会被视为“无国籍船”，任何国家都可以去查它。\n(2) **普遍性管辖**：对于那些全人类都深恶痛绝的“公敌行为”（如海盗行为、非法广播、贩卖奴隶和贩卖毒品等），任何国家的军舰或政府公务船都有权在公海上进行干预和管辖（即行使登临权和紧追权）。\n*比喻*：虽然大家在广场上各回各家各找各妈（船旗国管辖），但如果广场上出现了抢劫犯或人贩子（海盗、贩奴），任何路过的警察（各国军舰）都有权立刻冲上去把他们拿下。",
+    "flagMemory": false
+  }
+]/*BANK_END*/;
 
-const allCards = [
-  // ── 专题① 中国式现代化 ──
-  { id:1, topic:"中国式现代化", tNum:1, type:"列举",
-    front:"中国式现代化有哪五大中国特色？",
-    back:"① 人口规模巨大的现代化\n② 全体人民共同富裕的现代化\n③ 物质文明和精神文明相协调的现代化\n④ 人与自然和谐共生的现代化\n⑤ 走和平发展道路的现代化",
-    hint:"记忆：人·共·协·生·和" },
-  { id:2, topic:"中国式现代化", tNum:1, type:"框架",
-    front:"中国式现代化创造人类文明新形态，体现在哪四个方面？",
-    back:"① 概念：深植传统文化、体现社会主义本质的全新文明形态\n② 模式：打破「现代化＝西方化」的迷思\n③ 超越：对西方式现代化理论和实践的重大超越\n④ 影响：为发展中国家提供独立自主迈向现代化的全新选择",
-    hint:"框架：概→模→超→影" },
-  { id:3, topic:"中国式现代化", tNum:1, type:"填空",
-    front:"中国式现代化打破了「______」的迷思，\n展现了不同于西方现代化的新图景。",
-    back:"现代化 ＝ 西方化",
-    hint:"" },
+/* ---------- STORAGE & STATE ---------- */
+const K_PROG = 'gjf_srs_progress', K_SET = 'gjf_srs_settings';
+function uid(){ try{ if(crypto&&crypto.randomUUID) return crypto.randomUUID(); }catch(e){} return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function load(key,fallback){ try{ const v=localStorage.getItem(key); return v==null?fallback:JSON.parse(v);}catch(e){return fallback;} }
 
-  // ── 专题② 新型国际关系 ──
-  { id:4, topic:"新型国际关系", tNum:2, type:"列举",
-    front:"新型国际关系的三大核心原则？",
-    back:"相互尊重  ·  公平正义  ·  合作共赢",
-    hint:"简记：相·公·赢" },
-  { id:5, topic:"新型国际关系", tNum:2, type:"填空",
-    front:"新型国际关系是一条「______，______」\n的国与国交往新路。",
-    back:"对话而不对抗\n结伴而不结盟",
-    hint:"" },
-  { id:6, topic:"新型国际关系", tNum:2, type:"框架",
-    front:"新型国际关系六大维度（原则/道路/关系/内容/方针/观念）？",
-    back:"① 原则：相互尊重、公平正义、合作共赢\n② 道路：对话不对抗、结伴不结盟\n③ 关系：在和平共处五项原则基础上建全球伙伴关系\n④ 内容：推进大国协调合作、构建大国关系格局\n⑤ 方针：亲诚惠容，与邻为善、以邻为伴（周边）\n⑥ 观念：真实亲诚理念和正确义利观（发展中国家）",
-    hint:"框架：原·道·关·内·方·观" },
-
-  // ── 专题③ 新发展理念 ──
-  { id:7, topic:"新发展理念", tNum:3, type:"列举",
-    front:"新发展理念五大内容是什么？",
-    back:"创新  ·  协调  ·  绿色  ·  开放  ·  共享\n\n记忆口诀：「创协绿开共」",
-    hint:"创协绿开共" },
-  { id:8, topic:"新发展理念", tNum:3, type:"匹配",
-    front:"五大理念各自解决什么问题？（一一对应）",
-    back:"创新  →  发展动力问题\n协调  →  发展不平衡问题\n绿色  →  人与自然共生问题\n开放  →  内外联动问题\n共享  →  公平正义问题（→迈向共同富裕）",
-    hint:"" },
-  { id:9, topic:"新发展理念", tNum:3, type:"框架",
-    front:"完整、准确、全面贯彻新发展理念的三大要求？",
-    back:"① 根本宗旨：坚持以人民为中心，把满足美好生活需求作为发展出发点\n② 问题导向：针对发展不平衡、民生突出问题发力，实现高质量发展\n③ 忧患意识：主动预判风险、掌握发展主动权，守住安全发展底线",
-    hint:"框架：宗旨·问题·忧患" },
-
-  // ── 专题④ 两个结合 ──
-  { id:10, topic:"两个结合", tNum:4, type:"解释",
-    front:"「两个结合」的具体内容是什么？",
-    back:"第一个结合：\n  马克思主义基本原理 ＋ 中国具体实际\n\n第二个结合：\n  马克思主义基本原理 ＋ 中华优秀传统文化",
-    hint:"" },
-  { id:11, topic:"两个结合", tNum:4, type:"列举",
-    front:"第二个结合挖掘了哪五类传统文化精华？",
-    back:"天下为公、民为邦本、革故鼎新、天人合一、自强不息",
-    hint:"简记：天·民·革·天·自" },
-  { id:12, topic:"两个结合", tNum:4, type:"框架",
-    front:"「两个结合」的三大重大意义？",
-    back:"① 开辟和发展中国特色社会主义的必由之路\n② 持续推进马克思主义中国化时代化的根本途径\n③ 习近平新时代中国特色社会主义思想是最新科学理论结晶",
-    hint:"必由之路·根本途径·理论结晶" },
-
-  // ── 专题⑤ 中国特色社会主义是社会主义 ──
-  { id:13, topic:"中国特色社会主义", tNum:5, type:"框架",
-    front:"从哪四个角度论证「中国特色社会主义是社会主义而不是其他什么主义」？",
-    back:"① 坚守科学社会主义基本原则（党的领导、公有制主体、人民当家作主、共同富裕）\n② 根本区别于资本主义（不搞资本主导，杜绝两极分化，成果服务全体人民）\n③ 区别于民主社会主义/修正主义（不弱化党的领导，不放弃马克思主义）\n④ 发展手段创新不改根本性质（市场经济是方式，社会主义是方向）",
-    hint:"守·异资·异民·新不改" },
-  { id:14, topic:"中国特色社会主义", tNum:5, type:"解释",
-    front:"「中国特色」与「社会主义」是什么关系？",
-    back:"「中国特色」是路径，是方式的创新\n「社会主义」是方向，是本质的坚守\n\n→ 路径服务方向，手段不改性质\n→ 二者统一于中国特色社会主义实践",
-    hint:"" },
-
-  // ── 专题⑥ 百年未有之大变局 ──
-  { id:15, topic:"百年未有之大变局", tNum:6, type:"列举",
-    front:"当今世界百年未有之大变局加速演进，有哪五大具体表现？",
-    back:"① 国际力量对比深刻重塑（「东升西降」，走向多极化）\n② 新一轮科技革命和产业变革深入推进（AI/新能源/生物技术）\n③ 国际体系和全球秩序深度调整（旧治理机制失灵）\n④ 传统安全与非传统安全风险交织（地缘冲突+恐怖主义/网络/气候等）\n⑤ 世界发展不确定性显著上升（四大赤字持续扩大）",
-    hint:"力·科·秩·安·不" },
-  { id:16, topic:"百年未有之大变局", tNum:6, type:"填空",
-    front:"持续扩大的「四大赤字」是指？",
-    back:"和平赤字  ·  发展赤字\n安全赤字  ·  治理赤字",
-    hint:"和·发·安·治" },
-  { id:17, topic:"百年未有之大变局", tNum:6, type:"解释",
-    front:"「东升西降」的含义是什么？",
-    back:"新兴市场和发展中国家群体性崛起\n西方发达国家实力相对下降\n→ 全球加速走向多极化",
-    hint:"" },
-
-  // ── 专题⑦ 建设长期执政的马克思主义政党 ──
-  { id:18, topic:"长期执政党建", tNum:7, type:"列举",
-    front:"党面临的「四大考验」是什么？",
-    back:"执政考验\n改革开放考验\n市场经济考验\n外部环境考验",
-    hint:"执·改·市·外" },
-  { id:19, topic:"长期执政党建", tNum:7, type:"列举",
-    front:"党面临的「四种危险」是什么？",
-    back:"精神懈怠危险\n能力不足危险\n脱离群众危险\n消极腐败危险",
-    hint:"精·能·脱·消" },
-  { id:20, topic:"长期执政党建", tNum:7, type:"框架",
-    front:"建设长期执政的马克思主义政党的六大根本要求？",
-    back:"① 坚持加强党的全面领导（两个确立、两个维护）\n② 马克思主义科学理论武装全党\n③ 坚守为民谋幸福、为民族谋复兴的初心使命\n④ 坚持自我革命，持之以恒全面从严治党\n⑤ 完善党的自我革命制度规范体系\n⑥ 建设高素质干部队伍，筑牢基层党组织战斗堡垒",
-    hint:"领·论·心·革·制·人" },
-  { id:21, topic:"长期执政党建", tNum:7, type:"填空",
-    front:"跳出历史周期率的「第二个答案」是什么？\n（第一个是让人民监督政府）",
-    back:"勇于自我革命\n\n→ 以伟大自我革命引领伟大社会革命",
-    hint:"" },
-
-  // ── 专题⑧ 习近平新时代中国特色社会主义思想内涵 ──
-  { id:22, topic:"习近平思想内涵", tNum:8, type:"列举",
-    front:"习近平新时代中国特色社会主义思想的「四大核心支撑」？",
-    back:"① 十个明确（思想核心内涵）\n② 十四个坚持（基本方略/行动纲领）\n③ 十三个方面成就（实践成果）\n④ 六个必须坚持（世界观和方法论）",
-    hint:"10·14·13·6" },
-  { id:23, topic:"习近平思想内涵", tNum:8, type:"列举",
-    front:"习近平新时代中国特色社会主义思想回答了哪三大时代课题？",
-    back:"① 坚持和发展什么样的中国特色社会主义、怎样坚持和发展\n② 建设什么样的社会主义现代化强国、怎样建设\n③ 建设什么样的长期执政的马克思主义政党、怎样建设党",
-    hint:"特色·强国·执政党" },
-  { id:24, topic:"习近平思想内涵", tNum:8, type:"填空",
-    front:"习近平新时代中国特色社会主义思想的理论定位（三句话）？",
-    back:"当代中国马克思主义\n二十一世纪马克思主义\n中华文化和中国精神的时代精华",
-    hint:"" },
-
-  // ── 专题⑨ 两个确立 ──
-  { id:25, topic:"两个确立", tNum:9, type:"解释",
-    front:"「两个确立」的具体内容是什么？",
-    back:"① 确立习近平同志党中央的核心、全党的核心地位\n② 确立习近平新时代中国特色社会主义思想的指导地位",
-    hint:"核心地位 ＋ 指导地位" },
-  { id:26, topic:"两个确立", tNum:9, type:"框架",
-    front:"「两个确立」的决定性意义（四个维度）？",
-    back:"① 对党：统一思想意志行动，凝聚磅礴力量，化解执政风险\n② 对国家发展：科学理论指引，统筹发展和安全，破解深层矛盾\n③ 对民族复兴：抵御风险挑战，稳定发展大局，凝聚各族人民合力\n④ 对世界：为发展中国家提供全新道路选择，贡献中国智慧、中国方案",
-    hint:"党·国·民族复兴·世界" },
-  { id:27, topic:"两个确立", tNum:9, type:"填空",
-    front:"「两个确立」是新时代______的根本保证，\n是新征程上______的根本政治保证。",
-    back:"党和国家取得一切成就\n战胜一切艰难险阻、应对一切不确定性",
-    hint:"" },
-
-  // ── 专题⑩ 加快建设法治中国 ──
-  { id:28, topic:"法治中国", tNum:10, type:"填空",
-    front:"加快建设法治中国的总目标是什么？",
-    back:"建设中国特色社会主义法治体系\n建设社会主义法治国家",
-    hint:"两句话，两个「建设」" },
-  { id:29, topic:"法治中国", tNum:10, type:"列举",
-    front:"法治中国建设的三大根本原则？",
-    back:"① 坚持党的领导\n② 坚持以人民为中心\n③ 坚持中国特色社会主义法治道路",
-    hint:"党·民·道" },
-  { id:30, topic:"法治中国", tNum:10, type:"列举",
-    front:"法治中国建设的「五大体系」（五大重点任务）？",
-    back:"① 法律规范体系（以宪法为核心，科学立法）\n② 法治实施体系（严格执法、公正司法）\n③ 法治监督体系（约束规范公权力运行）\n④ 法治保障体系（高素质专业化法治队伍）\n⑤ 党内法规制度体系（依规治党与依法治国统一）",
-    hint:"规·实·监·保·党规" },
-  { id:31, topic:"法治中国", tNum:10, type:"框架",
-    front:"法治中国建设的三大实践要求？",
-    back:"① 依法治国、依法执政、依法行政共同推进\n② 法治国家、法治政府、法治社会一体建设\n③ 自觉运用法治思维、法治方式深化改革、推动发展、化解矛盾、维护稳定",
-    hint:"三个「依法」· 三个「法治」·法治思维" },
-  { id:32, topic:"法治中国", tNum:10, type:"解释",
-    front:"「依法治国、依法执政、依法行政」分别对应哪个主体？",
-    back:"依法治国  →  党领导人民治理国家\n依法执政  →  党依法执掌国家政权\n依法行政  →  政府依法施政管理",
-    hint:"" },
-];
-
-// State
-let selectedTopic = "全部";
-let currentIndex = 0;
-let isFlipped = false;
-let results = {}; // id -> "know" | "review"
-let showingStats = false;
-
-function getFiltered() {
-  if (selectedTopic === "全部") return allCards;
-  return allCards.filter(c => c.topic === selectedTopic);
-}
-
-function getCard() {
-  const f = getFiltered();
-  return f[currentIndex] || f[0];
-}
-
-function renderTopicChips() {
-  const el = document.getElementById("topicChips");
-  el.innerHTML = TOPICS.map(t => {
-    const active = t.key === selectedTopic;
-    return `<button class="chip ${active ? "chip-active" : "chip-inactive"}" onclick="selectTopic('${t.key}')">${t.label}</button>`;
-  }).join("");
-}
-
-function selectTopic(key) {
-  selectedTopic = key;
-  currentIndex = 0;
-  isFlipped = false;
-  renderTopicChips();
-  renderCard();
-}
-
-function renderCard() {
-  const filtered = getFiltered();
-  const card = getCard();
-  if (!card) return;
-
-  const tc = TYPE_CONFIG[card.type] || TYPE_CONFIG["列举"];
-
-  // Update counter
-  document.getElementById("counterEl").textContent = `${currentIndex + 1} / ${filtered.length}`;
-
-  // Update progress
-  const marked = Object.keys(results).filter(id => filtered.some(c => c.id === parseInt(id))).length;
-  const pct = filtered.length > 0 ? Math.round((marked / filtered.length) * 100) : 0;
-  document.getElementById("progressFill").style.width = pct + "%";
-
-  // Card styling
-  const cardEl = document.getElementById("cardEl");
-  cardEl.style.borderLeftColor = tc.border;
-  cardEl.style.background = isFlipped ? "#F7F6FF" : "white";
-
-  // Type badge
-  const icons = { "列举":"📋", "填空":"✏️", "框架":"🏗️", "解释":"💡", "匹配":"🔗" };
-  const badge = document.getElementById("typeBadge");
-  badge.textContent = `${icons[card.type] || ""} ${card.type}`;
-  badge.style.background = tc.bg;
-  badge.style.color = tc.color;
-
-  // Flip hint
-  document.getElementById("flipHint").textContent = isFlipped ? `专题${card.tNum}` : "点击卡片翻转";
-
-  // Card body
-  const body = document.getElementById("cardBody");
-  if (isFlipped) {
-    body.innerHTML = `<div class="answer">${card.back}</div>`;
-  } else {
-    body.innerHTML = `<div class="question">${card.front}</div>`;
+// 初始化核心逻辑：读取分离的进度，合并入静态题库
+let state;
+{
+  let progress = load(K_PROG, null);
+  // 向下兼容：如果还没有分离的进度数据，尝试从旧版 minsu_srs_cards 中提取记忆进度
+  if (!progress) {
+      progress = {};
+      let oldCards = load('minsu_srs_cards', null) || load('minsu_srs_cards_v3', null);
+      if (Array.isArray(oldCards)) {
+          oldCards.forEach(c => {
+              if (c.question) progress[(c.question||'').trim()] = { level: c.level||0, seen: c.seen||0, flagMemory: !!c.flagMemory };
+          });
+      }
+      try { localStorage.setItem(K_PROG, JSON.stringify(progress)); } catch(e) {}
   }
 
-  // Hint
-  const hintEl = document.getElementById("hintEl");
-  if (!isFlipped && card.hint) {
-    hintEl.innerHTML = `💡 记忆提示：<strong>${card.hint}</strong>`;
-    hintEl.style.display = "block";
-  } else {
-    hintEl.style.display = "none";
+  // 组装最终在内存中运行的 state.cards
+  state = {
+      cards: QUESTION_BANK.map(q => {
+          // 匹配进度：优先用 ID 匹配，旧版本过渡期用题干文本兜底匹配
+          let p = progress[q.id] || progress[(q.question||'').trim()] || {level:0, seen:0, flagMemory:false};
+          return makeCard({ ...q, level: p.level, seen: p.seen, flagMemory: p.flagMemory });
+      })
+  };
+}
+
+let settings=load(K_SET,{theme:'light', examTime:null, lastFullReview:0, cardPos:{x:0,y:0}});
+if(settings.examTime===undefined) settings.examTime=null;
+if(settings.lastFullReview===undefined) settings.lastFullReview=0;
+if(!settings.cardPos || typeof settings.cardPos!=='object') settings.cardPos={x:0,y:0};
+
+function saveSettings(){ try{ localStorage.setItem(K_SET,JSON.stringify(settings)); }catch(e){} }
+// 现在的 save 只存用户的进度，题库内容绝不污染 localStorage
+function save(){ 
+    let progress = {};
+    state.cards.forEach(c => {
+        // 只存发生过互动的题，节省本地存储空间
+        if (c.seen > 0 || c.level > 0 || c.flagMemory) {
+            progress[c.id] = { level: c.level, seen: c.seen, flagMemory: c.flagMemory };
+        }
+    });
+    try { localStorage.setItem(K_PROG, JSON.stringify(progress)); } catch(e) {}
+}
+
+function makeCard(o){ o=o||{}; return {
+  id: o.id || uid(), type:o.type||'选择题', chapterOrder:o.chapterOrder||0,
+  chapter:o.chapter||'', question:o.question||'', options:o.options||'',
+  answer:o.answer||'', analysis:o.analysis||'', flagMemory:!!o.flagMemory,
+  kaodian:o.kaodian||'', jiangjie:o.jiangjie||'', zhuxiang:o.zhuxiang||'', guanlian:o.guanlian||'',
+  level:o.level||0, seen:o.seen||0
+}; }
+
+/* ---------- THEME & SESSION SETUP ---------- */
+function applyTheme(){ document.documentElement.setAttribute('data-theme', settings.theme); const tBtn = document.getElementById('themeBtn'); if(tBtn) tBtn.textContent = settings.theme==='dark'?'\u2600':'\u263e'; }
+function toggleTheme() { settings.theme = settings.theme === 'dark' ? 'light' : 'dark'; saveSettings(); applyTheme(); if (view !== 'review' && view !== 'skim') render(); }
+document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+document.getElementById('navManage').addEventListener('click', ()=>{ currentPass=null; view='manage'; render(); });
+applyTheme();
+
+const SESS={ SEED:{key:'SEED',name:'熟悉',chapterOrder:true}, REVIEW:{key:'REVIEW',name:'整体过一遍'}, DRILL:{key:'DRILL',name:'巩固弱项'}, EXAM:{key:'EXAM',name:'考前过一遍',skimAfter:true} };
+const FULL_GAP_MS = 6*3600*1000; const EXAM_WINDOW_MS = 12*3600*1000;
+const PROFILES={ fast:{key:'fast',name:'快速刷题',grad:1,base:3,growth:2,drop:1,missGap:2,cleanToStable:false}, slow:{key:'slow',name:'重复刷题',grad:4,base:5,growth:2,drop:2,missGap:3,cleanToStable:true} };
+function gapFor(prof, s){ return Math.max(1, Math.round(prof.base * Math.pow(prof.growth, s-1))); }
+function byChapter(a,b){ const ca=a.chapter||'', cb=b.chapter||''; if(ca<cb) return -1; if(ca>cb) return 1; return state.cards.indexOf(a)-state.cards.indexOf(b); }
+function examInfo(){ const t=settings.examTime; if(!t) return {set:false}; const ms=t-Date.now(); return {set:true, t, ms, passed:ms<=0, window: ms>0 && ms<=EXAM_WINDOW_MS}; }
+
+function chooseSession(){
+  const pool=poolCards();
+  if(pool.length===0) return null;
+  const ex=examInfo();
+  const unseen=pool.filter(c=>c.seen===0).length;
+  const weak=pool.filter(c=>c.level<2).length;
+  const total=pool.length;
+  if(!currentScope && ex.set && ex.window) return {type:SESS.EXAM};
+  if(unseen>0) return {type:SESS.SEED, n:unseen};
+  if(weak>0){ if(!currentScope && Date.now()-(settings.lastFullReview||0) > FULL_GAP_MS) return {type:SESS.REVIEW, n:total}; return {type:SESS.DRILL, n:weak}; }
+  return {type:SESS.REVIEW, n:total, allStable:true};
+}
+
+function sessionHint(s){
+  if(!s) return '';
+  const p = currentScope ? ('【'+scopeName()+'】') : '';
+  switch(s.type.key){
+    case 'SEED':   return p+'先过还没看过的 '+s.n+' 题'+(currentScope?'':'（按章节）');
+    case 'REVIEW': return p+(s.allStable ? ('都挺稳了 \u00b7 整体检验一遍 '+s.n+' 题') : ('整体过一遍 '+s.n+' 题'));
+    case 'DRILL':  return p+'巩固还没记牢的 '+s.n+' 题';
+    case 'EXAM':   return '考前过一遍：先攻重点题，再扫一遍全部题干';
+  } return '';
+}
+
+/* ---------- FORMATTING HELPERS ---------- */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function cardById(id){ return state.cards.find(c=>c.id===id); }
+const LVL=['生','虚','稳'];
+
+function extractAnswer(ansStr) {
+    if(!ansStr) return '';
+    const match = ansStr.match(/[A-Ea-e\u221a\u00d7\u5bf9\u9519]+/g);
+    return match ? match.join('').toUpperCase() : ansStr.replace('答案：', '').trim();
+}
+
+const ICON_KAODIAN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>';
+const ICON_JIANGJIE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2 1 4 2.5 5.5A2.5 2.5 0 0 1 9 16.5v.5h6v-.5c0-1 .5-2 1.5-3.5A7 7 0 0 0 12 2Z"/></svg>';
+const ICON_ZHUXIANG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
+const ICON_GUANLIAN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+
+function parseMD(str) { if(!str) return ''; let s = esc(str); s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); s = s.replace(/\n/g, '<br>'); return s; }
+
+function formatKaodian(text) {
+    if(!text) return ''; let html = '<div class="analysis-section kd-section"><div class="sec-title" style="color:var(--primary);">'+ICON_KAODIAN+' 核心知识点</div>';
+    let mainTitle = text; let tagsStr = ''; let m = text.match(/^(.*?)[\(（](?:关联：)?(.*?)[)）]$/);
+    if (m) { mainTitle = m[1].trim(); tagsStr = m[2].trim(); } else { let parts = text.split(/[\s、，,]+/); if(parts.length > 1) { mainTitle = parts[0]; tagsStr = parts.slice(1).join('、'); } }
+    html += `<div class="kd-main-title">${esc(mainTitle)}</div>`;
+    if (tagsStr) { html += `<div class="kd-tags">`; tagsStr.split(/[,，、\s]+/).filter(t=>t.trim()).forEach(t => { html += `<span class="kd-tag">${esc(t)}</span>`; }); html += `</div>`; } return html + '</div>';
+}
+
+function formatJiangjie(text) {
+    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title" style="color:#B7791F;">'+ICON_JIANGJIE+' 通俗讲解</div>';
+    const lines = text.split('\n'); let leadText = ''; let cardsHtml = ''; let currentCard = null;
+    lines.forEach(l => {
+        let m = l.match(/^(\d+)(?:\\[\.\uff0e]|[\.\uff0e、]|\s)\s*(.*)/);
+        if (m) { if (currentCard) cardsHtml += `<div class="jj-card"><div class="jj-num">${currentCard.num}</div><div class="jj-text">${parseMD(currentCard.text)}</div></div>`; currentCard = { num: m[1], text: m[2] }; } 
+        else if (currentCard) { currentCard.text += '\n' + l; } else { if (l.trim()) leadText += parseMD(l) + '<br>'; }
+    });
+    if (currentCard) cardsHtml += `<div class="jj-card"><div class="jj-num">${currentCard.num}</div><div class="jj-text">${parseMD(currentCard.text)}</div></div>`;
+    if (leadText) html += `<div class="jj-desc">${leadText}</div>`; return html + cardsHtml + '</div>';
+}
+
+function formatZhuxiang(text) {
+    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title">'+ICON_ZHUXIANG+' 逐项分析</div>';
+    const lines = text.split('\n'); let currentOpt = null; let out = '';
+    lines.forEach(l => {
+        let m = l.match(/^\\?-\s*\*\*([A-E])\s*([✗✓xX\u2713\u2717])\*\*[\s。，]?(.*)/i) || l.match(/^([A-E])\s*([✗✓xX\u2713\u2717])[\s。，]?(.*)/i) || l.match(/^\\?-\s*\*\*([A-E])\s*(.*)/i);
+        if (m) {
+            if(currentOpt) out += `<div class="zx-block ${currentOpt.isCorrect?'correct':'wrong'}"><div class="zx-letter">${currentOpt.letter}</div><div class="zx-text">${parseMD(currentOpt.text)}</div></div>`;
+            let isCorr = m[2] ? (m[2]==='✓'||m[2]==='\u2713') : false; if(!m[2]) { isCorr = l.includes('正确') || l.includes('✓') || l.includes('\u2713'); m[3] = m[2]; }
+            currentOpt = { letter: m[1].toUpperCase(), isCorrect: isCorr, text: (m[3]||'').trim() };
+        } else if (currentOpt) { currentOpt.text += '\n' + l; } else { if(l.trim()) out += `<div class="zx-text" style="margin-bottom:8px;">${parseMD(l)}</div>`; }
+    });
+    if(currentOpt) out += `<div class="zx-block ${currentOpt.isCorrect?'correct':'wrong'}"><div class="zx-letter">${currentOpt.letter}</div><div class="zx-text">${parseMD(currentOpt.text)}</div></div>`;
+    return html + out + '</div>';
+}
+
+function extractZhuxiangMap(text) {
+    const map = {}; if(!text) return map; const lines = text.split('\n'); let currentOpt = null;
+    lines.forEach(l => {
+        let m = l.match(/^\\?-\s*\*\*([A-E])\s*([✗✓xX\u2713\u2717])\*\*[\s。，]?(.*)/i) || l.match(/^([A-E])\s*([✗✓xX\u2713\u2717])[\s。，]?(.*)/i) || l.match(/^\\?-\s*\*\*([A-E])\s*(.*)/i);
+        if (m) { currentOpt = m[1].toUpperCase(); let rest = m[3] !== undefined ? m[3] : m[2]; map[currentOpt] = rest ? rest.trim() : ''; } 
+        else if (currentOpt) { map[currentOpt] += '\n' + l; }
+    });
+    for (let k in map) { map[k] = parseMD(map[k]); } return map;
+}
+
+function formatGuanlian(text) {
+    if(!text) return ''; let html = '<div class="analysis-section"><div class="sec-title" style="color:#2E7D32;">'+ICON_GUANLIAN+' 关联知识点</div>';
+    const lines = text.split('\n'); let out = ''; let contentSeen = 0;
+    lines.forEach(l => {
+        let t = l.trim(); if(!t || t === '---') return;
+        let isRoman = /^(\*\*)?[一二三四五六七八九十]+[、\.．]/.test(t);
+        let isParen = /^[（(]\s*\d+\s*[)）]/.test(t);
+        let isNum = /^(\d+)(?:\\[\.．]|[\.．、]|\s)/.test(t);
+        let isDetail = /^(\*\*)?具体讲解(\*\*)?[：:]/.test(t);
+        if (isRoman) { let cleanT = t.replace(/\*\*/g, ''); out += `<div class="gl-header"><div class="gl-bar"></div><div class="gl-title">${parseMD(cleanT)}</div></div>`; }
+        else if (isParen) { let num = (t.match(/^[（(]\s*(\d+)\s*[)）]/)||[])[1] || ''; let cleanT = t.replace(/^[（(]\s*\d+\s*[)）][\s、]*/, ''); out += `<div class="gl-sub"><span class="gl-sub-num">${num}</span><div class="gl-text">${parseMD(cleanT)}</div></div>`; }
+        else if (isDetail) { let cleanT = t.replace(/^(\*\*)?具体讲解(\*\*)?[：:]\s*/, ''); out += `<div class="gl-detail">${parseMD(cleanT)}</div>`; }
+        else if (isNum) { let cleanT = t.replace(/^(\d+)(?:\\[\.．]|[\.．、]|\s)\s*/, ''); out += `<div class="gl-bullet"><span class="gl-circle"></span><div class="gl-text">${parseMD(cleanT)}</div></div>`; }
+        else if (contentSeen === 0) { out += `<div class="gl-header"><div class="gl-bar"></div><div class="gl-title">${parseMD(t.replace(/\*\*/g,''))}</div></div>`; }
+        else { out += `<div class="gl-text-norm">${parseMD(t)}</div>`; }
+        contentSeen++;
+    }); return html + out + '</div>';
+}
+
+/* ---------- VIEW ROUTER ---------- */
+let view='home'; let currentPass=null; let skim=null; let isAnimatingOut = false;
+let currentScope=null; /* null=全部, 否则为 chapterOrder */
+const app=document.getElementById('app');
+function poolCards(){ return currentScope ? state.cards.filter(c=>c.chapterOrder===currentScope) : state.cards; }
+function scopeName(){ if(!currentScope) return ''; const c=state.cards.find(x=>x.chapterOrder===currentScope); return c?c.chapter:''; }
+function chapterList(){
+  const seen=new Set(); const out=[];
+  state.cards.forEach(c=>{ if(!seen.has(c.chapterOrder)){ seen.add(c.chapterOrder); out.push({order:c.chapterOrder, name:c.chapter}); } });
+  out.sort((a,b)=>a.order-b.order); return out;
+}
+function clamp(v,min,max){ return v<min?min:(v>max?max:v); }
+function activeIdx(p){ let mi=0; for(let i=1;i<p.pool.length;i++){ if(p.pool[i].due < p.pool[mi].due) mi=i; } return mi; }
+function render(){
+  isAnimatingOut = false; document.body.classList.remove('is-revealed');
+  if(view === 'review' || view === 'skim') { document.body.classList.add('in-review'); } else { document.body.classList.remove('in-review'); }
+  if(view==='home') renderHome(); else if(view==='review') renderReview(); else if(view==='skim') renderSkim(); else if(view==='summary') renderSummary(); else if(view==='manage') renderManage();
+}
+
+/* ---------- HOME ---------- */
+function renderHome(){
+  const total=state.cards.length;
+  if(total===0){
+    app.innerHTML='<div class="wrap"><div class="empty"><h2>题库当前为空</h2><p>点击下方进入管理页，手动添加或导入题目。</p><button class="add" id="emptyAdd">进入题库管理</button></div></div>';
+    document.getElementById('emptyAdd').onclick=()=>{ view='manage'; render(); }; return;
+  }
+  const c0=state.cards.filter(c=>c.level===0).length, c1=state.cards.filter(c=>c.level===1).length, c2=state.cards.filter(c=>c.level===2).length;
+  const seenTotal=state.cards.reduce((s,c)=>s+c.seen,0);
+  const s=chooseSession(); const ex=examInfo();
+  let examHTML;
+  if(!ex.set){ examHTML='<button class="ex-set" id="examSet">＋ 设置考试时间（临近自动切到考前模式）</button>'; }
+  else if(ex.passed){ examHTML='<span class="ex-count">考试时间已过</span><button class="ex-edit" id="examSet">改</button>'; }
+  else {
+    const d=Math.floor(ex.ms/86400000), h=Math.floor((ex.ms%86400000)/3600000), mn=Math.floor((ex.ms%3600000)/60000);
+    let txt = d>0 ? ('距考试还有 '+d+' 天 '+h+' 小时') : (h>0 ? ('考试就在今天 · 还有 '+h+' 小时') : ('考试将近 · 还有 '+mn+' 分钟'));
+    examHTML='<span class="ex-count">'+esc(txt)+'</span><button class="ex-edit" id="examSet">改</button>';
   }
 
-  // Sticker
-  const st = results[card.id];
-  document.getElementById("stickerEl").textContent = st === "know" ? "✅" : st === "review" ? "🔄" : "";
+  // 题型
+  const xzCount=state.cards.filter(c=>c.type==='选择题').length;
+  const TYPES=[['选择题',xzCount,true],['判断题',0,false],['名词解释',0,false],['简答题',0,false],['论述题',0,false]];
+  let typeHTML='';
+  TYPES.forEach(t=>{ if(t[2]){ typeHTML+='<button class="type-card active" data-type="'+t[0]+'"><span class="tc-name">'+t[0]+'</span><span class="tc-sub">'+t[1]+' 题</span></button>'; } else { typeHTML+='<button class="type-card soon" data-type="'+t[0]+'"><span class="tc-name">'+t[0]+'</span><span class="tc-sub">敬请期待</span></button>'; } });
 
-  // Buttons
-  const btnRow = document.getElementById("btnRow");
-  const mainBtn = document.getElementById("mainBtn");
-  if (isFlipped) {
-    btnRow.innerHTML = `
-      <button class="btn btn-nav" onclick="navigate(-1)">←</button>
-      <button class="btn btn-review" onclick="markCard('review')">🔄 再复习</button>
-      <button class="btn btn-know" onclick="markCard('know')">✅ 已掌握</button>
-      <button class="btn btn-nav" onclick="navigate(1)">→</button>
-    `;
-  } else {
-    btnRow.innerHTML = `
-      <button class="btn btn-nav" onclick="navigate(-1)">←</button>
-      <button class="btn btn-flip" onclick="flipCard()">翻转查看答案 →</button>
-      <button class="btn btn-nav" onclick="navigate(1)">→</button>
-    `;
+  // 章节
+  const chaps=chapterList();
+  let chapHTML='';
+  chaps.forEach(ch=>{
+    const cc=state.cards.filter(c=>c.chapterOrder===ch.order);
+    const done=cc.filter(c=>c.level===2).length; const pct=cc.length?Math.round(done/cc.length*100):0;
+    const on=(currentScope===ch.order);
+    chapHTML+='<button class="chap-row'+(on?' active':'')+'" data-chap="'+ch.order+'">'
+      +'<span class="chap-idx">'+String(ch.order).padStart(2,'0')+'</span>'
+      +'<span class="chap-main"><span class="chap-name">'+esc(ch.name)+'</span>'
+      +'<span class="chap-bar"><span class="chap-fill" style="width:'+pct+'%"></span></span></span>'
+      +'<span class="chap-meta">'+done+'/'+cc.length+'</span></button>';
+  });
+
+  app.innerHTML=
+    '<div class="wrap">'
+    +'<section class="hero">'
+      +'<p class="lead">距离"全部掌握"</p>'
+      +'<div class="bignum"><span class="tag">'+c2+'</span> <span class="of">/ '+total+' 已达「稳」</span></div>'
+      +'<div class="mbar">'
+        +'<div class="mseg s0" style="flex-grow:'+(total?c0/total*100:0)+'"></div>'
+        +'<div class="mseg s1" style="flex-grow:'+(total?c1/total*100:0)+'"></div>'
+        +'<div class="mseg s2" style="flex-grow:'+(total?c2/total*100:0)+'"></div>'
+      +'</div>'
+      +'<div class="mleg"><span><span class="sw s0"></span>生 <b>'+c0+'</b></span><span><span class="sw s1"></span>虚 <b>'+c1+'</b></span><span><span class="sw s2"></span>稳 <b>'+c2+'</b></span></div>'
+      +'<div class="subnote">累计回忆 '+seenTotal+' 次</div>'
+    +'</section>'
+    +'<div class="sec-head"><span>题型</span></div>'
+    +'<div class="type-grid">'+typeHTML+'</div>'
+    +'<div class="sec-head"><span>章节</span><button class="scope-all'+(currentScope?'':' on')+'" id="scopeAll">全部章节</button></div>'
+    +'<div class="chap-list">'+chapHTML+'</div>'
+    +'<div class="start-card">'
+      +'<div class="start-hint">这次 · '+esc(sessionHint(s))+'</div>'
+      +'<div class="mode-row">'
+        +'<button class="mode-btn fast" data-prof="fast"><span class="mt">快速刷题</span><span class="mode-sub">轻快 · 答对 1 次即踢出，选错重刷</span></button>'
+        +'<button class="mode-btn slow" data-prof="slow"><span class="mt">重复刷题</span><span class="mode-sub">扎实 · 分散答对 4 次，一轮到稳</span></button>'
+      +'</div>'
+    +'</div>'
+    +'<div class="exam-row">'+examHTML+'</div>'
+    +'<div class="home-foot" style="margin-top:28px">'
+      +'<button class="ghost" id="toManage">管理题库 (包含导出功能)</button>'
+    +'</div>'
+    +'<p class="foot-note">学习进度安全保存在当前浏览器。更新题库请进入管理页面使用「导出最新 HTML」功能。</p>'
+    +'</div>';
+
+  app.querySelectorAll('[data-prof]').forEach(b=> b.onclick=()=> startSession(b.dataset.prof) );
+  document.getElementById('examSet').onclick=openExamTime;
+  document.getElementById('toManage').onclick=()=>{ view='manage'; render(); };
+  const sa=document.getElementById('scopeAll'); if(sa) sa.onclick=()=>{ currentScope=null; render(); };
+  app.querySelectorAll('[data-chap]').forEach(b=> b.onclick=()=>{ const o=parseInt(b.dataset.chap,10); currentScope=(currentScope===o?null:o); render(); });
+  app.querySelectorAll('.type-card.soon').forEach(b=> b.onclick=()=> notify(b.dataset.type+' 正在整理中，敬请期待～\n\n当前可练习「选择题」。'));
+}
+
+function openExamTime(){
+  let cur=''; if(settings.examTime){ const d=new Date(settings.examTime), p=n=>String(n).padStart(2,'0'); cur=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes()); }
+  const m=modalShell('<h3>考试时间</h3><div class="help">临近考试时入口会自动切换到"考前过一遍"模式。</div><div class="field"><label>日期与时间</label><input type="datetime-local" id="ex_in" value="'+cur+'"></div><div class="sheet-foot"><button class="ghost" id="ex_clear">清除</button><button class="ghost" id="ex_cancel">取消</button><button class="add" id="ex_save">保存</button></div>');
+  m.querySelector('#ex_cancel').onclick=()=>m.remove();
+  m.querySelector('#ex_clear').onclick=()=>{ settings.examTime=null; saveSettings(); m.remove(); render(); };
+  m.querySelector('#ex_save').onclick=()=>{ const v=m.querySelector('#ex_in').value; if(!v){ notify('请选择时间'); return; } const t=new Date(v).getTime(); if(isNaN(t)){ notify('时间无效'); return; } settings.examTime=t; saveSettings(); m.remove(); render(); };
+}
+
+/* ---------- SESSION ENGINE ---------- */
+function startSession(profKey){
+  const s=chooseSession(); if(!s){ notify('当前没有需要复习的题目。'); return; }
+  const prof=PROFILES[profKey]||PROFILES.fast; const type=s.type, skimAfter=!!type.skimAfter; let scope;
+  const base=poolCards();
+  if(type.key==='SEED'){ scope=base.filter(c=>c.seen===0).slice().sort(byChapter); }
+  else if(type.key==='DRILL'){ scope=shuffle(base.filter(c=>c.level<2)); }
+  else if(type.key==='REVIEW'){ scope=shuffle(base.slice()); if(!currentScope){ settings.lastFullReview=Date.now(); saveSettings(); } }
+  else { scope=shuffle(base.filter(c=>c.flagMemory||c.level<2)); }
+
+  if(scope.length===0){
+    if(skimAfter){ currentPass={type, prof, pool:[], clock:0, total:0, skimAfter:true, skimDone:true, history:[]}; startSkim(); return; }
+    notify('太棒了！所有题目都已记牢。'); return;
   }
+  const pool=scope.map((c,idx)=>({ id:c.id, s:0, due:idx, mark:false }));
+  currentPass={ type, prof, pool, clock:0, total:scope.length, skimAfter, skimDone:false, history:[] };
+  view='review'; render();
+}
 
-  // Marked status
-  const ms = document.getElementById("markedStatus");
-  if (st) {
-    ms.style.color = st === "know" ? "#276749" : "#975A16";
-    ms.textContent = st === "know" ? "✅ 已标记为掌握" : "🔄 已标记为待复习";
-  } else {
-    ms.textContent = "";
+function grade(g){
+  const p=currentPass, prof=p.prof, i=activeIdx(p), a=p.pool[i], card=cardById(a.id);
+  p.history = p.history || []; p.history.push({ pool: JSON.parse(JSON.stringify(p.pool)), clock: p.clock, cardId: a.id, level: card.level, seen: card.seen });
+  card.seen++;
+  if(g==='again'){ a.mark=true; a.s=Math.max(0, a.s-prof.drop); if(card.level>1) card.level=1; a.due=p.clock+prof.missGap; } 
+  else { a.s+=1; if(a.s>=prof.grad){ if(!a.mark) card.level = prof.cleanToStable ? 2 : Math.min(2, card.level+1); p.pool.splice(i,1); } else { a.due=p.clock + gapFor(prof, a.s); } }
+  p.clock++; save();
+  if(p.pool.length===0) finishPass(); else render();
+}
+function finishPass(){ const p=currentPass; if(p.skimAfter && !p.skimDone){ p.skimDone=true; startSkim(); return; } view='summary'; render(); }
+
+/* ========== CARD EVENTS ========== */
+document.addEventListener('click', (e) => {
+  if(view !== 'review' && view !== 'skim') return;
+  const optBlock = e.target.closest('.opt-block');
+  if (optBlock) { 
+      const card = optBlock.closest('.card'); 
+      if (card) { 
+          if (card.classList.contains('revealed')) { 
+              optBlock.classList.toggle('active'); 
+          } else {
+              // 答题前交互：选对变绿，选错变红
+              if (optBlock.classList.contains('correct-opt')) {
+                  optBlock.classList.add('guessed-correct');
+              } else {
+                  optBlock.classList.add('guessed-wrong');
+              }
+              
+              // 【新增功能】快速模式全对自动划卡逻辑
+              if (currentPass && currentPass.prof.key === 'fast') {
+                  const wrongCount = card.querySelectorAll('.guessed-wrong').length;
+                  const correctTotal = card.querySelectorAll('.correct-opt').length;
+                  const correctGuessed = card.querySelectorAll('.guessed-correct').length;
+                  
+                  // 当没有任何错误选项被点击，且所有的正确选项都已经点击完毕时触发
+                  if (wrongCount === 0 && correctTotal > 0 && correctGuessed === correctTotal) {
+                      // 稍微延迟，让用户能看清最后一个选项变绿的反馈效果
+                      setTimeout(() => {
+                          if (!card.classList.contains('revealed') && !isAnimatingOut) {
+                              triggerSwipe(card, 'right', false);
+                          }
+                      }, 350); 
+                  }
+              }
+          }
+      } 
+      return; 
+  }
+  const btn = e.target.closest('button'); if(!btn) return;
+  if (btn.classList.contains('memtog')) { const c = cardById(btn.dataset.id); if (c) { c.flagMemory = !c.flagMemory; save(); render(); } } 
+  else if (btn.classList.contains('reveal-btn')) { const card = btn.closest('.card'); if (card) { card.classList.add('revealed'); document.body.classList.add('is-revealed'); } } 
+  else if (btn.classList.contains('undo-btn')) {
+      const p = currentPass; if (p && p.history && p.history.length > 0) {
+          const last = p.history.pop(); p.pool = last.pool; p.clock = last.clock; const card = cardById(last.cardId);
+          if (card) { card.level = last.level; card.seen = last.seen; } save(); render();
+      }
+  } else if (btn.classList.contains('action-btn')) { const card = btn.closest('.card'); if (card) triggerSwipe(card, btn.dataset.act, view === 'skim'); }
+});
+
+/* ========== HTML BUILDING ========== */
+function buildCardHtml(cardObj, index, stateData) {
+  const scale = 1 - index * 0.04; const translateY = index * 12; const zIndex = 10 - index;
+  const style = 'transform: scale('+scale+') translateY('+translateY+'px); z-index: '+zIndex+'; pointer-events: '+(index===0?'auto':'none')+';';
+  const shortAns = extractAnswer(cardObj.answer);
+  const chapterHtml = cardObj.chapter ? '<span class="chapchip">'+esc(cardObj.chapter)+'</span>' : '';
+  const starHtml = cardObj.flagMemory ? '<span class="star">\u2605</span>' : '';
+  
+  let optsHtml = '';
+  if (cardObj.options) {
+      const zxMap = extractZhuxiangMap(cardObj.zhuxiang);
+      const lines = cardObj.options.split('\n');
+      const processedLines = lines.map(line => {
+          const match = line.trim().match(/^([A-E])[\.\u3001\uff0e\s]\s*(.*)/i);
+          if (match) {
+              const letter = match[1].toUpperCase(); const isCorrect = shortAns.includes(letter);
+              const optClass = isCorrect ? 'correct-opt' : ''; const mobileAn = zxMap[letter] ? `<div class="opt-mobile-analysis">${zxMap[letter]}</div>` : '';
+              return `<div class="opt-block ${optClass}" data-letter="${letter}"><div class="opt-main"><div class="zx-letter">${letter}</div><div class="zx-text">${esc(match[2])}</div></div>${mobileAn}</div>`;
+          } else { return `<div class="opt-block"><div class="opt-main"><div class="zx-text">${esc(line)}</div></div></div>`; }
+      });
+      optsHtml = '<div class="opts">' + processedLines.join('') + '</div>';
+  }
+  const hasHistory = currentPass && currentPass.history && currentPass.history.length > 0;
+  const hasSplit = cardObj.kaodian || cardObj.jiangjie || cardObj.zhuxiang || cardObj.guanlian;
+  let allSections, pcSections, zhuxiangHtml;
+  if (hasSplit) {
+    const kd = formatKaodian(cardObj.kaodian); const jj = formatJiangjie(cardObj.jiangjie); const zx = formatZhuxiang(cardObj.zhuxiang); const gl = formatGuanlian(cardObj.guanlian);
+    allSections = kd + jj + `<div class="pc-zhuxiang-container">${zx}</div>` + gl; pcSections = kd + jj + gl; zhuxiangHtml = `<div class="pc-zhuxiang-container">${zx}</div>`;
+  } else if (cardObj.analysis) {
+    allSections = '<div class="divider"><span>解析</span></div><div class="analysis">'+esc(cardObj.analysis)+'</div>'; pcSections = allSections; zhuxiangHtml = '';
+  } else { allSections = ''; pcSections = ''; zhuxiangHtml = ''; }
+
+  const cfootHtml = '<div class="cfoot"><span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span><button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button></div>';
+
+  return '<div class="card" data-index="'+index+'" style="'+style+'"><div class="card-main-surface"><div class="card-overlay"></div><div class="card-scroll-area">'
+    +'<div class="ctop"><div class="ctop-left">'+chapterHtml+'<span class="badge lvl'+cardObj.level+'">'+LVL[cardObj.level]+'</span>'+starHtml+'</div><div class="inline-answer">答案：'+esc(shortAns)+'</div></div>'
+    +'<div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'
+    +optsHtml+'<div class="revealed-only">'+zhuxiangHtml+'</div>'
+    +'<div class="unrevealed-only"><button class="undo-btn" '+(hasHistory?'':'disabled')+' title="撤回上题">撤</button><button class="reveal-btn">查看解析 (空格)</button></div>'
+    +'<div class="card-back mobile-back">'+(allSections || '<div class="analysis" style="opacity:0.6">暂无解析</div>')+cfootHtml+'</div>'
+    +'</div><div class="swipe-hints"><button class="action-btn" data-act="left" style="color:var(--again);">\u2190 答错</button><span class="pc-hint">电脑可按 \u2190/1, \u2192/2</span><button class="action-btn" data-act="right" style="color:var(--success);">答对 \u2192</button></div>'
+    +'</div><div class="card-back pc-back"><div class="card-scroll-area">'+(pcSections || '<div class="analysis" style="opacity:0.6;margin-top:8px;">暂无解析</div>')+'<div class="cfoot" style="margin-top: auto;"><span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span><button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button></div></div></div></div>';
+}
+
+function renderReview(){
+  const p = currentPass; const activeI = activeIdx(p); const topCardData = cardById(p.pool[activeI].id); const remaining = p.pool.length;
+  let stackHtml = ''; 
+  if (p.pool.length > 1) { 
+      // 预先寻找排在当前题目后面的"真实下一张"
+      let nextI = -1; let minDue = Infinity;
+      for(let i=0; i<p.pool.length; i++) {
+          if (i !== activeI && p.pool[i].due < minDue) { minDue = p.pool[i].due; nextI = i; }
+      }
+      if(nextI === -1) nextI = (activeI + 1) % p.pool.length; // 兜底
+      stackHtml += buildCardHtml(cardById(p.pool[nextI].id), 1, p.pool[nextI]); 
+  }
+  stackHtml += buildCardHtml(topCardData, 0, p.pool[activeI]);
+  
+  app.innerHTML = '<div class="rev-layout"><div class="rev-head"><div class="rh-left"><button class="linkbtn" id="endPass">\u2039 结束本轮（剩 '+remaining+'/'+p.total+'）</button></div><div class="rh-right"><button class="ico sq glass" id="revThemeBtn">'+(settings.theme==='dark'?'\u2600':'\u263e')+'</button><button class="ico glass" id="revManageBtn">题库</button></div></div><div class="rev-play-area"><div id="card-stage"><div id="card-container"><div class="card-handle" id="cardHandle" title="按住移动卡片 · 双击复位"></div>'+stackHtml+'</div></div></div></div>';
+  document.getElementById('endPass').onclick = () => { currentPass=null; view='home'; render(); };
+  const rtBtn = document.getElementById('revThemeBtn'); if(rtBtn) rtBtn.onclick = toggleTheme; const rmBtn = document.getElementById('revManageBtn'); if(rmBtn) rmBtn.onclick = () => { view='manage'; render(); };
+  const topCard = app.querySelector('.card[data-index="0"]'); if(topCard) addDragEvents(topCard, false);
+  applyCardPos();
+  const handle = document.getElementById('cardHandle');
+  if(handle){
+    handle.addEventListener('mousedown', e=>{ const cp=settings.cardPos||{x:0,y:0}; handleDrag={sx:e.clientX, sy:e.clientY, ox:cp.x||0, oy:cp.y||0}; document.body.classList.add('dragging-card'); e.preventDefault(); e.stopPropagation(); });
+    handle.addEventListener('dblclick', ()=>{ settings.cardPos={x:0,y:0}; applyCardPos(); saveSettings(); });
   }
 }
 
-function flipCard() {
-  isFlipped = !isFlipped;
-  renderCard();
+/* ===== 卡片位置拖拽（电脑端小白条）===== */
+let handleDrag = null;
+function applyCardPos(){
+  const stage = document.getElementById('card-stage'); if(!stage) return;
+  const pc = window.matchMedia('(min-width:768px)').matches;
+  const cp = (pc && settings.cardPos) ? settings.cardPos : {x:0,y:0};
+  stage.style.transform = 'translate('+(cp.x||0)+'px,'+(cp.y||0)+'px)';
+}
+document.addEventListener('mousemove', e=>{
+  if(!handleDrag) return;
+  const stage = document.getElementById('card-stage'); if(!stage){ handleDrag=null; return; }
+  const nx = clamp(handleDrag.ox + (e.clientX-handleDrag.sx), -360, 360);
+  const ny = clamp(handleDrag.oy + (e.clientY-handleDrag.sy), -300, 300);
+  settings.cardPos = {x:nx, y:ny};
+  stage.style.transform = 'translate('+nx+'px,'+ny+'px)';
+});
+document.addEventListener('mouseup', ()=>{ if(handleDrag){ handleDrag=null; document.body.classList.remove('dragging-card'); saveSettings(); } });
+
+// 优化：修改了滑动判定逻辑，优先将垂直滚动意图交由浏览器默认处理
+function addDragEvents(card, isSkimMode) {
+  let isDragging = false; let isScrolling = false; let isSwiping = false; let startX, startY; const threshold = 50; const opacitySensitivity = 30; const overlay = card.querySelector('.card-overlay'); let rafId = null;
+  const startDrag = (e) => { if (isAnimatingOut) return; if(e.target.closest('button')) return; isDragging = true; isScrolling = false; isSwiping = false; startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; startY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY; card.style.transition = 'none'; };
+  const doDrag = (e) => {
+      if (!isDragging) return; const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; const currentY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY; const pullDeltaX = currentX - startX; const pullDeltaY = currentY - startY;
+      
+      // 优化后的逻辑：直接比较 X 与 Y 偏移绝对值，瞬间识别是否在上下滚动
+      if (!isScrolling && !isSwiping) { 
+          if (Math.abs(pullDeltaY) > Math.abs(pullDeltaX)) isScrolling = true; 
+          else if (Math.abs(pullDeltaX) > 5) isSwiping = true; 
+      }
+      
+      if (isScrolling) return; // 触发原生滚动，放行给浏览器处理
+      
+      if (isSwiping) {
+          if(e.cancelable) e.preventDefault(); if(rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(() => {
+              const rotateDeg = pullDeltaX * 0.08; const arcY = Math.abs(pullDeltaX) * 0.06; const scale = Math.max(0.95, 1 - Math.abs(pullDeltaX) * 0.00015); card.style.transform = 'translate('+pullDeltaX+'px, '+arcY+'px) rotate('+rotateDeg+'deg) scale('+scale+')';
+              if (pullDeltaX > 0) overlay.style.background = 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(7,193,96,0.3) 100%)'; else if (pullDeltaX < 0) overlay.style.background = 'linear-gradient(270deg, rgba(255,255,255,0) 0%, rgba(220,53,69,0.3) 100%)'; overlay.style.opacity = Math.min(Math.abs(pullDeltaX) / opacitySensitivity, 1);
+          });
+      }
+  };
+  const endDrag = (e) => {
+      if (!isDragging) return; isDragging = false; if(rafId) cancelAnimationFrame(rafId); if (!isSwiping || isScrolling) { resetCard(); return; }
+      const currentX = e.type.includes('mouseup') ? e.pageX : e.changedTouches[0].clientX; const pullDeltaX = currentX - startX;
+      if (Math.abs(pullDeltaX) > threshold) { triggerSwipe(card, pullDeltaX > 0 ? 'right' : 'left', isSkimMode); } else { resetCard(); }
+  };
+  const resetCard = () => { card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)'; card.style.transform = 'translate(0, 0) rotate(0deg) scale(1)'; overlay.style.opacity = 0; }
+  card.addEventListener('mousedown', startDrag); card.addEventListener('touchstart', startDrag, {passive: true}); document.addEventListener('mousemove', doDrag, {passive: false}); document.addEventListener('touchmove', doDrag, {passive: false}); document.addEventListener('mouseup', endDrag); document.addEventListener('touchend', endDrag);
+  card.cleaner = () => { document.removeEventListener('mousemove', doDrag); document.removeEventListener('touchmove', doDrag); document.removeEventListener('mouseup', endDrag); document.removeEventListener('touchend', endDrag); }
 }
 
-function navigate(dir) {
-  const filtered = getFiltered();
-  isFlipped = false;
-  currentIndex = (currentIndex + dir + filtered.length) % filtered.length;
-  renderCard();
+function particleDissolve(card) {
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const backs = card.querySelectorAll('.pc-back, .mobile-back'); const theme = document.documentElement.getAttribute('data-theme'); const cardZ = parseInt(card.style.zIndex) || 10;
+    backs.forEach(back => {
+        if(window.getComputedStyle(back).display === 'none') return;
+        const rect = back.getBoundingClientRect(); const container = document.createElement('div'); container.style.position = 'fixed'; container.style.left = rect.left + 'px'; container.style.top = rect.top + 'px'; container.style.width = rect.width + 'px'; container.style.height = rect.height + 'px'; container.style.zIndex = cardZ - 1; container.style.pointerEvents = 'none'; document.body.appendChild(container); back.style.visibility = 'hidden';
+        const pCount = Math.min(Math.max(Math.floor((rect.width * rect.height) / 4000), 30), 80);
+        for(let i=0; i<pCount; i++) {
+            const p = document.createElement('div'); let bg = 'var(--surface)'; const rand = Math.random(); if (rand > 0.7) bg = 'var(--ink-faint)'; else if (rand > 0.85) bg = 'var(--primary)'; else bg = theme === 'dark' ? '#262A34' : '#FFFFFF'; const size = Math.random() * 10 + 4;
+            p.style.cssText = 'position: absolute; left: '+(Math.random()*rect.width)+'px; top: '+(Math.random()*rect.height)+'px; width: '+size+'px; height: '+size+'px; background: '+bg+'; border-radius: '+(Math.random()>0.5?'50%':'3px')+'; box-shadow: 0 2px 8px rgba(0,0,0,0.15); opacity: 1;'; container.appendChild(p);
+            const tx = (Math.random() - 0.5) * 200; const ty = -(Math.random() * 300 + 100); const rot = (Math.random() - 0.5) * 720; const dur = 0.4 + Math.random() * 0.4; p.style.transition = 'transform '+dur+'s cubic-bezier(0.2, 0.8, 0.2, 1), opacity '+dur+'s ease-out';
+            requestAnimationFrame(() => { requestAnimationFrame(() => { p.style.transform = 'translate('+tx+'px, '+ty+'px) rotate('+rot+'deg) scale(0)'; p.style.opacity = '0'; }); });
+        }
+        setTimeout(() => container.remove(), 1000);
+    });
 }
 
-function markCard(result) {
-  const card = getCard();
-  results[card.id] = result;
-  navigate(1);
+function triggerSwipe(card, direction, isSkimMode) {
+  if (isAnimatingOut) return; isAnimatingOut = true; if(card.cleaner) card.cleaner();
+  const finish = () => { if (isSkimMode) { if (skim.idx >= skim.list.length - 1) finishSkim(); else { skim.idx++; render(); } } else { grade(direction === 'right' ? 'good' : 'again'); } };
+  if (card.classList.contains('revealed')) { particleDissolve(card); } 
+  card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease-in';
+  const flyX = direction === 'right' ? window.innerWidth + 50 : -window.innerWidth - 50; const rotate = direction === 'right' ? 25 : -25;
+  card.style.transform = 'translate('+flyX+'px, 50px) rotate('+rotate+'deg)'; card.style.opacity = '0'; setTimeout(finish, 250); 
 }
 
-function toggleStats() {
-  showingStats = !showingStats;
-  document.getElementById("mainView").style.display = showingStats ? "none" : "block";
-  document.getElementById("statsView").style.display = showingStats ? "block" : "none";
-  if (showingStats) renderStats();
-}
-
-function renderStats() {
-  const filtered = getFiltered();
-  const markedIds = Object.keys(results).map(Number);
-  const filteredMarked = markedIds.filter(id => filtered.some(c => c.id === id));
-  const know = filteredMarked.filter(id => results[id] === "know").length;
-  const review = filteredMarked.filter(id => results[id] === "review").length;
-
-  document.getElementById("statTotal").textContent = filteredMarked.length;
-  document.getElementById("statKnow").textContent = know;
-  document.getElementById("statReview").textContent = review;
-
-  const pct = filtered.length > 0 ? Math.round((filteredMarked.length / filtered.length) * 100) : 0;
-  document.getElementById("statsDetail").textContent = 
-    `当前筛选：${selectedTopic} · 进度 ${pct}% · 全库共 ${allCards.length} 张`;
-}
-
-function resetAll() {
-  if (confirm("确认重置所有标记？")) {
-    results = {};
-    currentIndex = 0;
-    isFlipped = false;
-    toggleStats();
-    renderCard();
+document.addEventListener('keydown', e => {
+  if(document.querySelector('.modal')) return; const tag = (e.target.tagName||'').toLowerCase(); if(tag==='input'||tag==='textarea') return;
+  if (view === 'review' || view === 'skim') {
+    const topCard = document.querySelector('.card[data-index="0"]'); if(!topCard || isAnimatingOut) return; const isSkim = (view === 'skim');
+    if(e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if(isSkim) { triggerSwipe(topCard, 'right', true); } else { topCard.classList.add('revealed'); document.body.classList.add('is-revealed'); } } 
+    else if (e.key === 'ArrowLeft' || e.key === '1') { e.preventDefault(); triggerSwipe(topCard, 'left', isSkim); } 
+    else if (e.key === 'ArrowRight' || e.key === '2') { e.preventDefault(); triggerSwipe(topCard, 'right', isSkim); }
   }
+});
+
+/* ---------- SKIM & SUMMARY ---------- */
+function startSkim(){ skim={ list:shuffle(state.cards.map(c=>c.id)), idx:0 }; view='skim'; render(); }
+function renderSkim(){
+  const cardObj = cardById(skim.list[skim.idx]);
+  app.innerHTML = '<div class="rev-layout"><div class="rev-head"><div class="rh-left"><button class="linkbtn" id="endSkim">\u2039 结束扫题（'+(skim.idx+1)+'/'+skim.list.length+'）</button></div><div class="rh-right"><button class="ico sq glass" id="revThemeBtnSkim">'+(settings.theme==='dark'?'\u2600':'\u263e')+'</button><button class="ico glass" id="revManageBtnSkim">题库</button></div></div><div class="rev-play-area"><div id="card-container"><div class="card" data-index="0" style="z-index: 10;"><div class="card-main-surface"><div class="card-overlay"></div><div class="card-scroll-area"><div class="ctop"><div class="ctop-left">'+(cardObj.chapter?'<span class="chapchip">'+esc(cardObj.chapter)+'</span>':'')+(cardObj.flagMemory?' <span class="star">\u2605</span>':'')+'</div></div><div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'+(cardObj.options ? '<div class="opts">'+esc(cardObj.options)+'</div>' : '')+'</div><div class="swipe-hints" style="display:flex; justify-content:center;"><span style="color:var(--ink-faint); font-size:13px; cursor:pointer;" onclick="triggerSwipe(this.closest(\'.card\'), \'right\', true)">心里默答，划动或点击本栏翻下一张</span></div></div></div></div></div></div>';
+  document.getElementById('endSkim').onclick = () => { skim=null; view='home'; render(); }; document.getElementById('revThemeBtnSkim').onclick = toggleTheme; document.getElementById('revManageBtnSkim').onclick = () => { view='manage'; render(); }; const topCard = app.querySelector('.card[data-index="0"]'); if(topCard) addDragEvents(topCard, true);
+}
+function finishSkim(){ skim=null; view='summary'; render(); }
+
+function renderSummary(){
+  const c2=state.cards.filter(c=>c.level===2).length; const c1=state.cards.filter(c=>c.level===1).length; const c0=state.cards.filter(c=>c.level===0).length; const name=currentPass?currentPass.type.name:'本轮';
+  app.innerHTML='<div class="wrap"><div class="summary"><div class="big">\u2713</div><h2>'+esc(name)+'完成</h2><p>这一轮过完了。休息一下，或接着下一轮。</p><div class="stat-row"><div class="stat"><div class="n" style="color:var(--primary)">'+c2+'</div><div class="l">稳</div></div><div class="stat"><div class="n" style="color:var(--hard)">'+c1+'</div><div class="l">虚</div></div><div class="stat"><div class="n" style="color:var(--again)">'+c0+'</div><div class="l">生</div></div></div><button class="go" id="backHome">回到首页</button></div></div>';
+  document.getElementById('backHome').onclick=()=>{ currentPass=null; view='home'; render(); };
 }
 
-// Init
-renderTopicChips();
-renderCard();
+/* ---------- MANAGE & EXPORTS/IMPORTS ---------- */
+function renderManage(){
+  const total=state.cards.length; let rows='';
+  if(total===0){ rows='<div class="empty" style="padding:40px 0"><p>题库是空的。点"添加题目"逐条录入，或"批量导入"一次粘贴多题。</p></div>'; } 
+  else {
+    state.cards.forEach((c,i)=>{
+      rows+='<div class="qrow"><span class="badge lvl'+c.level+' qbadge">'+LVL[c.level]+'</span><div class="qtext"><div class="qstem">'+esc(c.question||'（空题干）')+'</div><div class="qmeta">'+(c.chapter?esc(c.chapter)+' \u00b7 ':'')+'第 '+(i+1)+' 题'+(c.flagMemory?' \u00b7 \u2605记忆类':'')+' \u00b7 见 '+c.seen+' 次</div></div><div class="qact"><button class="tiny" data-edit="'+c.id+'">编辑</button><button class="tiny del" data-del="'+c.id+'">删除</button></div></div>';
+    });
+  }
+  app.innerHTML=
+    '<div class="wrap">'
+      +'<div class="mg-head"><button class="linkbtn" id="mgBack">\u2039 首页</button><h2>题库管理</h2><button class="add" id="mgAdd">\uff0b 添加题目</button><span class="mg-count">共 '+total+' 题 \u00b7 编辑/导入后，须导出 HTML 才能永久生效</span></div>'
+      +'<div class="home-foot" style="margin-top:0; padding-bottom:14px; border-bottom:1px solid var(--border);">'
+        +'<button class="ghost" id="mgExportHtml" style="color:var(--primary); border-color:var(--primary); font-weight:600;">\u2b07 导出最新 HTML (包含题库)</button>'
+        +'<button class="ghost" id="mgBulk">批量导入(文本)</button>'
+        +'<button class="ghost" id="mgImportCards">导入题库(JSON)</button>'
+        +'<button class="ghost" id="mgExportCards">导出题库(JSON)</button>'
+      +'</div>'
+      +'<div class="home-foot" style="margin-top:14px">'
+        +'<button class="ghost" id="mgImportProg">导入进度(JSON)</button>'
+        +'<button class="ghost" id="mgExportProg">导出进度(JSON)</button>'
+        +'<button class="ghost" id="mgClear" style="margin-left:auto; color:var(--again)">清空学习进度</button>'
+      +'</div>'
+      +'<div style="margin-top:16px">'+rows+'</div>'
+    +'</div>';
+  document.getElementById('mgBack').onclick=()=>{ view='home'; render(); };
+  document.getElementById('mgAdd').onclick=()=> openEditor(null);
+  document.getElementById('mgBulk').onclick=openBulk;
+  
+  document.getElementById('mgExportHtml').onclick=exportHTML;
+  document.getElementById('mgImportCards').onclick=openImportCards;
+  document.getElementById('mgExportCards').onclick=exportCardsJSON;
+  
+  document.getElementById('mgExportProg').onclick=exportProgress;
+  document.getElementById('mgImportProg').onclick=openImportProgress;
+  document.getElementById('mgClear').onclick=clearProgress;
+  
+  app.querySelectorAll('[data-edit]').forEach(b=> { b.onclick = () => { openEditor(b.dataset.edit); }; });
+  app.querySelectorAll('[data-del]').forEach(b=> { 
+      b.onclick = () => { 
+          confirmModal('从当前列表中删除这道题？', ()=>{ state.cards=state.cards.filter(c=>c.id!==b.dataset.del); save(); render(); }, {confirmText:'删除', danger:true}); 
+      }; 
+  });
+}
+
+function clearProgress(){
+  confirmModal('清空所有学习进度？\n仅仅是进度清零，题目不会被删除。', ()=>{
+    state.cards.forEach(c => { c.level = 0; c.seen = 0; c.flagMemory = false; }); save(); render();
+  }, {confirmText:'清空进度', danger:true});
+}
+
+// 核心功能：作者专用的 HTML 导出
+function exportHTML() {
+    const app = document.getElementById('app'); app.innerHTML = ''; document.body.className = '';
+    let html = "<!doctype html>\n" + document.documentElement.outerHTML;
+    const cleanBank = state.cards.map(c => {
+        return {
+            id: c.id, type: c.type, chapterOrder: c.chapterOrder, chapter: c.chapter, question: c.question, options: c.options,
+            answer: c.answer, analysis: c.analysis, kaodian: c.kaodian, jiangjie: c.jiangjie, zhuxiang: c.zhuxiang, guanlian: c.guanlian, flagMemory: !!c.flagMemory
+        };
+    });
+    const regex = /\/\*BANK_START\*\/[\s\S]*?\/\*BANK_END\*\//;
+    if(!regex.test(html)) { render(); notify("未找到替换标记，导出失败。请确保代码中的 /*BANK_START*/ 标记未被意外删除。"); return; }
+    const newHtml = html.replace(regex, `/*BANK_START*/${JSON.stringify(cleanBank, null, 2)}/*BANK_END*/`);
+    render();
+    const blob = new Blob([newHtml], {type: 'text/html;charset=utf-8'}); const a = document.createElement('a'); 
+    a.href = URL.createObjectURL(blob); a.download = 'index.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+    notify("🎉 HTML 文件已成功导出！\n\n新下载的文件已包含你刚才增/删/改的全部最新题库。\n直接用它覆盖掉 Github 或本地的旧文件，就可以对所有人永久生效了！");
+}
+
+/* ---------- EXPORT/IMPORT QUESTIONS (JSON) ---------- */
+function exportCardsJSON(){
+  const cleanBank = state.cards.map(c => {
+        return {
+            id: c.id, type: c.type, chapterOrder: c.chapterOrder, chapter: c.chapter, question: c.question, options: c.options,
+            answer: c.answer, analysis: c.analysis, kaodian: c.kaodian, jiangjie: c.jiangjie, zhuxiang: c.zhuxiang, guanlian: c.guanlian, flagMemory: !!c.flagMemory
+        };
+  });
+  const blob=new Blob([JSON.stringify(cleanBank,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  const d=new Date(), pad=n=>String(n).padStart(2,'0'); a.href=url; a.download='minsu-cards-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+function openImportCards(){
+  const m=modalShell('<h3>导入题库 (JSON)</h3><div class="help">导入之前导出的题库备份文件，读取后暂存于内存。</div><div class="field"><label>选择文件</label><input type="file" id="imp_cards_file" accept="application/json,.json"></div><div class="field"><label>或粘贴 JSON</label><textarea id="imp_cards_text" rows="5" placeholder="[ ... ]"></textarea></div><div class="sheet-foot"><button class="ghost" id="imp_c_cancel">取消</button><button class="add" id="imp_c_append">追加题目</button><button class="danger-btn" id="imp_c_replace">清空并覆盖</button></div>');
+  m.querySelector('#imp_c_cancel').onclick=()=> m.remove();
+  m.querySelector('#imp_cards_file').onchange=e=>{ const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=()=>{ m.querySelector('#imp_cards_text').value=r.result; }; r.readAsText(file); };
+
+  const doImport = (isAppend) => {
+    const raw=m.querySelector('#imp_cards_text').value.trim(); if(!raw){ notify('没有内容可导入。'); return; }
+    let arr; try{ arr=JSON.parse(raw); }catch(err){ notify('JSON 解析失败：'+err.message); return; }
+    if(!Array.isArray(arr)){ notify('格式应是一个数组（[ ... ]）。'); return; }
+    const newCards = arr.map(o=>makeCard(o));
+    if(isAppend) { state.cards = state.cards.concat(newCards); } else { state.cards = newCards; }
+    save(); m.remove(); render();
+    notify(`✅ 已${isAppend?'追加':'覆盖'} ${arr.length} 道题到内存。\n\n⚠️ 请务必点击【导出最新 HTML】并覆盖源文件，否则刷新后将丢失！\n(注：如果你导入的是包含旧进度的 JSON，进度也会被恢复)`);
+  };
+
+  m.querySelector('#imp_c_append').onclick=()=> doImport(true);
+  m.querySelector('#imp_c_replace').onclick=()=>{
+      confirmModal('这将清空当前内存中的所有题目，替换为导入的内容。确定吗？', ()=>doImport(false), {confirmText:'覆盖', danger:true});
+  };
+}
+
+/* ---------- modal system ---------- */
+function modalShell(inner){ const m=document.createElement('div'); m.className='modal'; m.innerHTML='<div class="sheet">'+inner+'</div>'; m.addEventListener('mousedown',e=>{ if(e.target===m) m.remove(); }); document.body.appendChild(m); return m; }
+function notify(msg){ const m=modalShell('<div class="notice">'+esc(msg)+'</div><div class="sheet-foot"><button class="add" id="nt_ok">知道了</button></div>'); m.querySelector('#nt_ok').onclick=()=>m.remove(); }
+function confirmModal(msg, onYes, opts){ opts=opts||{}; const m=modalShell('<div class="notice">'+esc(msg)+'</div><div class="sheet-foot"><button class="ghost" id="cf_no">取消</button><button class="'+(opts.danger?'danger-btn':'add')+'" id="cf_yes">'+esc(opts.confirmText||'确定')+'</button></div>'); m.querySelector('#cf_no').onclick=()=>m.remove(); m.querySelector('#cf_yes').onclick=()=>{ m.remove(); if(onYes) onYes(); }; }
+
+function openEditor(id){
+  const c = id? cardById(id) : null;
+  const m=modalShell(
+    '<h3>'+(c?'编辑题目':'新增题目')+'</h3>'
+    +'<div class="field"><label>章节（可选）</label><input type="text" id="f_chapter" value="'+esc(c?c.chapter:'')+'" placeholder="如：管辖 / 证据"></div>'
+    +'<div class="field"><label>题干</label><textarea id="f_question" rows="3" placeholder="题目正文">'+esc(c?c.question:'')+'</textarea></div>'
+    +'<div class="field"><label>选项（可选）</label><textarea id="f_options" rows="4" placeholder="A. \u2026\u2026&#10;B. \u2026\u2026&#10;C. \u2026\u2026&#10;D. \u2026\u2026">'+esc(c?c.options:'')+'</textarea></div>'
+    +'<div class="field"><label>答案</label><textarea id="f_answer" rows="2" placeholder="如：答案 B">'+esc(c?c.answer:'')+'</textarea></div>'
+    +'<div class="field"><label>解析</label><textarea id="f_analysis" rows="4" placeholder="解析 / 考点">'+esc(c?c.analysis:'')+'</textarea></div>'
+    +'<div class="field"><label class="cbline"><input type="checkbox" id="f_mem"'+(c&&c.flagMemory?' checked':'')+'> 记忆类（期限 / 天数等，考前重点过）</label></div>'
+    +'<div class="sheet-foot"><button class="ghost" id="f_cancel">取消</button><button class="add" id="f_save">保存到内存</button></div>'
+  );
+  m.querySelector('#f_cancel').onclick=()=> m.remove();
+  m.querySelector('#f_save').onclick=()=>{
+    const data={ chapter:m.querySelector('#f_chapter').value.trim(), question:m.querySelector('#f_question').value.trim(), options:m.querySelector('#f_options').value.trim(), answer:m.querySelector('#f_answer').value.trim(), analysis:m.querySelector('#f_analysis').value.trim(), flagMemory:m.querySelector('#f_mem').checked };
+    if(!data.question){ notify('题干不能为空。'); return; }
+    if(c){ Object.assign(c,data); } else { state.cards.push(makeCard(data)); } save(); m.remove(); render();
+    if (!id) notify("✅ 已存入当前网页临时内存。\n\n⚠️ 如果想永久保存此题，稍后请务必点击【导出最新 HTML】并覆盖源文件，否则刷新后将丢失！");
+  };
+}
+
+/* ---------- bulk import ---------- */
+function openBulk(){
+  const help='每题用一行 --- 分隔。支持字段：\n章: 题: 选: 答: 解: 记: (1)'; const example='章: 管辖\n题: 题干\u2026\u2026\n选: A. \u2026\u2026\nB. \u2026\u2026\n答: 答案 C\n解: 解析\u2026\u2026\n---\n题: 第二题';
+  const m=modalShell('<h3>批量导入</h3><div class="help">'+esc(help)+'</div><div class="field"><label>粘贴题目</label><textarea id="bulk_in" rows="12" placeholder="'+esc(example)+'"></textarea></div><div class="sheet-foot"><button class="ghost" id="bulk_cancel">取消</button><button class="add" id="bulk_go">导入到内存</button></div>');
+  m.querySelector('#bulk_cancel').onclick=()=> m.remove();
+  m.querySelector('#bulk_go').onclick=()=>{
+    const cards=parseBulk(m.querySelector('#bulk_in').value); if(cards.length===0){ notify('没有解析出题目，检查格式。'); return; }
+    state.cards=state.cards.concat(cards); save(); m.remove(); render();
+    notify(`✅ 已成功追加 ${cards.length} 道题到内存。\n\n⚠️ 请务必点击【导出最新 HTML】并覆盖源文件，否则刷新页面后将丢失！`);
+  };
+}
+function parseBulk(text){
+  const map={'章':'C','题':'Q','选':'O','答':'A','解':'E','记':'M','C':'C','Q':'Q','O':'O','A':'A','E':'E','M':'M'}; const blocks=text.split(/^\s*-{3,}\s*$/m); const out=[];
+  for(const b of blocks){
+    const f={C:'',Q:'',O:'',A:'',E:'',M:''}; let cur=null;
+    for(const line of b.split(/\r?\n/)){ const mt=line.match(/^\s*(章|题|选|答|解|记|[CQOAEM])\s*[:：]\s?(.*)$/); if(mt){ cur=map[mt[1]]; f[cur]=(f[cur]?f[cur]+'\n':'')+mt[2]; } else if(cur!==null){ f[cur]+='\n'+line; } }
+    for(const k in f) f[k]=f[k].replace(/\n+$/,'').trim(); if(f.Q) out.push(makeCard({ chapter:f.C, question:f.Q, options:f.O, answer:f.A, analysis:f.E, flagMemory:/^(1|y|yes|是|true|\u2713)/i.test(f.M) }));
+  } return out;
+}
+
+/* ---------- USER PROGRESS EXPORT / IMPORT ---------- */
+function exportProgress(){
+  const progress = load(K_PROG, {});
+  const blob=new Blob([JSON.stringify(progress,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  const d=new Date(), pad=n=>String(n).padStart(2,'0'); a.href=url; a.download='minsu-progress-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+function openImportProgress(){
+  const m=modalShell('<h3>导入学习进度</h3><div class="help">选择你之前导出的 .json 进度备份文件。导入将覆盖当前的所有学习状态。</div><div class="field"><label>选择文件</label><input type="file" id="imp_file" accept="application/json,.json"></div><div class="sheet-foot"><button class="ghost" id="imp_cancel">取消</button><button class="add" id="imp_go">导入（覆盖）</button></div>');
+  let loadedRaw = '';
+  m.querySelector('#imp_cancel').onclick=()=> m.remove();
+  m.querySelector('#imp_file').onchange=e=>{ const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=()=>{ loadedRaw = r.result; }; r.readAsText(file); };
+  m.querySelector('#imp_go').onclick=()=>{
+    if(!loadedRaw){ notify('请先选择文件。'); return; }
+    let arr; try{ arr=JSON.parse(loadedRaw); }catch(err){ notify('JSON 解析失败：'+err.message); return; }
+    confirmModal('覆盖当前设备的学习进度？', ()=>{
+      let newProg = typeof arr === 'object' && !Array.isArray(arr) ? arr : {};
+      if (Array.isArray(arr)) { arr.forEach(c => { if(c.id) newProg[c.id] = {level:c.level||0, seen:c.seen||0, flagMemory:!!c.flagMemory}; }); }
+      try { localStorage.setItem(K_PROG, JSON.stringify(newProg)); } catch(e) {}
+      state.cards.forEach(c => { let p = newProg[c.id] || newProg[(c.question||'').trim()] || {level:0, seen:0, flagMemory:false}; c.level = p.level; c.seen = p.seen; c.flagMemory = p.flagMemory; });
+      save(); m.remove(); render(); notify('✅ 进度导入成功！');
+    }, {confirmText:'覆盖导入', danger:true});
+  };
+}
+
+/* ---------- go ---------- */
+render();
 </script>
-</body>
-</html>
+
+</body></html>
