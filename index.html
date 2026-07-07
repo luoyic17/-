@@ -375,10 +375,43 @@ body.dragging-card #card-stage{ transition:none !important; }
 /* ================= 新增：动画 / 流畅度优化 ================= */
 .card-scroll-area{ contain: layout paint; }
 #card-container{ will-change: transform; }
-.opt-block{ will-change: transform; }
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.1s !important; scroll-behavior:auto !important; }
 }
+
+/* ================= 新增：单选/多选/判断 小标签 ================= */
+.qtype-chip{ font-family:var(--font-mono); font-size:11px; font-weight:600; padding:3px 8px; border-radius:6px; letter-spacing:.02em; }
+.qtype-chip.single{ color:#1A73E8; background:#E8F0FE; }
+.qtype-chip.multi{ color:#B7791F; background:var(--hard-soft); }
+.qtype-chip.pd{ color:var(--ink-soft); background:var(--surface-2); }
+[data-theme="dark"] .qtype-chip.single{ color:#8AB4F8; background:rgba(26,115,232,.2); }
+
+/* ================= 新增：开关（自动划卡设置） ================= */
+.set-row{ display:flex; align-items:center; gap:12px; margin-top:16px; padding-top:16px; border-top:1px solid var(--border); }
+.set-txt{ flex:1; min-width:0; }
+.set-name{ display:block; font-size:14px; font-weight:600; color:var(--ink); }
+.set-sub{ display:block; font-size:11.5px; color:var(--ink-faint); margin-top:2px; line-height:1.4; }
+.switch{ flex:none; width:46px; height:26px; border-radius:13px; background:var(--surface-2); border:1px solid var(--border); position:relative; padding:0; cursor:pointer; transition:background .2s, border-color .2s; }
+.switch .knob{ position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .2s cubic-bezier(.2,.8,.2,1); }
+.switch.on{ background:var(--primary); border-color:var(--primary); }
+.switch.on .knob{ transform:translateX(20px); }
+[data-theme="dark"] .switch .knob{ background:#e9e7e1; }
+
+/* ================= 新增：学习数据面板 ================= */
+.stats-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:10px 0 4px; }
+@media (max-width:520px){ .stats-grid{ grid-template-columns:repeat(2,1fr); } }
+.stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 14px; text-align:center; box-shadow:var(--shadow); }
+.stat-card .sc-num{ font-family:var(--font-mono); font-size:30px; font-weight:600; line-height:1; color:var(--ink); }
+.stat-card .sc-num .sc-unit{ font-size:15px; color:var(--ink-faint); margin-left:1px; }
+.stat-card .sc-label{ font-size:12px; color:var(--ink-faint); margin-top:8px; }
+.ov-line{ font-size:14px; color:var(--ink-soft); }
+.ov-line b{ font-family:var(--font-mono); font-size:17px; }
+.chap-row.static{ cursor:default; }
+.chap-row.static:hover{ transform:none; border-color:var(--border); }
+.spark{ display:flex; align-items:flex-end; gap:5px; height:96px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 12px; box-shadow:var(--shadow); }
+.spark-col{ flex:1; height:100%; display:flex; align-items:flex-end; justify-content:center; }
+.spark-bar{ width:100%; max-width:20px; border-radius:4px 4px 2px 2px; background:var(--primary); transition:height .4s cubic-bezier(.2,.8,.2,1); }
+.spark-bar.empty{ background:var(--surface-2); }
 </style>
 </head>
 <body class="">
@@ -2145,6 +2178,13 @@ let settings=load(K_SET,{theme:'light', examTime:null, lastFullReview:0, cardPos
 if(settings.examTime===undefined) settings.examTime=null;
 if(settings.lastFullReview===undefined) settings.lastFullReview=0;
 if(!settings.cardPos || typeof settings.cardPos!=='object') settings.cardPos={x:0,y:0};
+if(settings.autoSwipe===undefined) settings.autoSwipe=true;
+if(!settings.stats || typeof settings.stats!=='object') settings.stats={firstDay:'', days:{}, answered:0, right:0, wrong:0, sessions:0};
+{ const st=settings.stats; if(!st.days)st.days={}; if(st.answered==null)st.answered=0; if(st.right==null)st.right=0; if(st.wrong==null)st.wrong=0; if(st.sessions==null)st.sessions=0; if(st.firstDay==null)st.firstDay=''; }
+
+function todayStr(){ const d=new Date(), p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function recordAnswer(right){ const st=settings.stats; const t=todayStr(); if(!st.firstDay) st.firstDay=t; st.days[t]=(st.days[t]||0)+1; st.answered++; if(right) st.right++; else st.wrong++; saveSettings(); }
+function streakDays(){ const days=settings.stats.days||{}; const p=x=>String(x).padStart(2,'0'); const key=d=>d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); let d=new Date(); if(!days[key(d)]) d.setDate(d.getDate()-1); let n=0; while(days[key(d)]){ n++; d.setDate(d.getDate()-1); } return n; }
 
 function saveSettings(){ try{ localStorage.setItem(K_SET,JSON.stringify(settings)); }catch(e){} }
 // 现在的 save 只存用户的进度，题库内容绝不污染 localStorage
@@ -2307,7 +2347,7 @@ function activeIdx(p){ let mi=0; for(let i=1;i<p.pool.length;i++){ if(p.pool[i].
 function render(){
   isAnimatingOut = false; document.body.classList.remove('is-revealed');
   if(view === 'review' || view === 'skim') { document.body.classList.add('in-review'); } else { document.body.classList.remove('in-review'); }
-  if(view==='home') renderHome(); else if(view==='review') renderReview(); else if(view==='skim') renderSkim(); else if(view==='summary') renderSummary(); else if(view==='manage') renderManage();
+  if(view==='home') renderHome(); else if(view==='review') renderReview(); else if(view==='skim') renderSkim(); else if(view==='summary') renderSummary(); else if(view==='manage') renderManage(); else if(view==='stats') renderStats();
 }
 
 /* ---------- HOME ---------- */
@@ -2376,9 +2416,11 @@ function renderHome(){
         +'<button class="mode-btn fast" data-prof="fast"><span class="mt">快速刷题</span><span class="mode-sub">轻快 · 答对 1 次即踢出，选错重刷</span></button>'
         +'<button class="mode-btn slow" data-prof="slow"><span class="mt">重复刷题</span><span class="mode-sub">扎实 · 分散答对 4 次，一轮到稳</span></button>'
       +'</div>'
+      +'<div class="set-row"><div class="set-txt"><span class="set-name">答对自动划卡</span><span class="set-sub">快速模式下全部选对时自动翻到下一题</span></div><button class="switch'+(settings.autoSwipe!==false?' on':'')+'" id="autoSwipeTog" role="switch" aria-checked="'+(settings.autoSwipe!==false)+'"><span class="knob"></span></button></div>'
     +'</div>'
     +'<div class="exam-row">'+examHTML+'</div>'
     +'<div class="home-foot" style="margin-top:28px">'
+      +'<button class="ghost" id="toStats">📊 学习数据</button>'
       +'<button class="ghost" id="toManage">管理题库 (包含导出功能)</button>'
     +'</div>'
     +'<p class="foot-note">学习进度安全保存在当前浏览器。更新题库请进入管理页面使用「导出最新 HTML」功能。</p>'
@@ -2391,6 +2433,8 @@ function renderHome(){
   app.querySelectorAll('[data-chap]').forEach(b=> b.onclick=()=>{ const o=parseInt(b.dataset.chap,10); currentScope=(currentScope===o?null:o); render(); });
   app.querySelectorAll('.type-card:not(.soon)').forEach(b=> b.onclick=()=>{ if(currentType!==b.dataset.type){ currentType=b.dataset.type; currentScope=null; render(); } });
   app.querySelectorAll('.type-card.soon').forEach(b=> b.onclick=()=> notify(b.dataset.type+' 正在整理中，敬请期待～\n\n当前可练习「选择题」「判断题」。'));
+  const ast=document.getElementById('autoSwipeTog'); if(ast) ast.onclick=()=>{ settings.autoSwipe = !(settings.autoSwipe!==false); saveSettings(); ast.classList.toggle('on', settings.autoSwipe); ast.setAttribute('aria-checked', settings.autoSwipe); };
+  const sb=document.getElementById('toStats'); if(sb) sb.onclick=()=>{ view='stats'; render(); };
 }
 
 function openExamTime(){
@@ -2417,13 +2461,14 @@ function startSession(profKey){
   }
   const pool=scope.map((c,idx)=>({ id:c.id, s:0, due:idx, mark:false }));
   currentPass={ type, prof, pool, clock:0, total:scope.length, skimAfter, skimDone:false, history:[] };
+  settings.stats.sessions=(settings.stats.sessions||0)+1; saveSettings();
   view='review'; render();
 }
 
 function grade(g){
   const p=currentPass, prof=p.prof, i=activeIdx(p), a=p.pool[i], card=cardById(a.id);
   p.history = p.history || []; p.history.push({ pool: JSON.parse(JSON.stringify(p.pool)), clock: p.clock, cardId: a.id, level: card.level, seen: card.seen });
-  card.seen++;
+  card.seen++; recordAnswer(g!=='again');
   if(g==='again'){ a.mark=true; a.s=Math.max(0, a.s-prof.drop); if(card.level>1) card.level=1; a.due=p.clock+prof.missGap; } 
   else { a.s+=1; if(a.s>=prof.grad){ if(!a.mark) card.level = prof.cleanToStable ? 2 : Math.min(2, card.level+1); p.pool.splice(i,1); } else { a.due=p.clock + gapFor(prof, a.s); } }
   p.clock++; save();
@@ -2448,8 +2493,8 @@ document.addEventListener('click', (e) => {
                   optBlock.classList.add('guessed-wrong');
               }
               
-              // 【新增功能】快速模式全对自动划卡逻辑
-              if (currentPass && currentPass.prof.key === 'fast') {
+              // 【新增功能】快速模式全对自动划卡逻辑（可在设置中关闭）
+              if (currentPass && currentPass.prof.key === 'fast' && settings.autoSwipe !== false) {
                   const wrongCount = card.querySelectorAll('.guessed-wrong').length;
                   const correctTotal = card.querySelectorAll('.correct-opt').length;
                   const correctGuessed = card.querySelectorAll('.guessed-correct').length;
@@ -2486,6 +2531,8 @@ function buildCardHtml(cardObj, index, stateData) {
   const shortAns = extractAnswer(cardObj.answer);
   const isPD = cardObj.type==='判断题';
   const ansDisplay = isPD ? (shortAns==='A'?'√ 正确':'× 错误') : shortAns;
+  const ansCount = (shortAns.match(/[A-E]/g)||[]).length;
+  const qtypeChip = isPD ? '<span class="qtype-chip pd">判断</span>' : '<span class="qtype-chip '+(ansCount>1?'multi':'single')+'">'+(ansCount>1?'多选':'单选')+'</span>';
   const chapterHtml = cardObj.chapter ? '<span class="chapchip">'+esc(cardObj.chapter)+'</span>' : '';
   const starHtml = cardObj.flagMemory ? '<span class="star">\u2605</span>' : '';
   
@@ -2519,7 +2566,7 @@ function buildCardHtml(cardObj, index, stateData) {
   const cfootHtml = '<div class="cfoot"><span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span><button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button></div>';
 
   return '<div class="card" data-index="'+index+'" style="'+style+'"><div class="card-main-surface"><div class="card-overlay"></div><div class="card-scroll-area">'
-    +'<div class="ctop"><div class="ctop-left">'+chapterHtml+'<span class="badge lvl'+cardObj.level+'">'+LVL[cardObj.level]+'</span>'+starHtml+'</div><div class="inline-answer">答案：'+esc(ansDisplay)+'</div></div>'
+    +'<div class="ctop"><div class="ctop-left">'+chapterHtml+'<span class="badge lvl'+cardObj.level+'">'+LVL[cardObj.level]+'</span>'+qtypeChip+starHtml+'</div><div class="inline-answer">答案：'+esc(ansDisplay)+'</div></div>'
     +'<div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'
     +optsHtml+'<div class="revealed-only">'+zhuxiangHtml+'</div>'
     +'<div class="unrevealed-only"><button class="undo-btn" '+(hasHistory?'':'disabled')+' title="撤回上题">撤</button><button class="reveal-btn">查看解析 (空格)</button></div>'
@@ -2625,10 +2672,20 @@ function particleDissolve(card) {
 function triggerSwipe(card, direction, isSkimMode) {
   if (isAnimatingOut) return; isAnimatingOut = true; if(card.cleaner) card.cleaner();
   const finish = () => { if (isSkimMode) { if (skim.idx >= skim.list.length - 1) finishSkim(); else { skim.idx++; render(); } } else { grade(direction === 'right' ? 'good' : 'again'); } };
-  if (card.classList.contains('revealed')) { particleDissolve(card); } 
-  card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease-in';
-  const flyX = direction === 'right' ? window.innerWidth + 50 : -window.innerWidth - 50; const rotate = direction === 'right' ? 25 : -25;
-  card.style.transform = 'translate('+flyX+'px, 50px) rotate('+rotate+'deg)'; card.style.opacity = '0'; setTimeout(finish, 250); 
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (card.classList.contains('revealed')) { particleDissolve(card); }
+  // 让后面那张牌平滑升到最前，重建时新顶牌落在同一位置，避免“闪一下”
+  const behind = document.querySelector('#card-container .card[data-index="1"]');
+  if (behind && !reduce) { behind.style.transition = 'transform 0.42s cubic-bezier(0.2,0.8,0.2,1)'; behind.style.transform = 'scale(1) translateY(0px)'; }
+  const dur = reduce ? 130 : 430;
+  card.style.willChange = 'transform, opacity';
+  card.style.transition = 'transform '+(dur/1000)+'s cubic-bezier(0.36,0,0.28,1), opacity '+(Math.max(150,dur-120)/1000)+'s ease-in';
+  const flyX = direction === 'right' ? window.innerWidth + 80 : -window.innerWidth - 80; const rotate = direction === 'right' ? 16 : -16;
+  card.style.transform = 'translate('+flyX+'px, 36px) rotate('+rotate+'deg)'; card.style.opacity = '0';
+  // 等飞出动画真正结束后再重建 DOM（原来在 250ms 就重建，导致卡片半空中被销毁而闪烁）
+  let done=false; const go=()=>{ if(done)return; done=true; finish(); };
+  card.addEventListener('transitionend', ev=>{ if(ev.propertyName==='transform') go(); }, {once:true});
+  setTimeout(go, dur + 80);
 }
 
 document.addEventListener('keydown', e => {
@@ -2654,6 +2711,69 @@ function renderSummary(){
   const c2=state.cards.filter(c=>c.level===2).length; const c1=state.cards.filter(c=>c.level===1).length; const c0=state.cards.filter(c=>c.level===0).length; const name=currentPass?currentPass.type.name:'本轮';
   app.innerHTML='<div class="wrap"><div class="summary"><div class="big">\u2713</div><h2>'+esc(name)+'完成</h2><p>这一轮过完了。休息一下，或接着下一轮。</p><div class="stat-row"><div class="stat"><div class="n" style="color:var(--primary)">'+c2+'</div><div class="l">稳</div></div><div class="stat"><div class="n" style="color:var(--hard)">'+c1+'</div><div class="l">虚</div></div><div class="stat"><div class="n" style="color:var(--again)">'+c0+'</div><div class="l">生</div></div></div><button class="go" id="backHome">回到首页</button></div></div>';
   document.getElementById('backHome').onclick=()=>{ currentPass=null; view='home'; render(); };
+}
+
+/* ---------- 学习数据 ---------- */
+function renderStats(){
+  const cards=state.cards; const total=cards.length;
+  const c2=cards.filter(c=>c.level===2).length, c1=cards.filter(c=>c.level===1).length, c0=cards.filter(c=>c.level===0).length;
+  const seenCount=cards.filter(c=>c.seen>0).length;
+  const st=settings.stats||{days:{},answered:0,right:0,wrong:0,sessions:0,firstDay:''};
+  const answered=st.answered||0, right=st.right||0;
+  const rate= answered? Math.round(right/answered*100):0;
+  const daysCount=Object.keys(st.days||{}).length;
+  const streak=streakDays(); const sessions=st.sessions||0;
+  const pct=n=> total? (n/total*100):0;
+
+  // 按题型
+  let typeRows='';
+  typeList().forEach(tp=>{
+    const arr=cards.filter(c=>c.type===tp); const m=arr.filter(c=>c.level===2).length; const p= arr.length? Math.round(m/arr.length*100):0;
+    typeRows+='<div class="chap-row static"><span class="chap-idx" style="width:auto;color:var(--primary)">'+p+'%</span><span class="chap-main"><span class="chap-name">'+esc(tp)+'</span><span class="chap-bar"><span class="chap-fill" style="width:'+p+'%"></span></span></span><span class="chap-meta">'+m+'/'+arr.length+'</span></div>';
+  });
+
+  // 按章节（合并题型）
+  const seen=new Set(); const chapRows=[];
+  cards.slice().sort((a,b)=>a.chapterOrder-b.chapterOrder).forEach(c=>{
+    if(seen.has(c.chapterOrder)) return; seen.add(c.chapterOrder);
+    const arr=cards.filter(x=>x.chapterOrder===c.chapterOrder); const m=arr.filter(x=>x.level===2).length; const p=arr.length?Math.round(m/arr.length*100):0;
+    chapRows.push('<div class="chap-row static"><span class="chap-idx">'+String(c.chapterOrder).padStart(2,'0')+'</span><span class="chap-main"><span class="chap-name">'+esc(c.chapter)+'</span><span class="chap-bar"><span class="chap-fill" style="width:'+p+'%"></span></span></span><span class="chap-meta">'+m+'/'+arr.length+'</span></div>');
+  });
+
+  // 最近 14 天
+  const days=st.days||{}; const p2=x=>String(x).padStart(2,'0'); let maxv=1; const spark=[];
+  for(let i=13;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const key=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); const v=days[key]||0; if(v>maxv)maxv=v; spark.push({v, lbl:(d.getMonth()+1)+'/'+d.getDate()}); }
+  let sparkHtml=''; spark.forEach(s=>{ const h= s.v? Math.max(8, Math.round(s.v/maxv*100)) : 4; sparkHtml+='<div class="spark-col" title="'+s.lbl+'：'+s.v+' 次"><div class="spark-bar'+(s.v?'':' empty')+'" style="height:'+h+'%"></div></div>'; });
+
+  const firstDay = st.firstDay || todayStr();
+  app.innerHTML=
+    '<div class="wrap">'
+    +'<div class="mg-head"><button class="linkbtn" id="stBack">‹ 首页</button><h2>学习数据</h2></div>'
+    +'<div class="stats-grid">'
+      +'<div class="stat-card"><div class="sc-num">'+answered+'</div><div class="sc-label">累计答题</div></div>'
+      +'<div class="stat-card"><div class="sc-num">'+daysCount+'</div><div class="sc-label">学习天数</div></div>'
+      +'<div class="stat-card"><div class="sc-num">'+streak+'</div><div class="sc-label">连续天数</div></div>'
+      +'<div class="stat-card"><div class="sc-num">'+rate+'<span class="sc-unit">%</span></div><div class="sc-label">正确率</div></div>'
+    +'</div>'
+    +'<div class="sec-head"><span>掌握概览</span></div>'
+    +'<div class="start-card">'
+      +'<div class="ov-line"><b style="color:var(--primary)">'+c2+'</b> / '+total+' 题已达「稳」 · 已练 '+seenCount+' 题 · 共 '+sessions+' 轮</div>'
+      +'<div class="mbar" style="margin-top:14px">'
+        +'<div class="mseg s0" style="flex-grow:'+pct(c0)+'"></div>'
+        +'<div class="mseg s1" style="flex-grow:'+pct(c1)+'"></div>'
+        +'<div class="mseg s2" style="flex-grow:'+pct(c2)+'"></div>'
+      +'</div>'
+      +'<div class="mleg"><span><span class="sw s0"></span>生 <b>'+c0+'</b></span><span><span class="sw s1"></span>虚 <b>'+c1+'</b></span><span><span class="sw s2"></span>稳 <b>'+c2+'</b></span></div>'
+    +'</div>'
+    +'<div class="sec-head"><span>按题型</span></div>'
+    +'<div class="chap-list">'+typeRows+'</div>'
+    +'<div class="sec-head"><span>按章节</span></div>'
+    +'<div class="chap-list">'+chapRows.join('')+'</div>'
+    +'<div class="sec-head"><span>最近 14 天答题</span></div>'
+    +'<div class="spark">'+sparkHtml+'</div>'
+    +'<p class="foot-note">首次使用：'+esc(firstDay)+' · 答对 '+right+' · 答错 '+(answered-right)+'。数据仅保存在本浏览器。</p>'
+    +'</div>';
+  document.getElementById('stBack').onclick=()=>{ view='home'; render(); };
 }
 
 /* ---------- MANAGE & EXPORTS/IMPORTS ---------- */
