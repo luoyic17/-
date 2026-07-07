@@ -412,6 +412,37 @@ body.dragging-card #card-stage{ transition:none !important; }
 .spark-col{ flex:1; height:100%; display:flex; align-items:flex-end; justify-content:center; }
 .spark-bar{ width:100%; max-width:20px; border-radius:4px 4px 2px 2px; background:var(--primary); transition:height .4s cubic-bezier(.2,.8,.2,1); }
 .spark-bar.empty{ background:var(--surface-2); }
+
+/* ================= 新增：单选/多选 作答交互 ================= */
+.card:not(.revealed):not(.answered) .opt-block{ cursor:pointer; }
+.opt-block.picked{ background:color-mix(in srgb, var(--primary) 9%, var(--surface)); border-color:color-mix(in srgb, var(--primary) 45%, transparent); }
+.opt-block.picked::before{ background:var(--primary); }
+.opt-block.picked .zx-letter{ color:var(--primary); }
+.opt-block.picked .opt-main, .opt-block.missed .opt-main{ padding-right:62px; }
+.opt-block.picked::after{ content:"已选"; position:absolute; top:9px; right:10px; font-size:10.5px; font-weight:600; color:#fff; background:var(--primary); padding:2px 8px; border-radius:5px; }
+[data-theme="dark"] .opt-block.picked::after{ color:#0c130f; }
+.opt-block.missed{ background:var(--surface); border-color:color-mix(in srgb, var(--success) 45%, transparent); border-style:dashed; }
+.opt-block.missed::before{ background:#66BB6A; }
+.opt-block.missed .zx-letter{ color:#2E7D32; }
+.opt-block.missed .zx-text{ color:#2E7D32; font-weight:650; }
+.opt-block.missed::after{ content:"正确答案"; position:absolute; top:9px; right:10px; font-size:10.5px; font-weight:600; color:#2E7D32; background:var(--success-soft); padding:2px 8px; border-radius:5px; }
+[data-theme="dark"] .opt-block.missed .zx-letter, [data-theme="dark"] .opt-block.missed .zx-text{ color:#81C784; }
+[data-theme="dark"] .opt-block.missed::after{ color:#81C784; background:var(--success-soft); }
+.card.answered .inline-answer{ display:block; animation:fadeIn 0.3s ease; }
+.submit-btn{ flex:1; background:var(--primary); color:#fff; border:none; border-radius:12px; padding:15px; font-size:15px; font-weight:600; cursor:pointer; transition:.15s; }
+[data-theme="dark"] .submit-btn{ color:#0c130f; }
+.submit-btn:active{ opacity:.85; }
+.card[data-multi="true"].answered .submit-btn{ display:none; }
+.card[data-multi="true"]:not(.answered) .reveal-btn{ display:none; }
+
+/* ================= 新增：单选/多选 练习选择器 ================= */
+.pick-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.pick-seg{ display:flex; flex-direction:column; align-items:center; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 8px; transition:transform .15s, border-color .15s, background-color .15s; cursor:pointer; }
+.pick-seg .ps-name{ font-size:14px; font-weight:600; color:var(--ink); }
+.pick-seg .ps-n{ font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); }
+.pick-seg:hover{ border-color:var(--ink-faint); transform:translateY(-1px); }
+.pick-seg.active{ border-color:var(--primary); background:var(--primary-soft); }
+.pick-seg.active .ps-name, .pick-seg.active .ps-n{ color:var(--primary); }
 </style>
 </head>
 <body class="">
@@ -2236,7 +2267,8 @@ function chooseSession(){
 
 function sessionHint(s){
   if(!s) return '';
-  const p = currentScope ? ('【'+scopeName()+'】') : '';
+  const pk = pickName() ? (pickName()+' · ') : '';
+  const p = pk + (currentScope ? ('【'+scopeName()+'】') : '');
   switch(s.type.key){
     case 'SEED':   return p+'先过还没看过的 '+s.n+' 题'+(currentScope?'':'（按章节）');
     case 'REVIEW': return p+(s.allStable ? ('都挺稳了 \u00b7 整体检验一遍 '+s.n+' 题') : ('整体过一遍 '+s.n+' 题'));
@@ -2332,13 +2364,17 @@ function formatGuanlian(text) {
 let view='home'; let currentPass=null; let skim=null; let isAnimatingOut = false;
 let currentScope=null; /* null=全部, 否则为 chapterOrder */
 let currentType='选择题'; /* 当前题型 */
+let currentPick=null; /* 选择题细分：null=全部, 'single'=单选, 'multi'=多选 */
 const app=document.getElementById('app');
+function pickOf(c){ if(c.type!=='选择题') return null; const n=(extractAnswer(c.answer).match(/[A-E]/g)||[]).length; return n>1?'multi':'single'; }
 function typeCards(){ return state.cards.filter(c=>c.type===currentType); }
-function poolCards(){ let a=typeCards(); return currentScope ? a.filter(c=>c.chapterOrder===currentScope) : a; }
+function pickedCards(){ let a=typeCards(); if(currentType==='选择题' && currentPick) a=a.filter(c=>pickOf(c)===currentPick); return a; }
+function poolCards(){ let a=pickedCards(); return currentScope ? a.filter(c=>c.chapterOrder===currentScope) : a; }
 function scopeName(){ if(!currentScope) return ''; const c=typeCards().find(x=>x.chapterOrder===currentScope); return c?c.chapter:''; }
+function pickName(){ return currentPick==='single'?'单选':(currentPick==='multi'?'多选':''); }
 function chapterList(){
   const seen=new Set(); const out=[];
-  typeCards().forEach(c=>{ if(!seen.has(c.chapterOrder)){ seen.add(c.chapterOrder); out.push({order:c.chapterOrder, name:c.chapter}); } });
+  pickedCards().forEach(c=>{ if(!seen.has(c.chapterOrder)){ seen.add(c.chapterOrder); out.push({order:c.chapterOrder, name:c.chapter}); } });
   out.sort((a,b)=>a.order-b.order); return out;
 }
 function typeList(){ const seen=new Set(); const out=[]; state.cards.forEach(c=>{ if(!seen.has(c.type)){ seen.add(c.type); out.push(c.type); } }); return out; }
@@ -2357,7 +2393,7 @@ function renderHome(){
     app.innerHTML='<div class="wrap"><div class="empty"><h2>题库当前为空</h2><p>点击下方进入管理页，手动添加或导入题目。</p><button class="add" id="emptyAdd">进入题库管理</button></div></div>';
     document.getElementById('emptyAdd').onclick=()=>{ view='manage'; render(); }; return;
   }
-  const tc=typeCards(); const typeTotal=tc.length;
+  const tc=pickedCards(); const typeTotal=tc.length;
   const c0=tc.filter(c=>c.level===0).length, c1=tc.filter(c=>c.level===1).length, c2=tc.filter(c=>c.level===2).length;
   const seenTotal=tc.reduce((s,c)=>s+c.seen,0);
   const s=chooseSession(); const ex=examInfo();
@@ -2379,7 +2415,16 @@ function renderHome(){
     else { typeHTML+='<button class="type-card soon" data-type="'+name+'"><span class="tc-name">'+name+'</span><span class="tc-sub">敬请期待</span></button>'; }
   });
 
-  // 章节（按当前题型）
+  // 选择题：单选 / 多选 细分
+  let pickHTML='';
+  if(currentType==='选择题'){
+    const xz=state.cards.filter(c=>c.type==='选择题');
+    const nS=xz.filter(c=>pickOf(c)==='single').length, nM=xz.filter(c=>pickOf(c)==='multi').length;
+    const seg=(val,label,n)=> '<button class="pick-seg'+((currentPick||'')===val?' active':'')+'" data-pick="'+val+'"><span class="ps-name">'+label+'</span><span class="ps-n">'+n+'</span></button>';
+    pickHTML='<div class="sec-head"><span>单选 / 多选</span></div><div class="pick-row">'+seg('','全部',nS+nM)+seg('single','单选',nS)+seg('multi','多选',nM)+'</div>';
+  }
+
+  // 章节（按当前题型 + 单选/多选）
   const chaps=chapterList();
   let chapHTML='';
   chaps.forEach(ch=>{
@@ -2408,6 +2453,7 @@ function renderHome(){
     +'</section>'
     +'<div class="sec-head"><span>题型</span></div>'
     +'<div class="type-grid">'+typeHTML+'</div>'
+    +pickHTML
     +'<div class="sec-head"><span>章节</span><button class="scope-all'+(currentScope?'':' on')+'" id="scopeAll">全部章节</button></div>'
     +'<div class="chap-list">'+chapHTML+'</div>'
     +'<div class="start-card">'
@@ -2431,8 +2477,9 @@ function renderHome(){
   document.getElementById('toManage').onclick=()=>{ view='manage'; render(); };
   const sa=document.getElementById('scopeAll'); if(sa) sa.onclick=()=>{ currentScope=null; render(); };
   app.querySelectorAll('[data-chap]').forEach(b=> b.onclick=()=>{ const o=parseInt(b.dataset.chap,10); currentScope=(currentScope===o?null:o); render(); });
-  app.querySelectorAll('.type-card:not(.soon)').forEach(b=> b.onclick=()=>{ if(currentType!==b.dataset.type){ currentType=b.dataset.type; currentScope=null; render(); } });
+  app.querySelectorAll('.type-card:not(.soon)').forEach(b=> b.onclick=()=>{ if(currentType!==b.dataset.type){ currentType=b.dataset.type; currentScope=null; currentPick=null; render(); } });
   app.querySelectorAll('.type-card.soon').forEach(b=> b.onclick=()=> notify(b.dataset.type+' 正在整理中，敬请期待～\n\n当前可练习「选择题」「判断题」。'));
+  app.querySelectorAll('[data-pick]').forEach(b=> b.onclick=()=>{ const v=b.dataset.pick||null; if(currentPick!==v){ currentPick=v; currentScope=null; render(); } });
   const ast=document.getElementById('autoSwipeTog'); if(ast) ast.onclick=()=>{ settings.autoSwipe = !(settings.autoSwipe!==false); saveSettings(); ast.classList.toggle('on', settings.autoSwipe); ast.setAttribute('aria-checked', settings.autoSwipe); };
   const sb=document.getElementById('toStats'); if(sb) sb.onclick=()=>{ view='stats'; render(); };
 }
@@ -2483,32 +2530,12 @@ document.addEventListener('click', (e) => {
   if (optBlock) { 
       const card = optBlock.closest('.card'); 
       if (card) { 
-          if (card.classList.contains('revealed')) { 
-              optBlock.classList.toggle('active'); 
-          } else {
-              // 答题前交互：选对变绿，选错变红
-              if (optBlock.classList.contains('correct-opt')) {
-                  optBlock.classList.add('guessed-correct');
-              } else {
-                  optBlock.classList.add('guessed-wrong');
-              }
-              
-              // 【新增功能】快速模式全对自动划卡逻辑（可在设置中关闭）
-              if (currentPass && currentPass.prof.key === 'fast' && settings.autoSwipe !== false) {
-                  const wrongCount = card.querySelectorAll('.guessed-wrong').length;
-                  const correctTotal = card.querySelectorAll('.correct-opt').length;
-                  const correctGuessed = card.querySelectorAll('.guessed-correct').length;
-                  
-                  // 当没有任何错误选项被点击，且所有的正确选项都已经点击完毕时触发
-                  if (wrongCount === 0 && correctTotal > 0 && correctGuessed === correctTotal) {
-                      // 稍微延迟，让用户能看清最后一个选项变绿的反馈效果
-                      setTimeout(() => {
-                          if (!card.classList.contains('revealed') && !isAnimatingOut) {
-                              triggerSwipe(card, 'right', false);
-                          }
-                      }, 350); 
-                  }
-              }
+          if (card.classList.contains('revealed')) {
+              optBlock.classList.toggle('active');
+          } else if (!card.classList.contains('answered')) {
+              // 单选：点一下即作答并锁定；多选：切换选择，稍后点“确认作答”
+              if (card.dataset.multi === 'true') { optBlock.classList.toggle('picked'); }
+              else { optBlock.classList.add('picked'); submitCard(card); }
           }
       } 
       return; 
@@ -2516,6 +2543,7 @@ document.addEventListener('click', (e) => {
   const btn = e.target.closest('button'); if(!btn) return;
   if (btn.classList.contains('memtog')) { const c = cardById(btn.dataset.id); if (c) { c.flagMemory = !c.flagMemory; save(); render(); } } 
   else if (btn.classList.contains('reveal-btn')) { const card = btn.closest('.card'); if (card) { card.classList.add('revealed'); document.body.classList.add('is-revealed'); } } 
+  else if (btn.classList.contains('submit-btn')) { const card = btn.closest('.card'); if (card) submitCard(card); } 
   else if (btn.classList.contains('undo-btn')) {
       const p = currentPass; if (p && p.history && p.history.length > 0) {
           const last = p.history.pop(); p.pool = last.pool; p.clock = last.clock; const card = cardById(last.cardId);
@@ -2523,6 +2551,24 @@ document.addEventListener('click', (e) => {
       }
   } else if (btn.classList.contains('action-btn')) { const card = btn.closest('.card'); if (card) triggerSwipe(card, btn.dataset.act, view === 'skim'); }
 });
+
+/* 提交作答：单选/判断=一次点击；多选=选择后确认。标出对/错/漏选，锁定本题 */
+function submitCard(card){
+  if(!card || card.classList.contains('answered')) return;
+  card.classList.add('answered');
+  let allRight=true, anyPicked=false;
+  card.querySelectorAll('.opt-block').forEach(o=>{
+    const isCorrect=o.classList.contains('correct-opt'); const picked=o.classList.contains('picked');
+    o.classList.remove('picked');
+    if(picked) anyPicked=true;
+    if(picked && isCorrect) o.classList.add('guessed-correct');
+    else if(picked && !isCorrect){ o.classList.add('guessed-wrong'); allRight=false; }
+    else if(!picked && isCorrect){ o.classList.add('missed'); allRight=false; }
+  });
+  if(allRight && anyPicked && currentPass && currentPass.prof && currentPass.prof.key==='fast' && settings.autoSwipe!==false){
+    setTimeout(()=>{ if(!card.classList.contains('revealed') && !isAnimatingOut){ triggerSwipe(card,'right',false); } }, 350);
+  }
+}
 
 /* ========== HTML BUILDING ========== */
 function buildCardHtml(cardObj, index, stateData) {
@@ -2532,6 +2578,7 @@ function buildCardHtml(cardObj, index, stateData) {
   const isPD = cardObj.type==='判断题';
   const ansDisplay = isPD ? (shortAns==='A'?'√ 正确':'× 错误') : shortAns;
   const ansCount = (shortAns.match(/[A-E]/g)||[]).length;
+  const isMulti = !isPD && ansCount>1;
   const qtypeChip = isPD ? '<span class="qtype-chip pd">判断</span>' : '<span class="qtype-chip '+(ansCount>1?'multi':'single')+'">'+(ansCount>1?'多选':'单选')+'</span>';
   const chapterHtml = cardObj.chapter ? '<span class="chapchip">'+esc(cardObj.chapter)+'</span>' : '';
   const starHtml = cardObj.flagMemory ? '<span class="star">\u2605</span>' : '';
@@ -2565,11 +2612,11 @@ function buildCardHtml(cardObj, index, stateData) {
 
   const cfootHtml = '<div class="cfoot"><span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span><button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button></div>';
 
-  return '<div class="card" data-index="'+index+'" style="'+style+'"><div class="card-main-surface"><div class="card-overlay"></div><div class="card-scroll-area">'
+  return '<div class="card" data-index="'+index+'" data-multi="'+isMulti+'" style="'+style+'"><div class="card-main-surface"><div class="card-overlay"></div><div class="card-scroll-area">'
     +'<div class="ctop"><div class="ctop-left">'+chapterHtml+'<span class="badge lvl'+cardObj.level+'">'+LVL[cardObj.level]+'</span>'+qtypeChip+starHtml+'</div><div class="inline-answer">答案：'+esc(ansDisplay)+'</div></div>'
     +'<div class="stem">'+(cardObj.chapter ? '<span class="stem-tag">【'+esc(cardObj.chapter)+'】</span>' : '')+esc(cardObj.question)+'</div>'
     +optsHtml+'<div class="revealed-only">'+zhuxiangHtml+'</div>'
-    +'<div class="unrevealed-only"><button class="undo-btn" '+(hasHistory?'':'disabled')+' title="撤回上题">撤</button><button class="reveal-btn">查看解析 (空格)</button></div>'
+    +'<div class="unrevealed-only"><button class="undo-btn" '+(hasHistory?'':'disabled')+' title="撤回上题">撤</button>'+(isMulti?'<button class="submit-btn">确认作答</button>':'')+'<button class="reveal-btn">查看解析 (空格)</button></div>'
     +'<div class="card-back mobile-back">'+(allSections || '<div class="analysis" style="opacity:0.6">暂无解析</div>')+cfootHtml+'</div>'
     +'</div><div class="swipe-hints"><button class="action-btn" data-act="left" style="color:var(--again);">\u2190 答错</button><span class="pc-hint">电脑可按 \u2190/1, \u2192/2</span><button class="action-btn" data-act="right" style="color:var(--success);">答对 \u2192</button></div>'
     +'</div><div class="card-back pc-back"><div class="card-scroll-area">'+(pcSections || '<div class="analysis" style="opacity:0.6;margin-top:8px;">暂无解析</div>')+'<div class="cfoot" style="margin-top: auto;"><span class="seen">第 '+(cardObj.seen + 1)+' 次见到 \u00b7 目标 '+stateData.s+'/'+(currentPass?currentPass.prof.grad:stateData.grad)+'</span><button class="memtog'+(cardObj.flagMemory?' on':'')+'" data-id="'+cardObj.id+'">'+(cardObj.flagMemory?'\u2605 记忆类':'\u2606 标为记忆类')+'</button></div></div></div></div>';
